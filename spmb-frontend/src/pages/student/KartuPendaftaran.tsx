@@ -5,7 +5,7 @@ import { useStudentStore } from '../../store/studentStore'
 import { useAuthStore } from '../../store/authStore'
 import Card from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
-import { DATA_JURUSAN } from '../../data/dummy'
+import { DATA_JURUSAN } from '../../data/constants'
 
 export default function KartuPendaftaran() {
   const navigate = useNavigate()

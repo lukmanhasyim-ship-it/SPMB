@@ -18,14 +18,13 @@ function fileToBase64(file: File): Promise<string> {
 export default function RegisterPage() {
   const navigate = useNavigate()
   const location = useLocation()
-  const { register } = useAuthStore()
+  const { register, loading, error } = useAuthStore()
   const googleData = location.state as { email?: string; nama?: string; fotoUrl?: string } | null
 
   const [nama, setNama] = useState(googleData?.nama || '')
   const [email, setEmail] = useState(googleData?.email || '')
   const [fotoBase64, setFotoBase64] = useState(googleData?.fotoUrl || '')
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
+  const [localError, setLocalError] = useState('')
   const fotoRef = useRef<HTMLInputElement>(null)
   const fromGoogle = !!(googleData?.email)
 
@@ -33,34 +32,34 @@ export default function RegisterPage() {
     const file = e.target.files?.[0]
     if (!file) return
     if (file.size > 2 * 1024 * 1024) {
-      setError('Ukuran foto maksimal 2MB')
+      setLocalError('Ukuran foto maksimal 2MB')
       return
     }
     const base64 = await fileToBase64(file)
     setFotoBase64(base64)
-    setError('')
+    setLocalError('')
   }
 
-  const handleRegister = () => {
-    setError('')
+  const handleRegister = async () => {
+    setLocalError('')
     if (!nama.trim()) {
-      setError('Nama lengkap harus diisi')
+      setLocalError('Nama lengkap harus diisi')
       return
     }
     if (!email.trim()) {
-      setError('Alamat email harus diisi')
+      setLocalError('Alamat email harus diisi')
       return
     }
     if (!email.toLowerCase().includes('@gmail.com')) {
-      setError('Gunakan alamat Gmail (@gmail.com) yang aktif')
+      setLocalError('Gunakan alamat Gmail (@gmail.com) yang aktif')
       return
     }
-    setLoading(true)
-    setTimeout(() => {
-      register(email.trim(), nama.trim(), fotoBase64 || undefined)
-      setLoading(false)
+    try {
+      await register(email.trim(), nama.trim(), fotoBase64 || undefined)
       navigate('/student/dashboard')
-    }, 800)
+    } catch {
+      setLocalError(error || 'Registrasi gagal')
+    }
   }
 
   return (
@@ -143,8 +142,8 @@ export default function RegisterPage() {
             />
           </div>
 
-          {error && (
-            <p className="text-sm text-red-500 text-center">{error}</p>
+          {(localError || error) && (
+            <p className="text-sm text-red-500 text-center">{localError || error}</p>
           )}
 
           <Button

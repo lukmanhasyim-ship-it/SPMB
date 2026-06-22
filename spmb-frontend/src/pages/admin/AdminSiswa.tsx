@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Search, Filter, ChevronDown } from 'lucide-react'
 import Card from '../../components/ui/Card'
-import { DATA_SISWA_DUMMY } from '../../data/dummy'
+import { api } from '../../services/api'
 import type { StatusPendaftaran } from '../../types'
 
 const statusColors: Record<string, string> = {
@@ -10,11 +10,47 @@ const statusColors: Record<string, string> = {
   Terverifikasi: 'bg-brand-green-light text-brand-green-dark',
 }
 
+interface SiswaRow {
+  idPendaftaran: string
+  email: string
+  namaLengkap: string
+  pilihanJurusan: string
+  gelombang: string
+  statusPendaftaran: string
+}
+
 export default function AdminSiswa() {
+  const [siswaList, setSiswaList] = useState<SiswaRow[]>([])
+  const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [filterStatus, setFilterStatus] = useState<StatusPendaftaran | 'Semua'>('Semua')
 
-  const filtered = DATA_SISWA_DUMMY.filter((s) => {
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await api.siswa.getAll()
+        if (res.status === 'ok') {
+          const list = (res.data as Array<Record<string, string>>).map((s) => ({
+            idPendaftaran: s.id_pendaftaran || '',
+            email: s.email || '',
+            namaLengkap: s.nama_lengkap || '',
+            pilihanJurusan: s.pilihan_jurusan || '-',
+            gelombang: s.gelombang || '-',
+            statusPendaftaran: s.status_pendaftaran || 'Draft',
+          }))
+          setSiswaList(list)
+        }
+      } catch {
+        // Handle error
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchData()
+  }, [])
+
+  const filtered = siswaList.filter((s) => {
     const matchSearch =
       s.namaLengkap.toLowerCase().includes(search.toLowerCase()) ||
       s.idPendaftaran.toLowerCase().includes(search.toLowerCase()) ||
@@ -28,7 +64,7 @@ export default function AdminSiswa() {
       <div>
         <h1 className="text-xl font-bold text-slate-800">Data Calon Siswa</h1>
         <p className="text-sm text-slate-500">
-          Total {DATA_SISWA_DUMMY.length} pendaftar
+          Total {siswaList.length} pendaftar
         </p>
       </div>
 
@@ -59,49 +95,53 @@ export default function AdminSiswa() {
         </div>
       </div>
 
-      <div className="overflow-x-auto">
-        <Card className="p-0 overflow-hidden">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-slate-100 bg-slate-50/50">
-                <th className="text-left px-4 py-3 font-semibold text-slate-600 text-xs uppercase">No</th>
-                <th className="text-left px-4 py-3 font-semibold text-slate-600 text-xs uppercase">ID</th>
-                <th className="text-left px-4 py-3 font-semibold text-slate-600 text-xs uppercase">Nama</th>
-                <th className="text-left px-4 py-3 font-semibold text-slate-600 text-xs uppercase">Jurusan</th>
-                <th className="text-left px-4 py-3 font-semibold text-slate-600 text-xs uppercase">Gelombang</th>
-                <th className="text-left px-4 py-3 font-semibold text-slate-600 text-xs uppercase">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.length === 0 ? (
-                <tr>
-                  <td colSpan={6} className="px-4 py-8 text-center text-slate-400">
-                    Tidak ada data yang cocok
-                  </td>
+      {loading ? (
+        <p className="text-sm text-slate-400">Memuat data...</p>
+      ) : (
+        <div className="overflow-x-auto">
+          <Card className="p-0 overflow-hidden">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-slate-100 bg-slate-50/50">
+                  <th className="text-left px-4 py-3 font-semibold text-slate-600 text-xs uppercase">No</th>
+                  <th className="text-left px-4 py-3 font-semibold text-slate-600 text-xs uppercase">ID</th>
+                  <th className="text-left px-4 py-3 font-semibold text-slate-600 text-xs uppercase">Nama</th>
+                  <th className="text-left px-4 py-3 font-semibold text-slate-600 text-xs uppercase">Jurusan</th>
+                  <th className="text-left px-4 py-3 font-semibold text-slate-600 text-xs uppercase">Gelombang</th>
+                  <th className="text-left px-4 py-3 font-semibold text-slate-600 text-xs uppercase">Status</th>
                 </tr>
-              ) : (
-                filtered.map((siswa, index) => (
-                  <tr key={siswa.idPendaftaran} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
-                    <td className="px-4 py-3 text-slate-500">{index + 1}</td>
-                    <td className="px-4 py-3 font-mono text-xs text-slate-700">{siswa.idPendaftaran}</td>
-                    <td className="px-4 py-3">
-                      <p className="font-medium text-slate-800">{siswa.namaLengkap}</p>
-                      <p className="text-xs text-slate-400">{siswa.email}</p>
-                    </td>
-                    <td className="px-4 py-3 text-slate-700">{siswa.pilihanJurusan}</td>
-                    <td className="px-4 py-3 text-slate-700">{siswa.gelombang}</td>
-                    <td className="px-4 py-3">
-                      <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${statusColors[siswa.statusPendaftaran]}`}>
-                        {siswa.statusPendaftaran}
-                      </span>
+              </thead>
+              <tbody>
+                {filtered.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="px-4 py-8 text-center text-slate-400">
+                      Tidak ada data yang cocok
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </Card>
-      </div>
+                ) : (
+                  filtered.map((siswa, index) => (
+                    <tr key={siswa.idPendaftaran} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
+                      <td className="px-4 py-3 text-slate-500">{index + 1}</td>
+                      <td className="px-4 py-3 font-mono text-xs text-slate-700">{siswa.idPendaftaran}</td>
+                      <td className="px-4 py-3">
+                        <p className="font-medium text-slate-800">{siswa.namaLengkap}</p>
+                        <p className="text-xs text-slate-400">{siswa.email}</p>
+                      </td>
+                      <td className="px-4 py-3 text-slate-700">{siswa.pilihanJurusan}</td>
+                      <td className="px-4 py-3 text-slate-700">{siswa.gelombang}</td>
+                      <td className="px-4 py-3">
+                        <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${statusColors[siswa.statusPendaftaran]}`}>
+                          {siswa.statusPendaftaran}
+                        </span>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </Card>
+        </div>
+      )}
     </div>
   )
 }

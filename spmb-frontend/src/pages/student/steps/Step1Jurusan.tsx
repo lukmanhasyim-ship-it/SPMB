@@ -1,6 +1,6 @@
 import type { ChangeEvent } from 'react'
 import { useStudentStore } from '../../../store/studentStore'
-import { DATA_JURUSAN } from '../../../data/dummy'
+import { DATA_JURUSAN } from '../../../data/constants'
 import StepLayout from '../components/StepLayout'
 import InputField from '../../../components/ui/InputField'
 

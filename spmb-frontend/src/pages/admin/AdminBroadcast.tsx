@@ -1,15 +1,43 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Send, Mail, CheckCircle2 } from 'lucide-react'
 import Card from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
-import { DATA_INFORMASI_EVENT } from '../../data/dummy'
+import { api } from '../../services/api'
+
+interface EventItem {
+  id_event: string
+  target_gelombang: string
+  judul: string
+  deskripsi: string
+  status_kirim: string
+  created_at: string
+}
 
 export default function AdminBroadcast() {
+  const [events, setEvents] = useState<EventItem[]>([])
+  const [loading, setLoading] = useState(true)
   const [judul, setJudul] = useState('')
   const [deskripsi, setDeskripsi] = useState('')
   const [target, setTarget] = useState('Semua')
   const [sending, setSending] = useState(false)
   const [sent, setSent] = useState(false)
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await api.broadcast.getEvents()
+        if (res.status === 'ok') {
+          setEvents(res.data as EventItem[])
+        }
+      } catch {
+        // Handle error
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchData()
+  }, [])
 
   const handleSend = async () => {
     if (!judul || !deskripsi) {
@@ -17,12 +45,21 @@ export default function AdminBroadcast() {
       return
     }
     setSending(true)
-    await new Promise((r) => setTimeout(r, 1500))
-    setSending(false)
-    setSent(true)
-    setTimeout(() => setSent(false), 3000)
-    setJudul('')
-    setDeskripsi('')
+    try {
+      await api.broadcast.send(judul, deskripsi, target)
+      setSent(true)
+      setJudul('')
+      setDeskripsi('')
+      setTimeout(() => setSent(false), 3000)
+      const res = await api.broadcast.getEvents()
+      if (res.status === 'ok') {
+        setEvents(res.data as EventItem[])
+      }
+    } catch {
+      alert('Gagal mengirim notifikasi')
+    } finally {
+      setSending(false)
+    }
   }
 
   return (
@@ -85,7 +122,7 @@ export default function AdminBroadcast() {
           {sent && (
             <div className="flex items-center gap-2 text-sm text-brand-green">
               <CheckCircle2 className="w-4 h-4" />
-              Notifikasi berhasil dikirim (simulasi)
+              Notifikasi berhasil dikirim
             </div>
           )}
         </div>
@@ -96,33 +133,41 @@ export default function AdminBroadcast() {
           Riwayat Notifikasi
         </h3>
 
-        <div className="space-y-3">
-          {DATA_INFORMASI_EVENT.map((event) => (
-            <div
-              key={event.idEvent}
-              className="flex items-start gap-3 p-3 rounded-xl bg-slate-50"
-            >
-              <div className="w-8 h-8 bg-brand-green-light rounded-full flex items-center justify-center shrink-0">
-                <Mail className="w-4 h-4 text-brand-green" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between">
-                  <p className="text-sm font-medium text-slate-800">{event.judul}</p>
-                  <span className="text-[10px] text-slate-400">{event.idEvent}</span>
+        {loading ? (
+          <p className="text-sm text-slate-400">Memuat data...</p>
+        ) : (
+          <div className="space-y-3">
+            {events.length === 0 ? (
+              <p className="text-xs text-slate-400">Belum ada notifikasi terkirim</p>
+            ) : (
+              events.map((event) => (
+                <div
+                  key={event.id_event}
+                  className="flex items-start gap-3 p-3 rounded-xl bg-slate-50"
+                >
+                  <div className="w-8 h-8 bg-brand-green-light rounded-full flex items-center justify-center shrink-0">
+                    <Mail className="w-4 h-4 text-brand-green" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm font-medium text-slate-800">{event.judul}</p>
+                      <span className="text-[10px] text-slate-400">{event.id_event}</span>
+                    </div>
+                    <p className="text-xs text-slate-500 mt-0.5">{event.deskripsi}</p>
+                    <div className="flex items-center gap-2 mt-1.5">
+                      <span className="text-[10px] text-slate-400">
+                        Target: {event.target_gelombang}
+                      </span>
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-brand-green-light text-brand-green-dark">
+                        {event.status_kirim}
+                      </span>
+                    </div>
+                  </div>
                 </div>
-                <p className="text-xs text-slate-500 mt-0.5">{event.deskripsi}</p>
-                <div className="flex items-center gap-2 mt-1.5">
-                  <span className="text-[10px] text-slate-400">
-                    Target: {event.targetGelombang}
-                  </span>
-                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-brand-green-light text-brand-green-dark">
-                    {event.statusKirim}
-                  </span>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+              ))
+            )}
+          </div>
+        )}
       </Card>
     </div>
   )

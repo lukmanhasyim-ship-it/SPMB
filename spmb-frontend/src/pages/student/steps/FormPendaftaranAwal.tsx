@@ -7,7 +7,7 @@ import { useAuthStore } from '../../../store/authStore'
 import InputField from '../../../components/ui/InputField'
 import Card from '../../../components/ui/Card'
 import Button from '../../../components/ui/Button'
-import { DATA_JURUSAN, DATA_AGAMA } from '../../../data/dummy'
+import { DATA_JURUSAN, DATA_AGAMA } from '../../../data/constants'
 
 const defaultPosition: [number, number] = [-8.4112, 114.1234]
 
@@ -16,14 +16,14 @@ const defaultPosition: [number, number] = [-8.4112, 114.1234]
 export default function FormPendaftaranAwal() {
   const navigate = useNavigate()
   const { user } = useAuthStore()
-  const { data, updateData, initRegistrasi, selesaikanPendaftaranAwal } = useStudentStore()
+  const { data, updateData, loadSiswa, selesaikanPendaftaranAwal } = useStudentStore()
   const [position, setPosition] = useState<[number, number]>(defaultPosition)
   const [submitting, setSubmitting] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
 
   useEffect(() => {
-    if (!data.idPendaftaran) {
-      initRegistrasi(user?.email || '')
+    if (!data.idPendaftaran && user?.email) {
+      loadSiswa(user.email)
     }
   }, [])
 

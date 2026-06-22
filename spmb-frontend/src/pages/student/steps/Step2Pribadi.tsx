@@ -1,6 +1,6 @@
 import type { ChangeEvent } from 'react'
 import { useStudentStore } from '../../../store/studentStore'
-import { DATA_AGAMA } from '../../../data/dummy'
+import { DATA_AGAMA } from '../../../data/constants'
 import StepLayout from '../components/StepLayout'
 import InputField from '../../../components/ui/InputField'
 

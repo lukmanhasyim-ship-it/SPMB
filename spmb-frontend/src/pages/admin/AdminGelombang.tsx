@@ -1,20 +1,81 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Edit3, Check, X, MessageCircle } from 'lucide-react'
 import Card from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
-import { DATA_GELOMBANG } from '../../data/dummy'
-import type { GelombangConfig } from '../../types'
+import { api } from '../../services/api'
+
+interface GelombangItem {
+  gelombang: string
+  tanggal_mulai: string
+  tanggal_selesai: string
+  link_group_wa: string
+  status: string
+}
 
 export default function AdminGelombang() {
-  const [gelombangList] = useState<GelombangConfig[]>(
-    DATA_GELOMBANG.map((g) => ({ ...g }))
-  )
-
+  const [gelombangList, setGelombangList] = useState<GelombangItem[]>([])
+  const [loading, setLoading] = useState(true)
   const [editingGel, setEditingGel] = useState<string | null>(null)
   const [tahunAjaran, setTahunAjaran] = useState('2026/2027')
 
-  const toggleStatus = (gelombang: string) => {
-    alert(`Status ${gelombang} akan diubah (simulasi)`)
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await api.gelombang.get()
+        if (res.status === 'ok') {
+          setGelombangList(res.data as GelombangItem[])
+        }
+        const configRes = await api.config.get()
+        if (configRes.status === 'ok') {
+          const config = configRes.data as Record<string, string>
+          if (config.TAHUN_AJARAN_AKTIF) setTahunAjaran(config.TAHUN_AJARAN_AKTIF)
+        }
+      } catch {
+        // Handle error
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchData()
+  }, [])
+
+  const toggleStatus = async (gelombang: string) => {
+    try {
+      const item = gelombangList.find((g) => g.gelombang === gelombang)
+      const newStatus = item?.status === 'Aktif' ? 'Non-Aktif' : 'Aktif'
+      const res = await api.gelombang.update({ gelombang, status: newStatus })
+      if (res.status === 'ok') {
+        setGelombangList(res.data as GelombangItem[])
+      }
+    } catch {
+      alert('Gagal mengubah status')
+    }
+  }
+
+  const handleSimpanTahunAjaran = async () => {
+    try {
+      await api.config.update('TAHUN_AJARAN_AKTIF', tahunAjaran)
+      alert('Tahun ajaran berhasil disimpan')
+    } catch {
+      alert('Gagal menyimpan tahun ajaran')
+    }
+  }
+
+  const handleSaveLinkWA = async (gelombang: string, link: string) => {
+    try {
+      const res = await api.gelombang.update({ gelombang, link_group_wa: link })
+      if (res.status === 'ok') {
+        setGelombangList(res.data as GelombangItem[])
+      }
+    } catch {
+      alert('Gagal menyimpan link WA')
+    }
+    setEditingGel(null)
+  }
+
+  if (loading) {
+    return <p className="text-sm text-slate-400">Memuat data...</p>
   }
 
   return (
@@ -35,7 +96,7 @@ export default function AdminGelombang() {
             onChange={(e) => setTahunAjaran(e.target.value)}
             className="px-4 py-2 rounded-xl border border-slate-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-brand-green/30 focus:border-brand-green"
           />
-          <Button variant="primary" className="text-sm">
+          <Button variant="primary" className="text-sm" onClick={handleSimpanTahunAjaran}>
             <Check className="w-4 h-4" />
             Simpan
           </Button>
@@ -49,7 +110,7 @@ export default function AdminGelombang() {
               <div>
                 <h3 className="text-sm font-bold text-slate-800">{gel.gelombang}</h3>
                 <p className="text-xs text-slate-500 mt-0.5">
-                  {gel.tanggalMulai} — {gel.tanggalSelesai}
+                  {gel.tanggal_mulai} — {gel.tanggal_selesai}
                 </p>
               </div>
               <button
@@ -78,12 +139,15 @@ export default function AdminGelombang() {
                 <div className="flex-1 flex gap-2">
                   <input
                     type="text"
-                    defaultValue={gel.linkGroupWA}
+                    defaultValue={gel.link_group_wa}
                     className="flex-1 px-3 py-1.5 rounded-lg border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-brand-green/30"
-                    onBlur={(e) => {
-                      alert(`Link WA diubah menjadi: ${e.target.value} (simulasi)`)
-                      setEditingGel(null)
+                    onBlur={(e) => handleSaveLinkWA(gel.gelombang, e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        handleSaveLinkWA(gel.gelombang, (e.target as HTMLInputElement).value)
+                      }
                     }}
+                    autoFocus
                   />
                   <Button
                     variant="ghost"
@@ -96,7 +160,7 @@ export default function AdminGelombang() {
               ) : (
                 <>
                   <span className="text-xs text-blue-600 flex-1 truncate">
-                    {gel.linkGroupWA}
+                    {gel.link_group_wa}
                   </span>
                   <button
                     onClick={() => setEditingGel(gel.gelombang)}

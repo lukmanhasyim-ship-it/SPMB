@@ -1,61 +1,86 @@
-import { create } from 'zustand';
-import type { User } from '../types';
-import { SISTEM_CONFIG } from '../data/dummy';
-
-interface RegisteredUser {
-  email: string;
-  nama: string;
-  fotoProfilBase64?: string;
-}
+import { create } from 'zustand'
+import type { User } from '../types'
+import { api } from '../services/api'
 
 interface AuthState {
-  user: User | null;
-  isLoggedIn: boolean;
-  registeredUsers: RegisteredUser[];
-  register: (email: string, nama: string, fotoBase64?: string) => void;
-  googleLogin: (email: string, nama: string, fotoUrl?: string) => 'siswa' | 'admin' | null;
-  logout: () => void;
+  user: User | null
+  isLoggedIn: boolean
+  loading: boolean
+  error: string | null
+
+  login: (email: string, nama?: string, fotoUrl?: string, idToken?: string) => Promise<'siswa' | 'admin' | 'new' | null>
+  register: (email: string, nama: string, fotoUrl?: string) => Promise<void>
+  logout: () => void
+  clearError: () => void
 }
 
-export const useAuthStore = create<AuthState>((set, get) => ({
+export const useAuthStore = create<AuthState>((set) => ({
   user: null,
   isLoggedIn: false,
-  registeredUsers: [],
+  loading: false,
+  error: null,
 
-  register: (email: string, nama: string, fotoBase64?: string) => {
-    const { registeredUsers } = get();
-    const exists = registeredUsers.some((u) => u.email === email);
-    if (!exists) {
-      set({ registeredUsers: [...registeredUsers, { email, nama, fotoProfilBase64: fotoBase64 }] });
+  login: async (email: string, nama?: string, fotoUrl?: string, idToken?: string) => {
+    set({ loading: true, error: null })
+    try {
+      const result = await api.auth.login(email, nama, fotoUrl, idToken)
+
+      if (result.status === 'ok') {
+        const userData = result.user as { email: string; nama: string; fotoUrl?: string }
+        const role = result.role as 'siswa' | 'admin' | 'new'
+
+        set({
+          user: {
+            email: userData.email,
+            nama: userData.nama || userData.email,
+            role: role === 'admin' ? 'admin' : 'siswa',
+            fotoUrl: userData.fotoUrl || '',
+          },
+          isLoggedIn: role !== 'new',
+          loading: false,
+        })
+
+        return role
+      }
+
+      set({ loading: false, error: 'Login gagal' })
+      return null
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Login gagal'
+      set({ loading: false, error: message })
+      return null
     }
-    const role = SISTEM_CONFIG.ADMIN_EMAIL_LIST.includes(email) ? 'admin' : 'siswa';
-    set({
-      user: { email, nama, role, fotoUrl: fotoBase64 },
-      isLoggedIn: true,
-    });
   },
 
-  googleLogin: (email: string, nama: string, fotoUrl?: string) => {
-    const { registeredUsers } = get();
+  register: async (email: string, nama: string, fotoUrl?: string) => {
+    set({ loading: true, error: null })
+    try {
+      const result = await api.auth.register(email, nama, fotoUrl)
 
-    if (SISTEM_CONFIG.ADMIN_EMAIL_LIST.includes(email)) {
-      set({ user: { email, nama, role: 'admin', fotoUrl }, isLoggedIn: true });
-      return 'admin';
+      if (result.status === 'ok') {
+        set({
+          user: {
+            email,
+            nama,
+            role: 'siswa',
+            fotoUrl: fotoUrl || '',
+          },
+          isLoggedIn: true,
+          loading: false,
+        })
+      }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Registrasi gagal'
+      set({ loading: false, error: message })
+      throw err
     }
-
-    const existing = registeredUsers.find((u) => u.email === email);
-    if (existing) {
-      set({
-        user: { email, nama: existing.nama, role: 'siswa', fotoUrl: existing.fotoProfilBase64 || fotoUrl },
-        isLoggedIn: true,
-      });
-      return 'siswa';
-    }
-
-    return null;
   },
 
   logout: () => {
-    set({ user: null, isLoggedIn: false });
+    set({ user: null, isLoggedIn: false, error: null })
   },
-}));
+
+  clearError: () => {
+    set({ error: null })
+  },
+}))

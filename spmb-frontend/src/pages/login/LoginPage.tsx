@@ -1,144 +1,99 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ChevronRight, X } from 'lucide-react'
 import { useAuthStore } from '../../store/authStore'
 import Card from '../../components/ui/Card'
 
-interface MockAccount {
-  email: string
-  nama: string
-  fotoUrl: string
-  label: string
+interface GoogleAccountsId {
+  initialize: (config: Record<string, unknown>) => void
+  prompt: (momentListener?: (notification: Record<string, unknown>) => void) => void
+  renderButton: (element: HTMLElement, options: Record<string, unknown>) => void
+  disableAutoSelect: () => void
+  cancel: () => void
 }
 
-const MOCK_ACCOUNTS: MockAccount[] = [
-  {
-    email: 'ahmad.rizki@gmail.com',
-    nama: 'Ahmad Rizki Pratama',
-    fotoUrl: '',
-    label: 'Sudah mendaftar',
-  },
-  {
-    email: 'siti.nurul@gmail.com',
-    nama: 'Siti Nurul Hidayah',
-    fotoUrl: '',
-    label: 'Sudah mendaftar',
-  },
-  {
-    email: 'panitiapmb@gmail.com',
-    nama: 'Panitia PMB',
-    fotoUrl: '',
-    label: 'Admin',
-  },
-  {
-    email: 'new.siswa@gmail.com',
-    nama: 'Budi Baru',
-    fotoUrl: '',
-    label: 'Belum mendaftar',
-  },
-]
-
-function Avatar({ nama }: { nama: string }) {
-  const initials = nama
-    .split(' ')
-    .map((kata) => kata[0])
-    .join('')
-    .slice(0, 2)
-    .toUpperCase()
-  return (
-    <div className="w-10 h-10 rounded-full bg-brand-green-light flex items-center justify-center text-brand-green-dark font-semibold text-sm shrink-0">
-      {initials}
-    </div>
-  )
+interface GoogleAccountsOauth2 {
+  initTokenClient: (config: Record<string, unknown>) => { requestAccessToken: () => void }
 }
 
-function GoogleAccountPicker({
-  onSelect,
-  onClose,
-}: {
-  onSelect: (account: MockAccount) => void
-  onClose: () => void
-}) {
-  return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40"
-      onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
-    >
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden">
-        <div className="flex items-center justify-between px-5 pt-5 pb-3">
-          <h2 className="text-lg font-semibold text-slate-800">Pilih Akun Google</h2>
-          <button
-            onClick={onClose}
-            className="p-1 rounded-full hover:bg-slate-100 transition-colors"
-          >
-            <X className="w-5 h-5 text-slate-500" />
-          </button>
-        </div>
+interface GoogleAccounts {
+  id: GoogleAccountsId
+  oauth2: GoogleAccountsOauth2
+}
 
-        <div className="px-2 pb-2 max-h-80 overflow-y-auto">
-          {MOCK_ACCOUNTS.map((account) => (
-            <button
-              key={account.email}
-              onClick={() => onSelect(account)}
-              className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-slate-50 transition-colors text-left group"
-            >
-              <Avatar nama={account.nama} />
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-slate-800 truncate">{account.nama}</p>
-                <p className="text-xs text-slate-500 truncate">{account.email}</p>
-              </div>
-              <span
-                className={`text-[10px] font-medium px-2 py-0.5 rounded-full shrink-0 ${
-                  account.label === 'Admin'
-                    ? 'bg-purple-100 text-purple-700'
-                    : account.label === 'Sudah mendaftar'
-                    ? 'bg-brand-green-light text-brand-green-dark'
-                    : 'bg-amber-100 text-amber-700'
-                }`}
-              >
-                {account.label}
-              </span>
-              <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-500 transition-colors shrink-0" />
-            </button>
-          ))}
-        </div>
+interface WindowWithGoogle extends Window {
+  google?: { accounts: GoogleAccounts }
+}
 
-        <div className="px-5 pb-5 pt-2 border-t border-slate-100">
-          <button
-            onClick={() =>
-              onSelect({
-                email: 'akun.baru@gmail.com',
-                nama: 'Pengguna Baru',
-                fotoUrl: '',
-                label: '',
-              })
-            }
-            className="w-full text-sm text-brand-green hover:text-brand-green-dark font-medium py-2 text-center"
-          >
-            + Gunakan akun lain
-          </button>
-        </div>
-      </div>
-    </div>
+function decodeJwt(token: string): Record<string, unknown> {
+  const base64Url = token.split('.')[1]
+  const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
+  const jsonPayload = decodeURIComponent(
+    atob(base64)
+      .split('')
+      .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+      .join(''),
   )
+  return JSON.parse(jsonPayload)
 }
 
 export default function LoginPage() {
   const navigate = useNavigate()
-  const { googleLogin } = useAuthStore()
-  const [showPicker, setShowPicker] = useState(false)
+  const { login, loading } = useAuthStore()
+  const [gisReady, setGisReady] = useState(false)
+  const [internalLoading, setInternalLoading] = useState(false)
+  const initCalled = useRef(false)
 
-  const handleSelectAccount = (account: MockAccount) => {
-    setShowPicker(false)
-    const result = googleLogin(account.email, account.nama, account.fotoUrl || undefined)
-    if (result === 'admin') {
-      navigate('/admin/dashboard')
-    } else if (result === 'siswa') {
-      navigate('/student/dashboard')
-    } else {
-      navigate('/register', { state: { email: account.email, nama: account.nama } })
+  useEffect(() => {
+    if (initCalled.current) return
+    initCalled.current = true
+
+    const checkGis = () => {
+      const google = (window as WindowWithGoogle).google
+      if (google?.accounts?.id) {
+        google.accounts.id.initialize({
+          client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+          callback: handleCredentialResponse,
+          auto_select: false,
+          cancel_on_tap_outside: false,
+        })
+        setGisReady(true)
+        google.accounts.id.prompt()
+      } else {
+        setTimeout(checkGis, 200)
+      }
+    }
+    checkGis()
+  }, [])
+
+  const handleCredentialResponse = async (response: { credential: string }) => {
+    setInternalLoading(true)
+    try {
+      const payload = decodeJwt(response.credential)
+      const email = payload.email as string
+      const nama = (payload.name as string) || ''
+      const fotoUrl = (payload.picture as string) || ''
+
+      const result = await login(email, nama, fotoUrl, response.credential)
+
+      if (result === 'admin') {
+        navigate('/admin/dashboard')
+      } else if (result === 'siswa') {
+        navigate('/student/dashboard')
+      } else {
+        navigate('/register', { state: { email, nama, fotoUrl } })
+      }
+    } catch (err) {
+      console.error('Login error:', err)
+    } finally {
+      setInternalLoading(false)
     }
   }
+
+  const handleGoogleClick = () => {
+    ;(window as WindowWithGoogle).google?.accounts?.id.prompt()
+  }
+
+  const isLoading = loading || internalLoading
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
@@ -157,8 +112,9 @@ export default function LoginPage() {
         </div>
 
         <button
-          onClick={() => setShowPicker(true)}
-          className="w-full flex items-center justify-center gap-3 px-6 py-3 rounded-xl bg-brand-green hover:bg-brand-green-dark shadow-sm hover:shadow-md transition-all text-sm font-medium text-white"
+          onClick={handleGoogleClick}
+          disabled={!gisReady || isLoading}
+          className="w-full flex items-center justify-center gap-3 px-6 py-3 rounded-xl bg-brand-green hover:bg-brand-green-dark shadow-sm hover:shadow-md transition-all text-sm font-medium text-white disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <svg viewBox="0 0 24 24" className="w-5 h-5 shrink-0">
             <path
@@ -178,20 +134,13 @@ export default function LoginPage() {
               d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
             />
           </svg>
-          Lanjutkan dengan Google
+          {isLoading ? 'Memproses...' : 'Login dengan Google'}
         </button>
 
         <p className="text-xs text-slate-400 text-center mt-6">
-          *Mode simulasi — data tidak terhubung ke server
+          Login dengan akun Google Anda
         </p>
       </Card>
-
-      {showPicker && (
-        <GoogleAccountPicker
-          onSelect={handleSelectAccount}
-          onClose={() => setShowPicker(false)}
-        />
-      )}
     </div>
   )
 }
