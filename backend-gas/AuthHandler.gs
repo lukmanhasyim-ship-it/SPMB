@@ -19,16 +19,18 @@ function handleAuth(params) {
   if (!email) return { status: 'error', message: 'Email wajib diisi' }
 
   var configs = getAllRows('Sistem_Config')
-
   var tahunAjaran = getConfigValue(configs, 'TAHUN_AJARAN_AKTIF', '2026/2027')
-  var adminEmailsStr = getConfigValue(configs, 'ADMIN_EMAIL_LIST', '')
-  var adminEmails = adminEmailsStr.split(',').map(function (e) { return e.trim().toLowerCase() })
 
-  if (adminEmails.indexOf(email) !== -1) {
+  var adminData = findRowByKey('Admin', 'email', email)
+  if (adminData) {
     return {
       status: 'ok',
       role: 'admin',
-      user: { email: email, nama: nama || 'Admin', fotoUrl: fotoUrl },
+      user: {
+        email: adminData.email,
+        nama: adminData.nama_lengkap || nama || 'Admin',
+        fotoUrl: fotoUrl
+      },
       tahunAjaran: tahunAjaran
     }
   }
@@ -55,20 +57,26 @@ function handleAuth(params) {
   }
 }
 
-function verifyGoogleToken_(idToken) {
-  try {
-    var url = 'https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=' + idToken
-    var response = UrlFetchApp.fetch(url, { muteHttpExceptions: true })
-    var payload = JSON.parse(response.getContentText())
+function verifyGoogleToken_(token) {
+  // Try as OAuth2 access token first (from initTokenClient flow)
+  var url = 'https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=' + token
+  var response = UrlFetchApp.fetch(url, { muteHttpExceptions: true })
+  var payload = JSON.parse(response.getContentText())
 
-    if (payload.error) {
-      return { valid: false, error: payload.error }
-    }
-
+  if (!payload.error) {
     return { valid: true, payload: payload }
-  } catch (e) {
-    return { valid: false, error: e.toString() }
   }
+
+  // Fallback: try as Google ID token (JWT)
+  url = 'https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=' + token
+  response = UrlFetchApp.fetch(url, { muteHttpExceptions: true })
+  payload = JSON.parse(response.getContentText())
+
+  if (!payload.error) {
+    return { valid: true, payload: payload }
+  }
+
+  return { valid: false, error: payload.error || 'Invalid token' }
 }
 
 function handleRegister(params) {

@@ -1,7 +1,26 @@
 var SHEET_ID = PropertiesService.getScriptProperties().getProperty('SHEET_ID')
 
+function setupSheet(sheetId) {
+  if (sheetId) {
+    SpreadsheetApp.openById(sheetId)
+    SHEET_ID = sheetId
+    PropertiesService.getScriptProperties().setProperty('SHEET_ID', SHEET_ID)
+    return { status: 'ok', message: 'Sheet terhubung', sheetId: SHEET_ID }
+  }
+
+  var ss = SpreadsheetApp.create('SPMB - Data')
+  SHEET_ID = ss.getId()
+  PropertiesService.getScriptProperties().setProperty('SHEET_ID', SHEET_ID)
+  return { status: 'ok', message: 'Sheet baru dibuat', sheetId: SHEET_ID, url: ss.getUrl() }
+}
+
+function ensureSpreadsheet_() {
+  if (SHEET_ID) return SpreadsheetApp.openById(SHEET_ID)
+  return SpreadsheetApp.openById(setupSheet().sheetId)
+}
+
 function getSheet(sheetName) {
-  var ss = SpreadsheetApp.openById(SHEET_ID)
+  var ss = ensureSpreadsheet_()
   var sheet = ss.getSheetByName(sheetName)
   if (!sheet) {
     sheet = ss.insertSheet(sheetName)
@@ -117,5 +136,9 @@ function initializeSheets() {
 
   ensureHeaders('Informasi_Event', [
     'id_event', 'target_gelombang', 'judul', 'deskripsi', 'status_kirim', 'created_at'
+  ])
+
+  ensureHeaders('Admin', [
+    'email', 'nama_lengkap', 'role', 'no_telepon', 'created_at', 'updated_at'
   ])
 }

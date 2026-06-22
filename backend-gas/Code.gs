@@ -4,10 +4,22 @@ function doGet() {
     .setMimeType(ContentService.MimeType.JSON)
 }
 
+function doOptions() {
+  return ContentService
+    .createTextOutput('')
+    .setMimeType(ContentService.MimeType.TEXT)
+}
+
 function doPost(e) {
   try {
     const params = JSON.parse(e.postData.contents)
     const action = params.action
+
+    if (action === 'setup') {
+      return ContentService
+        .createTextOutput(JSON.stringify(setupSheet(params.sheetId)))
+        .setMimeType(ContentService.MimeType.JSON)
+    }
 
     let result
     switch (action) {
@@ -43,6 +55,18 @@ function doPost(e) {
         break
       case 'upload':
         result = handleUpload(params)
+        break
+      case 'getAdmins':
+        result = handleGetAdmins()
+        break
+      case 'addAdmin':
+        result = handleAddAdmin(params)
+        break
+      case 'updateAdmin':
+        result = handleUpdateAdmin(params)
+        break
+      case 'deleteAdmin':
+        result = handleDeleteAdmin(params)
         break
       default:
         result = { status: 'error', message: 'Unknown action: ' + action }

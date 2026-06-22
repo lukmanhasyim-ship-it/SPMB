@@ -34,5 +34,18 @@ function seedInitialData() {
     addRow('Sistem_Config', { key: 'ADMIN_EMAIL_LIST', value: 'panitiapmb@gmail.com,admin2@gmail.com' })
   }
 
+  var adminSheet = getSheet('Admin')
+  var existingAdmin = adminSheet.getDataRange().getValues()
+  if (existingAdmin.length <= 1) {
+    addRow('Admin', {
+      email: 'panitiapmb@gmail.com',
+      nama_lengkap: 'Panitia PMB',
+      role: 'superadmin',
+      no_telepon: '',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    })
+  }
+
   Logger.log('Seed data initialized successfully')
 }

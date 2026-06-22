@@ -10,6 +10,7 @@ import AdminDashboard from './pages/admin/AdminDashboard'
 import AdminSiswa from './pages/admin/AdminSiswa'
 import AdminGelombang from './pages/admin/AdminGelombang'
 import AdminBroadcast from './pages/admin/AdminBroadcast'
+import AdminManajemen from './pages/admin/AdminManajemen'
 import type { ReactNode } from 'react'
 
 function ProtectedRoute({ children, role }: { children: ReactNode; role: 'siswa' | 'admin' }) {
@@ -61,6 +62,7 @@ function App() {
         <Route path="siswa" element={<AdminSiswa />} />
         <Route path="gelombang" element={<AdminGelombang />} />
         <Route path="broadcast" element={<AdminBroadcast />} />
+        <Route path="manajemen" element={<AdminManajemen />} />
       </Route>
     </Routes>
   )

@@ -1,0 +1,14 @@
+{
+  "name": "spmb-backend-gas",
+  "private": true,
+  "scripts": {
+    "push": "clasp push",
+    "pull": "clasp pull",
+    "status": "clasp status",
+    "open": "clasp open",
+    "deploy": "clasp push && clasp deploy",
+    "version": "clasp version",
+    "versions": "clasp versions",
+    "redeploy": "clasp redeploy"
+  }
+}

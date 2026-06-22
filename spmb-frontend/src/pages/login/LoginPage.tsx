@@ -1,99 +1,71 @@
-import { useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../../store/authStore'
 import Card from '../../components/ui/Card'
 
-interface GoogleAccountsId {
-  initialize: (config: Record<string, unknown>) => void
-  prompt: (momentListener?: (notification: Record<string, unknown>) => void) => void
-  renderButton: (element: HTMLElement, options: Record<string, unknown>) => void
-  disableAutoSelect: () => void
-  cancel: () => void
-}
-
-interface GoogleAccountsOauth2 {
-  initTokenClient: (config: Record<string, unknown>) => { requestAccessToken: () => void }
-}
-
-interface GoogleAccounts {
-  id: GoogleAccountsId
-  oauth2: GoogleAccountsOauth2
-}
-
-interface WindowWithGoogle extends Window {
-  google?: { accounts: GoogleAccounts }
-}
-
-function decodeJwt(token: string): Record<string, unknown> {
-  const base64Url = token.split('.')[1]
-  const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
-  const jsonPayload = decodeURIComponent(
-    atob(base64)
-      .split('')
-      .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-      .join(''),
-  )
-  return JSON.parse(jsonPayload)
-}
-
 export default function LoginPage() {
   const navigate = useNavigate()
   const { login, loading } = useAuthStore()
-  const [gisReady, setGisReady] = useState(false)
   const [internalLoading, setInternalLoading] = useState(false)
-  const initCalled = useRef(false)
-
-  useEffect(() => {
-    if (initCalled.current) return
-    initCalled.current = true
-
-    const checkGis = () => {
-      const google = (window as WindowWithGoogle).google
-      if (google?.accounts?.id) {
-        google.accounts.id.initialize({
-          client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
-          callback: handleCredentialResponse,
-          auto_select: false,
-          cancel_on_tap_outside: false,
-        })
-        setGisReady(true)
-        google.accounts.id.prompt()
-      } else {
-        setTimeout(checkGis, 200)
-      }
-    }
-    checkGis()
-  }, [])
-
-  const handleCredentialResponse = async (response: { credential: string }) => {
-    setInternalLoading(true)
-    try {
-      const payload = decodeJwt(response.credential)
-      const email = payload.email as string
-      const nama = (payload.name as string) || ''
-      const fotoUrl = (payload.picture as string) || ''
-
-      const result = await login(email, nama, fotoUrl, response.credential)
-
-      if (result === 'admin') {
-        navigate('/admin/dashboard')
-      } else if (result === 'siswa') {
-        navigate('/student/dashboard')
-      } else {
-        navigate('/register', { state: { email, nama, fotoUrl } })
-      }
-    } catch (err) {
-      console.error('Login error:', err)
-    } finally {
-      setInternalLoading(false)
-    }
-  }
-
-  const handleGoogleClick = () => {
-    ;(window as WindowWithGoogle).google?.accounts?.id.prompt()
-  }
 
   const isLoading = loading || internalLoading
+
+  const handleGoogleClick = () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const gis = (window as any).google?.accounts?.oauth2
+    if (!gis) {
+      console.error('GIS library not loaded yet')
+      return
+    }
+
+    setInternalLoading(true)
+
+    const cb = async (response: Record<string, unknown>) => {
+      const accessToken = response.access_token as string | undefined
+      if (!accessToken) {
+        console.error('No access_token received')
+        setInternalLoading(false)
+        return
+      }
+
+      try {
+        const userRes = await fetch(
+          'https://www.googleapis.com/oauth2/v2/userinfo',
+          { headers: { Authorization: `Bearer ${accessToken}` } },
+        )
+        if (!userRes.ok) {
+          throw new Error('Failed to fetch user info')
+        }
+        const userInfo = await userRes.json()
+
+        const email = userInfo.email as string
+        const nama = (userInfo.name as string) || ''
+        const fotoUrl = (userInfo.picture as string) || ''
+
+        const result = await login(email, nama, fotoUrl, accessToken)
+
+        if (result === 'admin') {
+          navigate('/admin/dashboard')
+        } else if (result === 'siswa') {
+          navigate('/student/dashboard')
+        } else {
+          navigate('/register', { state: { email, nama, fotoUrl } })
+        }
+      } catch (err) {
+        console.error('Login error:', err)
+        setInternalLoading(false)
+      }
+    }
+
+    const client = gis.initTokenClient({
+      client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+      scope: 'openid email profile',
+      callback: cb,
+      error_callback: () => { setInternalLoading(false) },
+    })
+
+    client.requestAccessToken()
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
@@ -113,7 +85,7 @@ export default function LoginPage() {
 
         <button
           onClick={handleGoogleClick}
-          disabled={!gisReady || isLoading}
+          disabled={isLoading}
           className="w-full flex items-center justify-center gap-3 px-6 py-3 rounded-xl bg-brand-green hover:bg-brand-green-dark shadow-sm hover:shadow-md transition-all text-sm font-medium text-white disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <svg viewBox="0 0 24 24" className="w-5 h-5 shrink-0">

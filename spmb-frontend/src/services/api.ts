@@ -10,8 +10,7 @@ interface ApiResponse {
 async function request(action: string, payload: Record<string, unknown> = {}): Promise<ApiResponse> {
   const response = await fetch(API_URL, {
     method: 'POST',
-    mode: 'cors',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'text/plain' },
     body: JSON.stringify({ action, ...payload }),
   })
 
@@ -80,5 +79,19 @@ export const api = {
   upload: {
     file: (fileName: string, fileData: string, mimeType: string) =>
       request('upload', { fileName, fileData, mimeType }),
+  },
+
+  admin: {
+    getAll: () =>
+      request('getAdmins'),
+
+    add: (email: string, nama: string, role: string, no_telepon: string) =>
+      request('addAdmin', { email, nama, role, no_telepon }),
+
+    update: (email: string, data: Record<string, unknown>) =>
+      request('updateAdmin', { email, ...data }),
+
+    remove: (email: string) =>
+      request('deleteAdmin', { email }),
   },
 }
