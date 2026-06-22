@@ -19,11 +19,22 @@ function handleGetSiswa(params) {
 function handleUpdateSiswa(params) {
   initializeSheets()
 
+  var lock = LockService.getScriptLock()
+  var locked = false
+  try {
+    locked = lock.tryLock(10000)
+  } catch (e) {
+    locked = false
+  }
+  if (!locked) {
+    return { status: 'error', message: 'Sistem sedang sibuk, silakan coba lagi' }
+  }
+
   var email = (params.email || '').toLowerCase().trim()
-  if (!email) return { status: 'error', message: 'Email wajib diisi' }
+  if (!email) { lock.releaseLock(); return { status: 'error', message: 'Email wajib diisi' } }
 
   var existing = findRowByKey('Siswa', 'email', email)
-  if (!existing) return { status: 'error', message: 'Data tidak ditemukan' }
+  if (!existing) { lock.releaseLock(); return { status: 'error', message: 'Data tidak ditemukan' } }
 
   var updateData = {
     updated_at: new Date().toISOString()
@@ -47,6 +58,8 @@ function handleUpdateSiswa(params) {
   }
 
   updateRow('Siswa', 'email', email, updateData)
+
+  lock.releaseLock()
 
   var updated = findRowByKey('Siswa', 'email', email)
   return { status: 'ok', data: cleanSiswaRow(updated) }

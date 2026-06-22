@@ -25,11 +25,12 @@ function handleAuth(params) {
   if (adminData) {
     return {
       status: 'ok',
-      role: 'admin',
+      role: adminData.role || 'admin',
       user: {
         email: adminData.email,
-        nama: adminData.nama_lengkap || nama || 'Admin',
-        fotoUrl: fotoUrl
+        nama: adminData.nama || 'Admin',
+        fotoUrl: fotoUrl,
+        no_telp: adminData.no_telp || ''
       },
       tahunAjaran: tahunAjaran
     }
@@ -82,6 +83,17 @@ function verifyGoogleToken_(token) {
 function handleRegister(params) {
   initializeSheets()
 
+  var lock = LockService.getScriptLock()
+  var locked = false
+  try {
+    locked = lock.tryLock(10000)
+  } catch (e) {
+    locked = false
+  }
+  if (!locked) {
+    return { status: 'error', message: 'Sistem sedang sibuk, silakan coba lagi' }
+  }
+
   var email = (params.email || '').toLowerCase().trim()
   var nama = (params.nama || '').trim()
   var fotoUrl = params.fotoUrl || ''
@@ -91,6 +103,7 @@ function handleRegister(params) {
 
   var existing = findRowByKey('Siswa', 'email', email)
   if (existing) {
+    lock.releaseLock()
     return { status: 'error', message: 'Email sudah terdaftar' }
   }
 
@@ -124,6 +137,8 @@ function handleRegister(params) {
 
   addRow('Siswa', data)
 
+  lock.releaseLock()
+
   return {
     status: 'ok',
     role: 'siswa',
@@ -133,7 +148,7 @@ function handleRegister(params) {
 }
 
 function generateId(tahunAjaran, gelombang) {
-  var ta = tahunAjaran.replace('/', '')
+  var tahun = tahunAjaran.split('/')[0].slice(-2) + tahunAjaran.split('/')[1].slice(-2)
   var gel = 'XX'
   if (gelombang) {
     var parts = gelombang.split(' ')
@@ -146,5 +161,5 @@ function generateId(tahunAjaran, gelombang) {
     random += chars.charAt(Math.floor(Math.random() * chars.length))
   }
 
-  return 'SPMB-' + ta + '-' + gel + '-' + random
+  return 'SPMB-' + tahun + '-' + gel + '-' + random
 }

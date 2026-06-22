@@ -56,18 +56,19 @@ function doPost(e) {
       case 'upload':
         result = handleUpload(params)
         break
-      case 'getAdmins':
-        result = handleGetAdmins()
+      case 'getAdminList':
+        result = handleAdminList()
         break
       case 'addAdmin':
-        result = handleAddAdmin(params)
+        result = handleAdminAdd(params)
         break
       case 'updateAdmin':
-        result = handleUpdateAdmin(params)
+        result = handleAdminUpdate(params)
         break
       case 'deleteAdmin':
-        result = handleDeleteAdmin(params)
+        result = handleAdminDelete(params)
         break
+
       default:
         result = { status: 'error', message: 'Unknown action: ' + action }
     }

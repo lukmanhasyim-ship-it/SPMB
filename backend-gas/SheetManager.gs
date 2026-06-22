@@ -134,11 +134,13 @@ function initializeSheets() {
     'key', 'value'
   ])
 
+  ensureHeaders('Admin', [
+    'email', 'nama', 'role', 'no_telp'
+  ])
+
   ensureHeaders('Informasi_Event', [
     'id_event', 'target_gelombang', 'judul', 'deskripsi', 'status_kirim', 'created_at'
   ])
 
-  ensureHeaders('Admin', [
-    'email', 'nama_lengkap', 'role', 'no_telepon', 'created_at', 'updated_at'
-  ])
+  seedInitialData()
 }

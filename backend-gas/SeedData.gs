@@ -1,6 +1,4 @@
 function seedInitialData() {
-  initializeSheets()
-
   var gelombangSheet = getSheet('Pengaturan_Gelombang')
   var existingGel = gelombangSheet.getDataRange().getValues()
   if (existingGel.length <= 1) {
@@ -27,24 +25,34 @@ function seedInitialData() {
     })
   }
 
+  var adminSheet = getSheet('Admin')
+  var existingAdmin = adminSheet.getDataRange().getValues()
+  var adminFound = false
+  for (var ai = 1; ai < existingAdmin.length; ai++) {
+    if (existingAdmin[ai][0] === 'panitiapmb@gmail.com') {
+      adminFound = true
+      break
+    }
+  }
+  if (!adminFound) {
+    addRow('Admin', {
+      email: 'panitiapmb@gmail.com',
+      nama: 'Panitia PMB',
+      role: 'superadmin',
+      no_telp: ''
+    })
+    addRow('Admin', {
+      email: 'admin2@gmail.com',
+      nama: 'Admin 2',
+      role: 'admin',
+      no_telp: ''
+    })
+  }
+
   var configSheet = getSheet('Sistem_Config')
   var existingConfig = configSheet.getDataRange().getValues()
   if (existingConfig.length <= 1) {
     addRow('Sistem_Config', { key: 'TAHUN_AJARAN_AKTIF', value: '2026/2027' })
-    addRow('Sistem_Config', { key: 'ADMIN_EMAIL_LIST', value: 'panitiapmb@gmail.com,admin2@gmail.com' })
-  }
-
-  var adminSheet = getSheet('Admin')
-  var existingAdmin = adminSheet.getDataRange().getValues()
-  if (existingAdmin.length <= 1) {
-    addRow('Admin', {
-      email: 'panitiapmb@gmail.com',
-      nama_lengkap: 'Panitia PMB',
-      role: 'superadmin',
-      no_telepon: '',
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    })
   }
 
   Logger.log('Seed data initialized successfully')

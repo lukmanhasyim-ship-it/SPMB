@@ -62,7 +62,7 @@ function App() {
         <Route path="siswa" element={<AdminSiswa />} />
         <Route path="gelombang" element={<AdminGelombang />} />
         <Route path="broadcast" element={<AdminBroadcast />} />
-        <Route path="manajemen" element={<AdminManajemen />} />
+        <Route path="admin-manajemen" element={<AdminManajemen />} />
       </Route>
     </Routes>
   )

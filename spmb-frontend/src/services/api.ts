@@ -82,16 +82,16 @@ export const api = {
   },
 
   admin: {
-    getAll: () =>
-      request('getAdmins'),
+    list: () =>
+      request('getAdminList'),
 
-    add: (email: string, nama: string, role: string, no_telepon: string) =>
-      request('addAdmin', { email, nama, role, no_telepon }),
+    add: (email: string, nama: string, role: string, no_telp?: string) =>
+      request('addAdmin', { email, nama, role, no_telp }),
 
     update: (email: string, data: Record<string, unknown>) =>
       request('updateAdmin', { email, ...data }),
 
-    remove: (email: string) =>
+    delete: (email: string) =>
       request('deleteAdmin', { email }),
   },
 }
