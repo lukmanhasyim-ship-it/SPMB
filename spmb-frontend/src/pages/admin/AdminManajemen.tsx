@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Plus, Edit3, Trash2, Shield, ShieldCheck, X } from 'lucide-react'
 import Card from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
+import Loader from '../../components/ui/Loader'
 import { api } from '../../services/api'
 
 interface AdminItem {
@@ -72,11 +73,11 @@ export default function AdminManajemen() {
   }
 
   if (loading) {
-    return <p className="text-sm text-slate-400">Memuat data...</p>
+    return <Loader />
   }
 
   return (
-    <div className="space-y-6">
+    <div className="page-fade-in space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-bold text-slate-800">Manajemen Admin</h1>

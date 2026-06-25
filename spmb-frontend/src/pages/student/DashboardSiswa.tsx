@@ -6,6 +6,7 @@ import { useStudentStore } from '../../store/studentStore'
 import Card from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
 import { api } from '../../services/api'
+import { formatWIBShort } from '../../utils/dateUtils'
 
 const statusStyle: Record<string, string> = {
   Draft: 'bg-amber-50 text-amber-700',
@@ -17,12 +18,17 @@ const statusStyle: Record<string, string> = {
 export default function DashboardSiswa() {
   const navigate = useNavigate()
   const { user, logout } = useAuthStore()
-  const { data, steps, loadSiswa, getProgressPercent, loading } = useStudentStore()
+  const data = useStudentStore((s) => s.data)
+  const steps = useStudentStore((s) => s.steps)
+  const loadSiswa = useStudentStore((s) => s.loadSiswa)
+  const loading = useStudentStore((s) => s.loading)
+  const getProgressPercent = useStudentStore((s) => s.getProgressPercent)
   const [gelombangAktif, setGelombangAktif] = useState<{ gelombang: string; tanggalMulai: string; tanggalSelesai: string; linkGroupWA: string } | null>(null)
 
   useEffect(() => {
-    if (user?.email) {
-      loadSiswa(user.email)
+    if (!user?.email) return
+    Promise.all([
+      loadSiswa(user.email),
       api.gelombang.get().then((res) => {
         if (res.status === 'ok') {
           const list = res.data as Array<Record<string, string>>
@@ -36,8 +42,8 @@ export default function DashboardSiswa() {
             })
           }
         }
-      }).catch(() => {})
-    }
+      }),
+    ]).catch(() => {})
   }, [user?.email])
 
   const isInitialized = data.idPendaftaran !== ''
@@ -93,7 +99,7 @@ export default function DashboardSiswa() {
                     Pendaftaran {gelombangAktif.gelombang} — Tahun Ajaran {data.tahunAjaran || '2026/2027'}
                   </p>
                   <p className="text-xs text-slate-500 mt-0.5">
-                    {gelombangAktif.tanggalMulai} s.d. {gelombangAktif.tanggalSelesai}
+                    {formatWIBShort(gelombangAktif.tanggalMulai)} s.d. {formatWIBShort(gelombangAktif.tanggalSelesai)}
                   </p>
                 </div>
               </div>
@@ -119,7 +125,7 @@ export default function DashboardSiswa() {
                 {!isInitialized ? 'Selamat Datang!' : status === 'Terdaftar' ? 'Pendaftaran Tersimpan' : 'Dashboard Pendaftaran'}
               </h2>
               <p className="text-sm text-slate-500">
-                {loading ? 'Memuat data...' : !isInitialized
+                {loading ? 'Memuat...' : !isInitialized
                   ? 'Silakan mulai pendaftaran Anda'
                   : status === 'Draft'
                   ? 'Lengkapi data pendaftaran awal'

@@ -6,6 +6,7 @@ import { useAuthStore } from '../../store/authStore'
 import Card from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
 import { DATA_JURUSAN } from '../../data/constants'
+import { formatWIB } from '../../utils/dateUtils'
 
 export default function KartuPendaftaran() {
   const navigate = useNavigate()
@@ -97,15 +98,7 @@ export default function KartuPendaftaran() {
               <div className="flex justify-between border-b border-white/10 pb-1.5">
                 <span className="text-slate-400">Waktu Daftar</span>
                 <span className="font-medium">
-                  {data.waktuDaftar
-                    ? new Date(data.waktuDaftar).toLocaleDateString('id-ID', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })
-                    : '-'}
+                  {formatWIB(data.waktuDaftar)}
                 </span>
               </div>
               <div className="flex justify-between">

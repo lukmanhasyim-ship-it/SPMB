@@ -37,7 +37,7 @@ function handleUpdateSiswa(params) {
   if (!existing) { lock.releaseLock(); return { status: 'error', message: 'Data tidak ditemukan' } }
 
   var updateData = {
-    updated_at: new Date().toISOString()
+    updated_at: getWIBTime()
   }
 
   var allowedFields = [

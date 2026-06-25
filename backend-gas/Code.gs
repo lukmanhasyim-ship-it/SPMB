@@ -53,6 +53,9 @@ function doPost(e) {
       case 'sendBroadcast':
         result = handleSendBroadcast(params)
         break
+      case 'deleteGelombang':
+        result = handleDeleteGelombang(params)
+        break
       case 'upload':
         result = handleUpload(params)
         break
@@ -82,3 +85,8 @@ function doPost(e) {
       .setMimeType(ContentService.MimeType.JSON)
   }
 }
+
+function getWIBTime() {
+  return Utilities.formatDate(new Date(), "GMT+7", "yyyy-MM-dd HH:mm:ss");
+}
+

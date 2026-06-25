@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuthStore } from '../../store/authStore'
 import { useStudentStore } from '../../store/studentStore'
@@ -11,8 +11,11 @@ import Step5Berkas from './steps/Step5Berkas'
 export default function StudentWizard() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
-  const { data, getCurrentStep, loadSiswa } = useStudentStore()
-  const { user } = useAuthStore()
+  const idPendaftaran = useStudentStore((s) => s.data.idPendaftaran)
+  const getCurrentStep = useStudentStore((s) => s.getCurrentStep)
+  const loadSiswa = useStudentStore((s) => s.loadSiswa)
+  const user = useAuthStore((s) => s.user)
+  const loaded = useRef(false)
 
   const mode = searchParams.get('mode') || 'awal'
   const stepParam = searchParams.get('step')
@@ -24,10 +27,11 @@ export default function StudentWizard() {
       : 4
 
   useEffect(() => {
-    if (!data.idPendaftaran && user?.email) {
+    if (!idPendaftaran && user?.email && !loaded.current) {
+      loaded.current = true
       loadSiswa(user.email)
     }
-  }, [])
+  }, [idPendaftaran, user?.email, loadSiswa])
 
   const handleStepComplete = () => {
     if (mode === 'awal') {

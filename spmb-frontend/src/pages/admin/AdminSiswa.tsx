@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { Search, Filter, ChevronDown } from 'lucide-react'
 import Card from '../../components/ui/Card'
+import Loader from '../../components/ui/Loader'
 import { api } from '../../services/api'
 import type { StatusPendaftaran } from '../../types'
 
@@ -50,17 +51,20 @@ export default function AdminSiswa() {
     fetchData()
   }, [])
 
-  const filtered = siswaList.filter((s) => {
-    const matchSearch =
-      s.namaLengkap.toLowerCase().includes(search.toLowerCase()) ||
-      s.idPendaftaran.toLowerCase().includes(search.toLowerCase()) ||
-      s.email.toLowerCase().includes(search.toLowerCase())
-    const matchStatus = filterStatus === 'Semua' || s.statusPendaftaran === filterStatus
-    return matchSearch && matchStatus
-  })
+  const filtered = useMemo(() => {
+    const q = search.toLowerCase()
+    return siswaList.filter((s) => {
+      const matchSearch =
+        s.namaLengkap.toLowerCase().includes(q) ||
+        s.idPendaftaran.toLowerCase().includes(q) ||
+        s.email.toLowerCase().includes(q)
+      const matchStatus = filterStatus === 'Semua' || s.statusPendaftaran === filterStatus
+      return matchSearch && matchStatus
+    })
+  }, [siswaList, search, filterStatus])
 
   return (
-    <div className="space-y-6">
+    <div className="page-fade-in space-y-6">
       <div>
         <h1 className="text-xl font-bold text-slate-800">Data Calon Siswa</h1>
         <p className="text-sm text-slate-500">
@@ -96,7 +100,7 @@ export default function AdminSiswa() {
       </div>
 
       {loading ? (
-        <p className="text-sm text-slate-400">Memuat data...</p>
+        <Loader />
       ) : (
         <div className="overflow-x-auto">
           <Card className="p-0 overflow-hidden">

@@ -130,9 +130,9 @@ function handleRegister(params) {
     gelombang: gelombangAktif,
     tahun_ajaran: tahunAjaran,
     status_pendaftaran: 'Draft',
-    waktu_daftar: now.toISOString(),
-    created_at: now.toISOString(),
-    updated_at: now.toISOString()
+    waktu_daftar: getWIBTime(),
+    created_at: getWIBTime(),
+    updated_at: getWIBTime()
   }
 
   addRow('Siswa', data)

@@ -61,9 +61,8 @@ export default function Step5Berkas({ onComplete, onBack }: Step5Props) {
 
   const handleSelesai = async () => {
     setLoading(true)
-    await new Promise((r) => setTimeout(r, 800))
     completeStep(5)
-    finalisasi()
+    await finalisasi()
     setLoading(false)
     onComplete()
   }

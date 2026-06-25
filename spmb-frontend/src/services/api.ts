@@ -58,6 +58,9 @@ export const api = {
 
     update: (data: Record<string, unknown>) =>
       request('updateGelombang', data),
+
+    delete: (gelombang: string) =>
+      request('deleteGelombang', { gelombang }),
   },
 
   config: {

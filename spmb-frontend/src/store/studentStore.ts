@@ -200,7 +200,7 @@ export const useStudentStore = create<StudentState>((set, get) => ({
     }
   },
 
-  selesaikanPendaftaranAwal: () => {
+  selesaikanPendaftaranAwal: async () => {
     set((state) => ({
       steps: state.steps.map((s) =>
         s.nomor <= 3 ? { ...s, selesai: true } : s
@@ -213,14 +213,14 @@ export const useStudentStore = create<StudentState>((set, get) => ({
 
     const { data } = get()
     if (data.email) {
-      api.siswa.update(data.email, {
+      await api.siswa.update(data.email, {
         status_pendaftaran: 'Terdaftar',
         ...mapDataToApi(get().data),
-      }).catch(() => {})
+      })
     }
   },
 
-  finalisasi: () => {
+  finalisasi: async () => {
     set((state) => ({
       data: {
         ...state.data,
@@ -231,10 +231,10 @@ export const useStudentStore = create<StudentState>((set, get) => ({
 
     const { data } = get()
     if (data.email) {
-      api.siswa.update(data.email, {
+      await api.siswa.update(data.email, {
         status_pendaftaran: 'Selesai',
         ...mapDataToApi(get().data),
-      }).catch(() => {})
+      })
     }
   },
 

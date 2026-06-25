@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { Send, Mail, CheckCircle2 } from 'lucide-react'
 import Card from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
+import Loader from '../../components/ui/Loader'
 import { api } from '../../services/api'
 
 interface EventItem {
@@ -21,6 +22,7 @@ export default function AdminBroadcast() {
   const [target, setTarget] = useState('Semua')
   const [sending, setSending] = useState(false)
   const [sent, setSent] = useState(false)
+  const sentTimer = useRef<ReturnType<typeof setTimeout>>()
 
   useEffect(() => {
     const fetchData = async () => {
@@ -37,6 +39,7 @@ export default function AdminBroadcast() {
     }
 
     fetchData()
+    return () => clearTimeout(sentTimer.current)
   }, [])
 
   const handleSend = async () => {
@@ -46,15 +49,16 @@ export default function AdminBroadcast() {
     }
     setSending(true)
     try {
-      await api.broadcast.send(judul, deskripsi, target)
+      await Promise.all([
+        api.broadcast.send(judul, deskripsi, target),
+        api.broadcast.getEvents().then((res) => {
+          if (res.status === 'ok') setEvents(res.data as EventItem[])
+        }),
+      ])
       setSent(true)
       setJudul('')
       setDeskripsi('')
-      setTimeout(() => setSent(false), 3000)
-      const res = await api.broadcast.getEvents()
-      if (res.status === 'ok') {
-        setEvents(res.data as EventItem[])
-      }
+      sentTimer.current = setTimeout(() => setSent(false), 3000)
     } catch {
       alert('Gagal mengirim notifikasi')
     } finally {
@@ -63,7 +67,7 @@ export default function AdminBroadcast() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="page-fade-in space-y-6">
       <div>
         <h1 className="text-xl font-bold text-slate-800">Broadcast Notifikasi</h1>
         <p className="text-sm text-slate-500">Kirim pengumuman ke calon siswa</p>
@@ -134,7 +138,7 @@ export default function AdminBroadcast() {
         </h3>
 
         {loading ? (
-          <p className="text-sm text-slate-400">Memuat data...</p>
+          <Loader />
         ) : (
           <div className="space-y-3">
             {events.length === 0 ? (

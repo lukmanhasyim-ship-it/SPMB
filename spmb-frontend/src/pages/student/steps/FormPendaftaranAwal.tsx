@@ -68,14 +68,17 @@ export default function FormPendaftaranAwal() {
     return Object.keys(errs).length === 0
   }
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!validate()) return
     setSubmitting(true)
-    setTimeout(() => {
-      selesaikanPendaftaranAwal()
-      setSubmitting(false)
+    try {
+      await selesaikanPendaftaranAwal()
       navigate('/student/kartu-pendaftaran')
-    }, 600)
+    } catch {
+      alert('Gagal menyimpan data')
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   const handleBack = () => {

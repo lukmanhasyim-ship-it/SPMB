@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
 import { Users, FileCheck, Clock, AlertTriangle } from 'lucide-react'
 import Card from '../../components/ui/Card'
+import Loader from '../../components/ui/Loader'
 import { api } from '../../services/api'
+import { formatWIBShort } from '../../utils/dateUtils'
 
 interface Stat {
   icon: React.ComponentType<{ className?: string }>
@@ -71,14 +73,14 @@ export default function AdminDashboard() {
   const totalSiswa = stats.reduce((sum, s) => (s.label === 'Total Pendaftar' ? s.value : sum), 0)
 
   return (
-    <div className="space-y-6">
+    <div className="page-fade-in space-y-6">
       <div>
         <h1 className="text-xl font-bold text-slate-800">Dashboard</h1>
         <p className="text-sm text-slate-500">Ringkasan data pendaftaran SPMB</p>
       </div>
 
       {loading ? (
-        <p className="text-sm text-slate-400">Memuat data...</p>
+        <Loader />
       ) : (
         <>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -141,7 +143,7 @@ export default function AdminDashboard() {
                 <div className="flex justify-between border-b border-slate-100 pb-2">
                   <span className="text-slate-500">Periode Aktif</span>
                   <span className="font-medium text-slate-800">
-                    {gelombangAktif ? `${gelombangAktif.tanggalMulai} s.d. ${gelombangAktif.tanggalSelesai}` : '-'}
+                    {gelombangAktif ? `${formatWIBShort(gelombangAktif.tanggalMulai)} s.d. ${formatWIBShort(gelombangAktif.tanggalSelesai)}` : '-'}
                   </span>
                 </div>
                 <div className="flex justify-between">

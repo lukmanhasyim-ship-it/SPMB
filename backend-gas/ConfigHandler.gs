@@ -59,6 +59,29 @@ function handleUpdateConfig(params) {
   return { status: 'ok', message: 'Config updated' }
 }
 
+function handleDeleteGelombang(params) {
+  initializeSheets()
+
+  var gelombang = (params.gelombang || '').trim()
+  if (!gelombang) return { status: 'error', message: 'Nama gelombang wajib diisi' }
+
+  var sheet = getSheet('Pengaturan_Gelombang')
+  var data = sheet.getDataRange().getValues()
+  var headers = data[0]
+  var gelIdx = headers.indexOf('gelombang')
+  if (gelIdx === -1) return { status: 'error', message: 'Kolom gelombang tidak ditemukan' }
+
+  for (var i = 1; i < data.length; i++) {
+    if (String(data[i][gelIdx]) === gelombang) {
+      sheet.deleteRow(i + 1)
+      var allData = getAllRows('Pengaturan_Gelombang')
+      return { status: 'ok', message: 'Gelombang berhasil dihapus', data: allData }
+    }
+  }
+
+  return { status: 'error', message: 'Gelombang tidak ditemukan' }
+}
+
 function handleGetEvents() {
   initializeSheets()
   var data = getAllRows('Informasi_Event')
@@ -96,7 +119,7 @@ function handleSendBroadcast(params) {
     judul: judul,
     deskripsi: deskripsi,
     status_kirim: 'Terkirim',
-    created_at: now.toISOString()
+    created_at: getWIBTime()
   })
 
   return {
