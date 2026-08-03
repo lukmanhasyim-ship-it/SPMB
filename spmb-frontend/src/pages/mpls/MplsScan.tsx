@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Camera, ScanLine, CheckCircle2, XCircle, RefreshCw, UserCheck, Loader2 } from 'lucide-react'
+import { Camera, ScanLine, CheckCircle2, XCircle, RefreshCw, Loader2 } from 'lucide-react'
 import { Html5Qrcode, Html5QrcodeSupportedFormats } from 'html5-qrcode'
 import { useAuthStore } from '../../store/authStore'
 import Card from '../../components/ui/Card'
@@ -7,6 +7,12 @@ import Button from '../../components/ui/Button'
 import { api } from '../../services/api'
 
 const READER_ID = 'mpls-qr-reader'
+
+interface AbsensiHariIni {
+  keterangan: string
+  jam: string
+  scan_oleh: string
+}
 
 interface LookupData {
   id_pendaftaran: string
@@ -17,7 +23,11 @@ interface LookupData {
   tahun_ajaran: string
   status_pendaftaran: string
   hadir_hari_ini: boolean
+  sesi_sekarang?: string
+  absensi_hari_ini?: AbsensiHariIni[]
 }
+
+const SESSIONS = ['Absen Pagi', 'Absen Siang', 'Absen Malam']
 
 function extractIdPendaftaran(text: string): string {
   const trimmed = text.trim()
@@ -36,6 +46,7 @@ function extractIdPendaftaran(text: string): string {
 export default function MplsScan() {
   const { user } = useAuthStore()
   const scannerRef = useRef<Html5Qrcode | null>(null)
+  const lastScanRef = useRef<{ text: string; time: number }>({ text: '', time: 0 })
   const [cameraOn, setCameraOn] = useState(false)
   const [cameraStarting, setCameraStarting] = useState(false)
   const [cameraError, setCameraError] = useState('')
@@ -58,29 +69,58 @@ export default function MplsScan() {
     setCameraOn(false)
   }
 
-  const lookup = async (idPendaftaran: string) => {
+  const handleScannedId = async (idPendaftaran: string) => {
     setScanError('')
     setSavedMsg('')
+    setSaving(true)
     try {
       const res = await api.mpls.lookupById(idPendaftaran)
-      if (res.status === 'ok') {
-        setScanResult(res.data as LookupData)
+      if (res.status !== 'ok') return
+      const data = res.data as LookupData
+      setScanResult(data)
+      try {
+        const saveRes = await api.mpls.addKehadiran(idPendaftaran, user?.nama || user?.email || '')
+        if (saveRes.status === 'ok') {
+          const saved = saveRes.data as { jam: string; keterangan?: string }
+          setScanResult({
+            ...data,
+            hadir_hari_ini: true,
+            absensi_hari_ini: [
+              ...(data.absensi_hari_ini || []),
+              {
+                keterangan: saved.keterangan || data.sesi_sekarang || '',
+                jam: String(saved.jam),
+                scan_oleh: user?.nama || user?.email || '',
+              },
+            ],
+          })
+          setSavedMsg(`Absensi berhasil tercatat — ${data.nama_lengkap} pukul ${String(saved.jam).slice(0, 5)}`)
+        }
+      } catch (err) {
+        const message = err instanceof Error ? err.message : 'Gagal menyimpan absensi'
+        setScanError(message)
       }
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Gagal memuat data siswa'
       setScanError(message)
       setScanResult(null)
+    } finally {
+      setSaving(false)
     }
   }
 
   const handleDecodedText = async (text: string) => {
-    await stopCamera()
+    const now = Date.now()
+    if (lastScanRef.current.text === text && now - lastScanRef.current.time < 5000) {
+      return
+    }
+    lastScanRef.current = { text, time: now }
     const idPendaftaran = extractIdPendaftaran(text)
     if (!idPendaftaran) {
       setScanError('Barcode tidak mengandung ID pendaftaran yang valid')
       return
     }
-    await lookup(idPendaftaran)
+    await handleScannedId(idPendaftaran)
   }
 
   const startCamera = async () => {
@@ -101,7 +141,7 @@ export default function MplsScan() {
         (decodedText) => {
           handleDecodedText(decodedText)
         },
-        () => {},
+        () => { },
       )
       setCameraStarting(false)
     } catch (err) {
@@ -129,25 +169,7 @@ export default function MplsScan() {
       setScanError('Masukkan ID pendaftaran terlebih dahulu')
       return
     }
-    await lookup(id)
-  }
-
-  const handleSave = async () => {
-    if (!scanResult) return
-    setSaving(true)
-    setSavedMsg('')
-    try {
-      const res = await api.mpls.addKehadiran(scanResult.id_pendaftaran, user?.nama || user?.email || '')
-      if (res.status === 'ok') {
-        setSavedMsg(`Absensi berhasil tercatat pukul ${String((res.data as { jam: string }).jam).slice(0, 5)}`)
-        setScanResult({ ...scanResult, hadir_hari_ini: true })
-      }
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Gagal menyimpan absensi'
-      setScanError(message)
-    } finally {
-      setSaving(false)
-    }
+    await handleScannedId(id)
   }
 
   useEffect(() => {
@@ -166,6 +188,7 @@ export default function MplsScan() {
     setScanResult(null)
     setScanError('')
     setSavedMsg('')
+    lastScanRef.current = { text: '', time: 0 }
   }
 
   return (
@@ -173,7 +196,7 @@ export default function MplsScan() {
       <div>
         <h1 className="text-xl font-bold text-slate-800">Scan Absen</h1>
         <p className="text-sm text-slate-500">
-          Arahkan kamera ke QR code pada kartu bukti pendaftaran siswa untuk mengabsen kehadiran.
+          Arahkan kamera ke QR code pada kartu bukti pendaftaran — absensi tercatat otomatis tanpa konfirmasi. Kamera tetap menyala untuk pemindaian berikutnya.
         </p>
       </div>
 
@@ -246,12 +269,12 @@ export default function MplsScan() {
 
         <div className="space-y-4">
           {scanError && (
-            <Card className="p-5 border-red-100">
+            <Card className="p-5 border-amber-100 bg-amber-50/40">
               <div className="flex items-start gap-3">
-                <XCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+                <XCircle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
                 <div>
-                  <p className="text-sm font-semibold text-red-600">Scan gagal</p>
-                  <p className="text-xs text-slate-500 mt-1">{scanError}</p>
+                  <p className="text-sm font-semibold text-amber-700">Perhatian</p>
+                  <p className="text-xs text-slate-600 mt-1">{scanError}</p>
                 </div>
               </div>
             </Card>
@@ -318,17 +341,66 @@ export default function MplsScan() {
                 </div>
               </div>
 
+              <div className="mt-4 pt-4 border-t border-slate-100">
+                <p className="text-xs font-medium text-slate-500 mb-2">Kehadiran Hari Ini</p>
+                <div className="space-y-2">
+                  {SESSIONS.map((s) => {
+                    const done = scanResult.absensi_hari_ini?.find((a) => a.keterangan === s)
+                    return (
+                      <div
+                        key={s}
+                        className={`flex items-center justify-between gap-2 text-sm ${done ? '' : 'text-slate-400'}`}
+                      >
+                        <span className={`font-medium shrink-0 ${done ? 'text-brand-green-dark' : ''}`}>{s}</span>
+                        {done ? (
+                          <span className="text-xs text-brand-green-dark text-right">
+                            Absensi a.n {scanResult.nama_lengkap} sudah dilakukan {done.scan_oleh || '-'} pada{' '}
+                            {String(done.jam).slice(0, 5)}
+                          </span>
+                        ) : (
+                          <span className="text-xs">Belum</span>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+
               <div className="mt-5">
-                {scanResult.hadir_hari_ini ? (
+                {saving ? (
                   <div className="flex items-center gap-2 p-3 rounded-xl bg-brand-green-light/40 text-brand-green-dark text-sm font-medium">
-                    <CheckCircle2 className="w-4 h-4" />
-                    Siswa ini sudah tercatat hadir hari ini
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Mencatat absensi {scanResult.nama_lengkap}...
                   </div>
                 ) : (
-                  <Button fullWidth onClick={handleSave} loading={saving}>
-                    <UserCheck className="w-4 h-4" />
-                    Konfirmasi Hadir
-                  </Button>
+                  (() => {
+                    const sesi = scanResult.sesi_sekarang || ''
+                    const sudahSesiIni = scanResult.absensi_hari_ini?.some((a) => a.keterangan === sesi)
+                    if (sudahSesiIni) {
+                      return (
+                        <div className="flex items-start gap-2 p-3 rounded-xl bg-amber-50 border border-amber-100 text-amber-700 text-sm font-medium">
+                          <XCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                          <span>
+                            {sesi} untuk {scanResult.nama_lengkap} sudah dilakukan hari ini
+                          </span>
+                        </div>
+                      )
+                    }
+                    if (scanResult.absensi_hari_ini && scanResult.absensi_hari_ini.length >= 3) {
+                      return (
+                        <div className="flex items-start gap-2 p-3 rounded-xl bg-amber-50 border border-amber-100 text-amber-700 text-sm font-medium">
+                          <XCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                          <span>Absensi {scanResult.nama_lengkap} hari ini sudah mencapai batas maksimal 3 kali</span>
+                        </div>
+                      )
+                    }
+                    return (
+                      <div className="flex items-center gap-2 p-3 rounded-xl bg-brand-green-light/40 text-brand-green-dark text-sm font-medium">
+                        <CheckCircle2 className="w-4 h-4" />
+                        Siap dicatat otomatis untuk {sesi}
+                      </div>
+                    )
+                  })()
                 )}
               </div>
             </Card>

@@ -16,14 +16,7 @@ export default function KartuPendaftaran() {
   const jurusanLabel = DATA_JURUSAN.find((j) => j.value === data.pilihanJurusan)?.label || data.pilihanJurusan
   const jurusanAltLabel = DATA_JURUSAN.find((j) => j.value === data.pilihanAlternatif)?.label || ''
 
-  const qrData = JSON.stringify({
-    id_pendaftaran: data.idPendaftaran || '-',
-    nama_siswa: data.namaLengkap || '-',
-    gelombang_pendaftaran: data.gelombang || '-',
-    pilihan_jurusan_1: jurusanLabel || data.pilihanJurusan || '-',
-    pilihan_jurusan_2: jurusanAltLabel || data.pilihanAlternatif || '-',
-    email: user?.email || data.email || '-',
-  })
+  const qrData = data.idPendaftaran || '-'
 
   const handleDownload = () => {
     window.print()

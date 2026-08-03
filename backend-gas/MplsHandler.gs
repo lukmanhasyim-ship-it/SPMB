@@ -69,11 +69,10 @@ function handleMplsLookupById(params) {
 
   var today = normalizeWIBDate_(params.tanggal) || getWIBDate_()
   var kehadiranList = getAllRows('Kehadiran_MPLS')
-  var hadirHariIni = false
+  var absensiHariIni = []
   for (var i = 0; i < kehadiranList.length; i++) {
     if (String(kehadiranList[i].id_pendaftaran) === idPendaftaran && normalizeWIBDate_(kehadiranList[i].tanggal) === today) {
-      hadirHariIni = true
-      break
+      absensiHariIni.push(cleanKehadiranRow_(kehadiranList[i]))
     }
   }
 
@@ -87,7 +86,9 @@ function handleMplsLookupById(params) {
       gelombang: siswa.gelombang || '',
       tahun_ajaran: siswa.tahun_ajaran || '',
       status_pendaftaran: siswa.status_pendaftaran || '',
-      hadir_hari_ini: hadirHariIni
+      hadir_hari_ini: absensiHariIni.length > 0,
+      sesi_sekarang: getAbsenKeterangan_(getWIBTime()),
+      absensi_hari_ini: absensiHariIni
     }
   }
 }
@@ -114,17 +115,36 @@ function handleMplsAddKehadiran(params) {
   if (!siswa) { lock.releaseLock(); return { status: 'error', message: 'Siswa tidak ditemukan. Periksa barcode bukti pendaftaran.' } }
 
   var today = getWIBDate_()
+  var jam = getWIBTime()
+  var sesi = getAbsenKeterangan_(jam)
   var kehadiranList = getAllRows('Kehadiran_MPLS')
+  var existingToday = []
+  var existingSameSession = null
   for (var i = 0; i < kehadiranList.length; i++) {
     if (String(kehadiranList[i].id_pendaftaran) === idPendaftaran && normalizeWIBDate_(kehadiranList[i].tanggal) === today) {
-      lock.releaseLock()
-      return { status: 'error', message: siswa.nama_lengkap + ' sudah tercatat hadir hari ini' }
+      var cleaned = cleanKehadiranRow_(kehadiranList[i])
+      existingToday.push(cleaned)
+      if (cleaned.keterangan === sesi) {
+        existingSameSession = cleaned
+      }
     }
+  }
+
+  if (existingSameSession) {
+    lock.releaseLock()
+    return {
+      status: 'error',
+      message: 'absensi a.n ' + siswa.nama_lengkap + ' sudah dilakukan ' + (existingSameSession.scan_oleh || '-') + ' pada ' + String(existingSameSession.jam).slice(0, 5)
+    }
+  }
+
+  if (existingToday.length >= 3) {
+    lock.releaseLock()
+    return { status: 'error', message: 'Absensi ' + siswa.nama_lengkap + ' hari ini sudah mencapai batas maksimal 3 kali' }
   }
 
   var now = new Date()
   var idKehadiran = 'KHD-' + now.getTime().toString(36).toUpperCase()
-  var jam = getWIBTime()
 
   addRow('Kehadiran_MPLS', {
     id_kehadiran: idKehadiran,

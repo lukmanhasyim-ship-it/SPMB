@@ -225,7 +225,7 @@ export default function MplsDashboard() {
               className="flex items-center gap-2 px-4 py-2 rounded-xl bg-brand-green hover:bg-brand-green-dark text-white text-sm font-medium shadow-sm hover:shadow-md transition-all disabled:bg-slate-200 disabled:text-slate-400 disabled:shadow-none disabled:cursor-not-allowed"
             >
               <FileSpreadsheet className="w-4 h-4" />
-              Export Excel
+              Export Hari Ini
             </button>
             <button
               onClick={handleExportAll}
