@@ -38,7 +38,7 @@ function seedInitialData() {
     addRow('Admin', {
       email: 'panitiapmb@gmail.com',
       nama: 'Panitia PMB',
-      role: 'superadmin',
+      role: 'admin',
       no_telp: ''
     })
     addRow('Admin', {

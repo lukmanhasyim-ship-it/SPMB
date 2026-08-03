@@ -94,6 +94,10 @@ function handleSendBroadcast(params) {
   var judul = (params.judul || '').trim()
   var deskripsi = (params.deskripsi || '').trim()
   var target = params.target || 'Semua'
+  var gambarUrl = params.gambar_url || ''
+  var tanggalPelaksanaan = params.tanggal_pelaksanaan || ''
+  var waktuPelaksanaan = params.waktu_pelaksanaan || ''
+  var tempatPelaksanaan = params.tempat_pelaksanaan || ''
 
   if (!judul || !deskripsi) {
     return { status: 'error', message: 'Judul dan deskripsi wajib diisi' }
@@ -118,6 +122,10 @@ function handleSendBroadcast(params) {
     target_gelombang: target,
     judul: judul,
     deskripsi: deskripsi,
+    gambar_url: gambarUrl,
+    tanggal_pelaksanaan: tanggalPelaksanaan,
+    waktu_pelaksanaan: waktuPelaksanaan,
+    tempat_pelaksanaan: tempatPelaksanaan,
     status_kirim: 'Terkirim',
     created_at: getWIBTime()
   })
@@ -130,6 +138,53 @@ function handleSendBroadcast(params) {
       targetCount: count
     }
   }
+}
+
+function handleDeleteEvent(params) {
+  initializeSheets()
+
+  var idEvent = (params.id_event || '').trim()
+  if (!idEvent) return { status: 'error', message: 'ID event wajib diisi' }
+
+  var sheet = getSheet('Informasi_Event')
+  var data = sheet.getDataRange().getValues()
+  var headers = data[0]
+  var idIdx = headers.indexOf('id_event')
+  if (idIdx === -1) return { status: 'error', message: 'Kolom id_event tidak ditemukan' }
+
+  for (var i = 1; i < data.length; i++) {
+    if (String(data[i][idIdx]) === idEvent) {
+      sheet.deleteRow(i + 1)
+      var allData = getAllRows('Informasi_Event')
+      return { status: 'ok', message: 'Postingan berhasil dihapus', data: allData }
+    }
+  }
+
+  return { status: 'error', message: 'Postingan tidak ditemukan' }
+}
+
+function handleUpdateEvent(params) {
+  initializeSheets()
+
+  var idEvent = (params.id_event || '').trim()
+  if (!idEvent) return { status: 'error', message: 'ID event wajib diisi' }
+
+  var existing = findRowByKey('Informasi_Event', 'id_event', idEvent)
+  if (!existing) return { status: 'error', message: 'Postingan tidak ditemukan' }
+
+  var updateData = {}
+  if (params.judul !== undefined) updateData.judul = params.judul
+  if (params.deskripsi !== undefined) updateData.deskripsi = params.deskripsi
+  if (params.target_gelombang !== undefined) updateData.target_gelombang = params.target_gelombang
+  if (params.gambar_url !== undefined) updateData.gambar_url = params.gambar_url
+  if (params.tanggal_pelaksanaan !== undefined) updateData.tanggal_pelaksanaan = params.tanggal_pelaksanaan
+  if (params.waktu_pelaksanaan !== undefined) updateData.waktu_pelaksanaan = params.waktu_pelaksanaan
+  if (params.tempat_pelaksanaan !== undefined) updateData.tempat_pelaksanaan = params.tempat_pelaksanaan
+
+  updateRow('Informasi_Event', 'id_event', idEvent, updateData)
+
+  var allData = getAllRows('Informasi_Event')
+  return { status: 'ok', message: 'Postingan berhasil diperbarui', data: allData }
 }
 
 function getConfigValue(configs, key, defaultValue) {

@@ -1,7 +1,5 @@
 function handleUpload(params) {
-  var folderId = PropertiesService.getScriptProperties().getProperty('DRIVE_FOLDER_ID')
-
-  var fileName = params.fileName || 'untitled'
+  var fileName = (params.fileName || 'upload_' + new Date().getTime()).replace(/[\/\\:*?"<>|]/g, '_')
   var fileData = params.fileData
   var mimeType = params.mimeType || 'application/octet-stream'
 
@@ -10,6 +8,7 @@ function handleUpload(params) {
   }
 
   try {
+    var folderId = PropertiesService.getScriptProperties().getProperty('DRIVE_FOLDER_ID')
     var folder
     if (folderId) {
       try {
@@ -23,7 +22,8 @@ function handleUpload(params) {
       PropertiesService.getScriptProperties().setProperty('DRIVE_FOLDER_ID', folder.getId())
     }
 
-    var blob = Utilities.newBlob(Utilities.base64Decode(fileData), mimeType, fileName)
+    var base64 = fileData.indexOf(',') !== -1 ? fileData.split(',')[1] : fileData
+    var blob = Utilities.newBlob(Utilities.base64Decode(base64), mimeType, fileName)
     var file = folder.createFile(blob)
 
     file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW)

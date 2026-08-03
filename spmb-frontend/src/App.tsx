@@ -13,6 +13,7 @@ const AdminSiswa = lazy(() => import('./pages/admin/AdminSiswa'))
 const AdminGelombang = lazy(() => import('./pages/admin/AdminGelombang'))
 const AdminBroadcast = lazy(() => import('./pages/admin/AdminBroadcast'))
 const AdminManajemen = lazy(() => import('./pages/admin/AdminManajemen'))
+const GuruDashboard = lazy(() => import('./pages/guru/GuruDashboard'))
 
 function SuspenseWrapper({ children }: { children: React.ReactNode }) {
   return (
@@ -22,7 +23,7 @@ function SuspenseWrapper({ children }: { children: React.ReactNode }) {
   )
 }
 
-function ProtectedRoute({ children, role }: { children: React.ReactNode; role: 'siswa' | 'admin' }) {
+function ProtectedRoute({ children, role }: { children: React.ReactNode; role: 'siswa' | 'admin' | 'guru' }) {
   const isLoggedIn = useAuthStore((s) => s.isLoggedIn)
   const user = useAuthStore((s) => s.user)
   if (!isLoggedIn || !user) return <Navigate to="/" replace />
@@ -82,6 +83,20 @@ function App() {
         <Route path="broadcast" element={<SuspenseWrapper><AdminBroadcast /></SuspenseWrapper>} />
         <Route path="admin-manajemen" element={<SuspenseWrapper><AdminManajemen /></SuspenseWrapper>} />
       </Route>
+      <Route
+        path="/guru"
+        element={
+          <ProtectedRoute role="guru">
+            <SuspenseWrapper>
+              <GuruDashboard />
+            </SuspenseWrapper>
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<Navigate to="/guru/dashboard" replace />} />
+        <Route path="dashboard" element={<SuspenseWrapper><GuruDashboard /></SuspenseWrapper>} />
+      </Route>
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )
 }

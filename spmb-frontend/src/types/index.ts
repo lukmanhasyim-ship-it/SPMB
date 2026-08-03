@@ -1,7 +1,7 @@
 export type Jurusan = 'PPLG' | 'TJKT' | 'TO' | 'AKL' | 'Busana';
 export type Gelombang = 'Gelombang 1' | 'Gelombang 2' | 'Gelombang 3';
 export type StatusPendaftaran = 'Draft' | 'Terdaftar' | 'Selesai' | 'Terverifikasi';
-export type Role = 'siswa' | 'admin';
+export type Role = 'siswa' | 'admin' | 'guru';
 export type TinggalBersama = 'Orang Tua' | 'Wali' | 'Pondok';
 export type Agama = 'Islam' | 'Kristen' | 'Katolik' | 'Hindu' | 'Buddha' | 'Konghucu';
 export type JenisKelamin = 'Laki-laki' | 'Perempuan';
@@ -67,7 +67,12 @@ export interface InformasiEvent {
   targetGelombang: string;
   judul: string;
   deskripsi: string;
+  gambarUrl: string;
+  tanggalPelaksanaan: string;
+  waktuPelaksanaan: string;
+  tempatPelaksanaan: string;
   statusKirim: string;
+  createdAt: string;
 }
 
 export interface StepInfo {

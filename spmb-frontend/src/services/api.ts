@@ -28,6 +28,9 @@ async function request(action: string, payload: Record<string, unknown> = {}): P
 }
 
 export const api = {
+  upload: (fileName: string, mimeType: string, fileData: string) =>
+    request('upload', { fileName, mimeType, fileData }),
+
   auth: {
     login: (email: string, nama?: string, fotoUrl?: string, idToken?: string) => {
       const payload: Record<string, unknown> = { email }
@@ -75,13 +78,26 @@ export const api = {
     getEvents: () =>
       request('getEvents'),
 
-    send: (judul: string, deskripsi: string, target: string) =>
-      request('sendBroadcast', { judul, deskripsi, target }),
-  },
+    send: (judul: string, deskripsi: string, target: string, gambarUrl?: string, tanggalPelaksanaan?: string, waktuPelaksanaan?: string, tempatPelaksanaan?: string) =>
+      request('sendBroadcast', { judul, deskripsi, target, gambar_url: gambarUrl || '', tanggal_pelaksanaan: tanggalPelaksanaan || '', waktu_pelaksanaan: waktuPelaksanaan || '', tempat_pelaksanaan: tempatPelaksanaan || '' }),
 
-  upload: {
-    file: (fileName: string, fileData: string, mimeType: string) =>
-      request('upload', { fileName, fileData, mimeType }),
+    delete: (idEvent: string) =>
+      request('deleteEvent', { id_event: idEvent }),
+
+    update: (idEvent: string, data: Record<string, unknown>) =>
+      request('updateEvent', { id_event: idEvent, ...data }),
+
+    getEngagement: (idEvent: string, email?: string) =>
+      request('getEngagement', { id_event: idEvent, email: email || '' }),
+
+    toggleLike: (idEvent: string, email: string) =>
+      request('toggleLike', { id_event: idEvent, email }),
+
+    addKomentar: (idEvent: string, email: string, nama: string, teks: string) =>
+      request('addKomentar', { id_event: idEvent, email, nama, teks }),
+
+    sendReminder: (idEvent: string, email: string, nama: string) =>
+      request('sendReminder', { id_event: idEvent, email, nama }),
   },
 
   admin: {

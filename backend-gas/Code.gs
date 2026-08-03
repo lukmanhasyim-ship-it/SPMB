@@ -59,6 +59,24 @@ function doPost(e) {
       case 'upload':
         result = handleUpload(params)
         break
+      case 'getEngagement':
+        result = handleGetEngagement(params)
+        break
+      case 'toggleLike':
+        result = handleToggleLike(params)
+        break
+      case 'addKomentar':
+        result = handleAddKomentar(params)
+        break
+      case 'sendReminder':
+        result = handleSendReminder(params)
+        break
+      case 'deleteEvent':
+        result = handleDeleteEvent(params)
+        break
+      case 'updateEvent':
+        result = handleUpdateEvent(params)
+        break
       case 'getAdminList':
         result = handleAdminList()
         break

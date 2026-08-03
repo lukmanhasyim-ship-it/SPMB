@@ -1,5 +1,5 @@
 import { Outlet, NavLink, useNavigate } from 'react-router-dom'
-import { LayoutDashboard, Users, Calendar, Send, LogOut, GraduationCap, Menu, X, Shield } from 'lucide-react'
+import { LayoutDashboard, Users, Calendar, Image, LogOut, GraduationCap, Menu, X, Shield } from 'lucide-react'
 import { useState } from 'react'
 import { useAuthStore } from '../../store/authStore'
 
@@ -7,8 +7,8 @@ const navItems = [
   { to: '/admin/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
   { to: '/admin/siswa', icon: Users, label: 'Data Siswa' },
   { to: '/admin/gelombang', icon: Calendar, label: 'Gelombang' },
-  { to: '/admin/broadcast', icon: Send, label: 'Broadcast' },
-  { to: '/admin/admin-manajemen', icon: Shield, label: 'Admin' },
+  { to: '/admin/broadcast', icon: Image, label: 'Postingan' },
+  { to: '/admin/admin-manajemen', icon: Shield, label: 'User' },
 ]
 
 export default function AdminLayout() {

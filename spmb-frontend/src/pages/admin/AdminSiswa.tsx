@@ -1,12 +1,15 @@
 import { useEffect, useState, useMemo } from 'react'
-import { Search, Filter, ChevronDown } from 'lucide-react'
+import { Search, Filter, ChevronDown, Download } from 'lucide-react'
+import * as XLSX from 'xlsx'
 import Card from '../../components/ui/Card'
+import Button from '../../components/ui/Button'
 import Loader from '../../components/ui/Loader'
 import { api } from '../../services/api'
 import type { StatusPendaftaran } from '../../types'
 
 const statusColors: Record<string, string> = {
   Draft: 'bg-slate-100 text-slate-600',
+  Terdaftar: 'bg-blue-50 text-blue-700',
   Selesai: 'bg-blue-50 text-blue-600',
   Terverifikasi: 'bg-brand-green-light text-brand-green-dark',
 }
@@ -63,6 +66,26 @@ export default function AdminSiswa() {
     })
   }, [siswaList, search, filterStatus])
 
+  const handleExport = () => {
+    const data = filtered.map((s, i) => ({
+      'No': i + 1,
+      'ID Pendaftaran': s.idPendaftaran,
+      'Nama Lengkap': s.namaLengkap,
+      'Email': s.email,
+      'Jurusan': s.pilihanJurusan,
+      'Gelombang': s.gelombang,
+      'Status': s.statusPendaftaran,
+    }))
+    const ws = XLSX.utils.json_to_sheet(data)
+    const wb = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(wb, ws, 'Data Siswa')
+    const colWidths = [
+      { wch: 5 }, { wch: 18 }, { wch: 28 }, { wch: 30 }, { wch: 20 }, { wch: 12 }, { wch: 14 },
+    ]
+    ws['!cols'] = colWidths
+    XLSX.writeFile(wb, `data-siswa-${Date.now()}.xlsx`)
+  }
+
   return (
     <div className="page-fade-in space-y-6">
       <div>
@@ -92,11 +115,18 @@ export default function AdminSiswa() {
           >
             <option value="Semua">Semua Status</option>
             <option value="Draft">Draft</option>
+            <option value="Terdaftar">Terdaftar</option>
             <option value="Selesai">Selesai</option>
             <option value="Terverifikasi">Terverifikasi</option>
           </select>
           <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
         </div>
+        {filtered.length > 0 && (
+          <Button variant="secondary" onClick={handleExport} className="flex items-center gap-1.5 whitespace-nowrap">
+            <Download className="w-4 h-4" />
+            Export Excel
+          </Button>
+        )}
       </div>
 
       {loading ? (

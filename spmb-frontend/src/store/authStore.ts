@@ -8,7 +8,8 @@ interface AuthState {
   loading: boolean
   error: string | null
 
-  login: (email: string, nama?: string, fotoUrl?: string, idToken?: string) => Promise<'siswa' | 'admin' | 'new' | null>
+  login: (email: string, nama?: string, fotoUrl?: string, idToken?: string) => Promise<'siswa' | 'admin' | 'guru' | 'new' | null>
+  devLogin: (role: 'siswa' | 'admin' | 'guru', email?: string) => void
   register: (email: string, nama: string, fotoUrl?: string) => Promise<void>
   logout: () => void
   clearError: () => void
@@ -27,20 +28,21 @@ export const useAuthStore = create<AuthState>((set) => ({
 
       if (result.status === 'ok') {
         const userData = result.user as { email: string; nama: string; fotoUrl?: string }
-        const role = result.role as 'siswa' | 'admin' | 'new'
+        const role = result.role as string
+        const normalizedRole: 'siswa' | 'admin' | 'guru' | 'new' = role === 'siswa' ? 'siswa' : role === 'new' ? 'new' : role === 'guru' ? 'guru' : 'admin'
 
         set({
           user: {
             email: userData.email,
             nama: userData.nama || userData.email,
-            role: role === 'admin' ? 'admin' : 'siswa',
+            role: normalizedRole === 'siswa' ? 'siswa' : normalizedRole === 'guru' ? 'guru' : 'admin',
             fotoUrl: userData.fotoUrl || '',
           },
-          isLoggedIn: role !== 'new',
+          isLoggedIn: normalizedRole !== 'new',
           loading: false,
         })
 
-        return role
+        return normalizedRole
       }
 
       set({ loading: false, error: 'Login gagal' })
@@ -50,6 +52,21 @@ export const useAuthStore = create<AuthState>((set) => ({
       set({ loading: false, error: message })
       return null
     }
+  },
+
+  devLogin: (role, email) => {
+    const emailFinal = email?.trim() || `dev.${role}@spmb.local`
+    set({
+      user: {
+        email: emailFinal,
+        nama: email?.trim() ? `Dev (${role})` : `Dev ${role}`,
+        role,
+        fotoUrl: '',
+      },
+      isLoggedIn: true,
+      loading: false,
+      error: null,
+    })
   },
 
   register: async (email: string, nama: string, fotoUrl?: string) => {

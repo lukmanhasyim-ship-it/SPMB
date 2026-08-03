@@ -3,12 +3,20 @@ import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../../store/authStore'
 import Card from '../../components/ui/Card'
 
+const isDevLoginEnabled = import.meta.env.DEV && import.meta.env.VITE_DEV_LOGIN === '1'
+
 export default function LoginPage() {
   const navigate = useNavigate()
-  const { login, loading } = useAuthStore()
+  const { login, devLogin, loading } = useAuthStore()
   const [internalLoading, setInternalLoading] = useState(false)
+  const [devEmail, setDevEmail] = useState('')
 
   const isLoading = loading || internalLoading
+
+  const handleDevLogin = (role: 'siswa' | 'admin' | 'guru') => {
+    devLogin(role, devEmail)
+    navigate(role === 'admin' ? '/admin/dashboard' : role === 'guru' ? '/guru/dashboard' : '/student/dashboard')
+  }
 
   const handleGoogleClick = () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -48,6 +56,8 @@ export default function LoginPage() {
           navigate('/admin/dashboard')
         } else if (result === 'siswa') {
           navigate('/student/dashboard')
+        } else if (result === 'guru') {
+          navigate('/guru/dashboard')
         } else {
           navigate('/register', { state: { email, nama, fotoUrl } })
         }
@@ -112,6 +122,44 @@ export default function LoginPage() {
         <p className="text-xs text-slate-400 text-center mt-6">
           Login dengan akun Google Anda
         </p>
+
+        {isDevLoginEnabled && (
+          <div className="mt-8 pt-6 border-t border-dashed border-slate-200">
+            <p className="text-[11px] font-bold uppercase tracking-wider text-amber-600 text-center mb-3">
+              Mode Pengembangan - Bypass Login
+            </p>
+            <input
+              type="email"
+              value={devEmail}
+              onChange={(e) => setDevEmail(e.target.value)}
+              placeholder="Email user (opsional)"
+              className="w-full px-3 py-2 mb-3 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+            />
+            <div className="flex flex-col gap-2">
+              <button
+                onClick={() => handleDevLogin('siswa')}
+                disabled={isLoading}
+                className="w-full px-4 py-2 rounded-lg bg-sky-500 hover:bg-sky-600 text-sm font-medium text-white transition-all disabled:opacity-50"
+              >
+                Masuk sebagai Siswa
+              </button>
+              <button
+                onClick={() => handleDevLogin('guru')}
+                disabled={isLoading}
+                className="w-full px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-sm font-medium text-white transition-all disabled:opacity-50"
+              >
+                Masuk sebagai Guru
+              </button>
+              <button
+                onClick={() => handleDevLogin('admin')}
+                disabled={isLoading}
+                className="w-full px-4 py-2 rounded-lg bg-rose-500 hover:bg-rose-600 text-sm font-medium text-white transition-all disabled:opacity-50"
+              >
+                Masuk sebagai Admin
+              </button>
+            </div>
+          </div>
+        )}
       </Card>
     </div>
   )

@@ -101,7 +101,12 @@ function updateRow(sheetName, keyColumn, keyValue, data) {
 function ensureHeaders(sheetName, headers) {
   var sheet = getSheet(sheetName)
   var existing = sheet.getDataRange().getValues()
-  if (existing.length === 0) {
+  var isEmpty = existing.length === 0 ||
+    (existing.length === 1 && existing[0].length === 1 && existing[0][0] === '') ||
+    (existing.length === 1 && existing[0].join('') === '')
+
+  if (isEmpty) {
+    sheet.clear()
     sheet.appendRow(headers)
   } else {
     var existingHeaders = existing[0]
@@ -139,7 +144,21 @@ function initializeSheets() {
   ])
 
   ensureHeaders('Informasi_Event', [
-    'id_event', 'target_gelombang', 'judul', 'deskripsi', 'status_kirim', 'created_at'
+    'id_event', 'target_gelombang', 'judul', 'deskripsi', 'gambar_url',
+    'tanggal_pelaksanaan', 'waktu_pelaksanaan', 'tempat_pelaksanaan',
+    'status_kirim', 'created_at', 'calendar_event_id', 'calendar_url'
+  ])
+
+  ensureHeaders('Event_Like', [
+    'id_event', 'email', 'created_at'
+  ])
+
+  ensureHeaders('Event_Komentar', [
+    'id_event', 'email', 'nama', 'teks', 'created_at'
+  ])
+
+  ensureHeaders('Event_Pengingat', [
+    'id_event', 'email', 'nama', 'created_at'
   ])
 
   seedInitialData()

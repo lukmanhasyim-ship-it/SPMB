@@ -9,7 +9,8 @@ function handleAdminAdd(params) {
 
   var email = (params.email || '').toLowerCase().trim()
   var nama = (params.nama || '').trim()
-  var role = (params.role || 'admin').trim()
+  var rawRole = (params.role || 'admin').trim()
+  var role = (rawRole === 'guru') ? 'guru' : 'admin'
   var noTelp = params.no_telp || ''
 
   if (!email) return { status: 'error', message: 'Email wajib diisi' }
@@ -39,7 +40,6 @@ function handleAdminUpdate(params) {
 
   var updateData = {}
   if (params.nama !== undefined) updateData.nama = params.nama
-  if (params.role !== undefined) updateData.role = params.role
   if (params.no_telp !== undefined) updateData.no_telp = params.no_telp
 
   updateRow('Admin', 'email', email, updateData)

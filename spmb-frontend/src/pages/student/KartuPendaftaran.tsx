@@ -17,10 +17,12 @@ export default function KartuPendaftaran() {
   const jurusanAltLabel = DATA_JURUSAN.find((j) => j.value === data.pilihanAlternatif)?.label || ''
 
   const qrData = JSON.stringify({
-    id: data.idPendaftaran,
-    nama: data.namaLengkap,
-    jurusan: data.pilihanJurusan,
-    email: data.email,
+    id_pendaftaran: data.idPendaftaran || '-',
+    nama_siswa: data.namaLengkap || '-',
+    gelombang_pendaftaran: data.gelombang || '-',
+    pilihan_jurusan_1: jurusanLabel || data.pilihanJurusan || '-',
+    pilihan_jurusan_2: jurusanAltLabel || data.pilihanAlternatif || '-',
+    email: user?.email || data.email || '-',
   })
 
   const handleDownload = () => {
@@ -38,7 +40,7 @@ export default function KartuPendaftaran() {
             <ArrowLeft className="w-4 h-4" />
             Kembali
           </button>
-          <h2 className="text-lg font-bold text-slate-800">Kartu Pendaftaran</h2>
+          <h2 className="text-lg font-bold text-slate-800">Bukti Pendaftaran</h2>
           <div className="w-20" />
         </div>
 
@@ -51,7 +53,7 @@ export default function KartuPendaftaran() {
                   <p className="text-[10px] text-brand-green-light uppercase tracking-widest font-medium">
                     SMKS AL AZHAR SEMPU
                   </p>
-                  <p className="text-sm font-bold mt-0.5">Kartu Pendaftaran</p>
+                  <p className="text-sm font-bold mt-0.5">Bukti Pendaftaran Resmi</p>
                 </div>
               </div>
               <QRCodeSVG value={qrData} size={40} bgColor="transparent" fgColor="#ffffff" />
@@ -121,14 +123,14 @@ export default function KartuPendaftaran() {
         <div className="flex gap-3">
           <Button onClick={handleDownload} fullWidth variant="primary">
             <Download className="w-4 h-4" />
-            Download Kartu
+            Cetak / Download Bukti
           </Button>
           <Link
             to="/student/wizard?mode=final"
             className="flex-1"
           >
             <Button fullWidth variant="secondary">
-              Lanjutkan Finalisasi Profile
+              Finalisasi Profile
             </Button>
           </Link>
         </div>

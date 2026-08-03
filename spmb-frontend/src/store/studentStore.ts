@@ -6,6 +6,8 @@ const STEPS: StepInfo[] = [
   { nomor: 1, label: 'Jurusan', selesai: false },
   { nomor: 2, label: 'Data Pribadi', selesai: false },
   { nomor: 3, label: 'Alamat & Peta', selesai: false },
+  { nomor: 4, label: 'Orang Tua/Wali', selesai: false },
+  { nomor: 5, label: 'Berkas & Prestasi', selesai: false },
 ]
 
 const initialState: DataSiswa = {
@@ -149,6 +151,8 @@ export const useStudentStore = create<StudentState>((set, get) => ({
         if (mapped.pilihanJurusan) completedSteps.push(1)
         if (mapped.namaLengkap) completedSteps.push(2)
         if (mapped.dusun) completedSteps.push(3)
+        if (mapped.namaAyah || mapped.namaIbu) completedSteps.push(4)
+        if (mapped.berkasPdfBase64 || mapped.prestasi) completedSteps.push(5)
 
         set({
           data: mapped,
@@ -249,7 +253,7 @@ export const useStudentStore = create<StudentState>((set, get) => ({
   getCurrentStep: () => {
     const { steps } = get()
     const firstIncomplete = steps.find((s) => !s.selesai)
-    return firstIncomplete?.nomor || 3
+    return firstIncomplete ? firstIncomplete.nomor : steps.length + 1
   },
 
   getProgressPercent: () => {

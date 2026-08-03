@@ -15,15 +15,19 @@ interface Stat {
 export default function AdminDashboard() {
   const [stats, setStats] = useState<Stat[]>([])
   const [jurusanCounts, setJurusanCounts] = useState<Record<string, number>>({})
+  const [jurusanAltCounts, setJurusanAltCounts] = useState<Record<string, number>>({})
+  const [gelombangCounts, setGelombangCounts] = useState<Record<string, number>>({})
   const [gelombangAktif, setGelombangAktif] = useState<{ gelombang: string; tanggalMulai: string; tanggalSelesai: string } | null>(null)
+  const [tahunAjaran, setTahunAjaran] = useState('2026/2027')
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [siswaRes, gelombangRes] = await Promise.all([
+        const [siswaRes, gelombangRes, configRes] = await Promise.all([
           api.siswa.getAll(),
           api.gelombang.get(),
+          api.config.get(),
         ])
 
         if (siswaRes.status === 'ok') {
@@ -41,12 +45,22 @@ export default function AdminDashboard() {
           ])
 
           const counts: Record<string, number> = {}
+          const altCounts: Record<string, number> = {}
+          const gelCounts: Record<string, number> = {}
           list.forEach((s) => {
             if (s.pilihan_jurusan) {
               counts[s.pilihan_jurusan] = (counts[s.pilihan_jurusan] || 0) + 1
             }
+            if (s.pilihan_alternatif) {
+              altCounts[s.pilihan_alternatif] = (altCounts[s.pilihan_alternatif] || 0) + 1
+            }
+            if (s.gelombang) {
+              gelCounts[s.gelombang] = (gelCounts[s.gelombang] || 0) + 1
+            }
           })
           setJurusanCounts(counts)
+          setJurusanAltCounts(altCounts)
+          setGelombangCounts(gelCounts)
         }
 
         if (gelombangRes.status === 'ok') {
@@ -59,6 +73,11 @@ export default function AdminDashboard() {
               tanggalSelesai: aktif.tanggal_selesai,
             })
           }
+        }
+
+        if (configRes?.status === 'ok') {
+          const config = configRes.data as Record<string, string>
+          if (config.TAHUN_AJARAN_AKTIF) setTahunAjaran(config.TAHUN_AJARAN_AKTIF)
         }
       } catch {
         // Handle error silently
@@ -132,7 +151,7 @@ export default function AdminDashboard() {
               <div className="space-y-3 text-sm">
                 <div className="flex justify-between border-b border-slate-100 pb-2">
                   <span className="text-slate-500">Tahun Ajaran Aktif</span>
-                  <span className="font-medium text-slate-800">2026/2027</span>
+                  <span className="font-medium text-slate-800">{tahunAjaran}</span>
                 </div>
                 <div className="flex justify-between border-b border-slate-100 pb-2">
                   <span className="text-slate-500">Gelombang Aktif</span>
@@ -150,6 +169,66 @@ export default function AdminDashboard() {
                   <span className="text-slate-500">Total Pendaftar</span>
                   <span className="font-medium text-slate-800">{totalSiswa}</span>
                 </div>
+              </div>
+            </Card>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card className="p-5">
+              <h3 className="text-sm font-semibold text-slate-700 mb-4">
+                Pendaftar Per Jurusan Alternatif
+              </h3>
+              <div className="space-y-3">
+                {Object.entries(jurusanAltCounts).length > 0 ? (
+                  Object.entries(jurusanAltCounts).map(([jurusan, count]) => {
+                    const percent = totalSiswa > 0 ? Math.round((count / totalSiswa) * 100) : 0
+                    return (
+                      <div key={jurusan}>
+                        <div className="flex justify-between text-xs mb-1">
+                          <span className="text-slate-700 font-medium">{jurusan}</span>
+                          <span className="text-slate-500">{count} siswa</span>
+                        </div>
+                        <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-amber-400 rounded-full transition-all"
+                            style={{ width: `${percent}%` }}
+                          />
+                        </div>
+                      </div>
+                    )
+                  })
+                ) : (
+                  <p className="text-xs text-slate-400">Belum ada data</p>
+                )}
+              </div>
+            </Card>
+
+            <Card className="p-5">
+              <h3 className="text-sm font-semibold text-slate-700 mb-4">
+                Pendaftar Per Gelombang
+              </h3>
+              <div className="space-y-3">
+                {Object.entries(gelombangCounts).length > 0 ? (
+                  Object.entries(gelombangCounts).map(([gelombang, count]) => {
+                    const percent = totalSiswa > 0 ? Math.round((count / totalSiswa) * 100) : 0
+                    return (
+                      <div key={gelombang}>
+                        <div className="flex justify-between text-xs mb-1">
+                          <span className="text-slate-700 font-medium">{gelombang}</span>
+                          <span className="text-slate-500">{count} siswa</span>
+                        </div>
+                        <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-blue-400 rounded-full transition-all"
+                            style={{ width: `${percent}%` }}
+                          />
+                        </div>
+                      </div>
+                    )
+                  })
+                ) : (
+                  <p className="text-xs text-slate-400">Belum ada data</p>
+                )}
               </div>
             </Card>
           </div>

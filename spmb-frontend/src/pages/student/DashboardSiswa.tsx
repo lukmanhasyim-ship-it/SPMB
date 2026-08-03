@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { LogOut, User, MessageCircle, FileText, UserCheck, MapPin, Award } from 'lucide-react'
+import { LogOut, User, MessageCircle, FileText, UserCheck, MapPin, Award, Newspaper } from 'lucide-react'
 import { useAuthStore } from '../../store/authStore'
 import { useStudentStore } from '../../store/studentStore'
 import Card from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
 import { api } from '../../services/api'
 import { formatWIBShort } from '../../utils/dateUtils'
+import InstagramPost from './components/InstagramPost'
 
 const statusStyle: Record<string, string> = {
   Draft: 'bg-amber-50 text-amber-700',
@@ -14,6 +15,7 @@ const statusStyle: Record<string, string> = {
   Selesai: 'bg-brand-green-light text-brand-green-dark',
   Terverifikasi: 'bg-brand-green-light text-brand-green-dark',
 }
+
 
 export default function DashboardSiswa() {
   const navigate = useNavigate()
@@ -24,6 +26,7 @@ export default function DashboardSiswa() {
   const loading = useStudentStore((s) => s.loading)
   const getProgressPercent = useStudentStore((s) => s.getProgressPercent)
   const [gelombangAktif, setGelombangAktif] = useState<{ gelombang: string; tanggalMulai: string; tanggalSelesai: string; linkGroupWA: string } | null>(null)
+  const [events, setEvents] = useState<Array<{ id_event: string; target_gelombang: string; judul: string; deskripsi: string; gambar_url: string; tanggal_pelaksanaan: string; waktu_pelaksanaan: string; tempat_pelaksanaan: string; created_at: string }>>([])
 
   useEffect(() => {
     if (!user?.email) return
@@ -43,12 +46,16 @@ export default function DashboardSiswa() {
           }
         }
       }),
+      api.broadcast.getEvents().then((res) => {
+        if (res.status === 'ok') {
+          setEvents(res.data as Array<{ id_event: string; target_gelombang: string; judul: string; deskripsi: string; gambar_url: string; tanggal_pelaksanaan: string; waktu_pelaksanaan: string; tempat_pelaksanaan: string; created_at: string }>)
+        }
+      }),
     ]).catch(() => {})
   }, [user?.email])
 
   const isInitialized = data.idPendaftaran !== ''
   const progressPercent = getProgressPercent()
-  const allComplete = steps.every((s) => s.selesai)
   const status = data.statusPendaftaran
 
   const langkah123Selesai = steps[0].selesai && steps[1].selesai && steps[2].selesai
@@ -64,41 +71,44 @@ export default function DashboardSiswa() {
 
   const stepIcons = [FileText, UserCheck, MapPin, User, Award]
   const stepLabels = ['Jurusan', 'Data Pribadi', 'Alamat & Peta', 'Orang Tua/Wali', 'Berkas & Prestasi']
+  const filteredEvents = events.filter(
+    (e) => e.target_gelombang === 'Semua' || e.target_gelombang === data.gelombang
+  )
 
   return (
     <div className="min-h-screen bg-slate-50">
       <nav className="bg-white border-b border-slate-200 sticky top-0 z-50">
-        <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 bg-brand-green-light rounded-full flex items-center justify-center">
+        <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-9 h-9 bg-brand-green-light rounded-full flex items-center justify-center shrink-0">
               <User className="w-5 h-5 text-brand-green" />
             </div>
-            <div>
-              <p className="text-sm font-semibold text-slate-800">{user?.nama}</p>
-              <p className="text-xs text-slate-500">{user?.email}</p>
+            <div className="min-w-0">
+              <p className="text-xs sm:text-sm font-semibold text-slate-800 truncate">{user?.nama}</p>
+              <p className="text-[11px] sm:text-xs text-slate-500 truncate max-w-[140px] sm:max-w-none">{user?.email}</p>
             </div>
           </div>
           <button
             onClick={handleLogout}
-            className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-red-500 transition-colors"
+            className="flex items-center gap-1.5 text-xs sm:text-sm text-slate-500 hover:text-red-500 transition-colors shrink-0 py-1 px-2"
           >
             <LogOut className="w-4 h-4" />
-            Keluar
+            <span>Keluar</span>
           </button>
         </div>
       </nav>
 
-      <div className="max-w-3xl mx-auto px-4 py-6 space-y-5">
+      <div className="max-w-3xl mx-auto px-3.5 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-5">
         {gelombangAktif && (
-          <Card className="p-4">
-            <div className="flex items-center justify-between">
+          <Card className="p-3.5 sm:p-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div className="flex items-center gap-3">
                 <div className="w-2 h-2 rounded-full bg-brand-green shrink-0" />
                 <div>
-                  <p className="text-sm font-semibold text-slate-800">
+                  <p className="text-xs sm:text-sm font-semibold text-slate-800">
                     Pendaftaran {gelombangAktif.gelombang} — Tahun Ajaran {data.tahunAjaran || '2026/2027'}
                   </p>
-                  <p className="text-xs text-slate-500 mt-0.5">
+                  <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5">
                     {formatWIBShort(gelombangAktif.tanggalMulai)} s.d. {formatWIBShort(gelombangAktif.tanggalSelesai)}
                   </p>
                 </div>
@@ -108,7 +118,7 @@ export default function DashboardSiswa() {
                   href={gelombangAktif.linkGroupWA}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-1.5 text-xs bg-brand-green-light text-brand-green-dark px-3 py-1.5 rounded-lg hover:bg-brand-green/20 transition-colors shrink-0"
+                  className="flex items-center justify-center gap-1.5 text-xs bg-brand-green-light text-brand-green-dark px-3 py-1.5 rounded-lg hover:bg-brand-green/20 transition-colors shrink-0 self-start sm:self-auto"
                 >
                   <MessageCircle className="w-4 h-4" />
                   Grup WA
@@ -118,13 +128,13 @@ export default function DashboardSiswa() {
           </Card>
         )}
 
-        <Card className="p-6">
-          <div className="flex items-center justify-between mb-4">
+        <Card className="p-4 sm:p-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 mb-4">
             <div>
-              <h2 className="text-lg font-bold text-slate-800">
+              <h2 className="text-base sm:text-lg font-bold text-slate-800">
                 {!isInitialized ? 'Selamat Datang!' : status === 'Terdaftar' ? 'Pendaftaran Tersimpan' : 'Dashboard Pendaftaran'}
               </h2>
-              <p className="text-sm text-slate-500">
+              <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
                 {loading ? 'Memuat...' : !isInitialized
                   ? 'Silakan mulai pendaftaran Anda'
                   : status === 'Draft'
@@ -137,7 +147,7 @@ export default function DashboardSiswa() {
               </p>
             </div>
             {isInitialized && (
-              <span className={`px-3 py-1 rounded-full text-xs font-medium ${statusStyle[status] || 'bg-slate-100 text-slate-700'}`}>
+              <span className={`px-3 py-1 rounded-full text-xs font-medium self-start sm:self-center shrink-0 ${statusStyle[status] || 'bg-slate-100 text-slate-700'}`}>
                 {status === 'Draft' ? 'Belum Lengkap' : status}
               </span>
             )}
@@ -163,37 +173,60 @@ export default function DashboardSiswa() {
               Mulai Pendaftaran
             </Button>
           ) : (
-            <div className="flex flex-wrap gap-2">
+            <div className="w-full">
               {status === 'Draft' && (
                 <Button
                   onClick={() => navigate('/student/wizard?mode=awal')}
                   fullWidth
                   variant="primary"
+                  className="py-2.5 text-xs sm:text-sm"
                 >
                   Lanjutkan Isi Formulir
                 </Button>
               )}
               {status === 'Terdaftar' && (
-                <>
+                <div className="flex flex-col sm:flex-row gap-2.5 w-full">
                   <Button
                     onClick={() => navigate('/student/kartu-pendaftaran')}
                     variant="secondary"
+                    className="w-full sm:flex-1 text-xs sm:text-sm py-2.5 justify-center"
                   >
-                    Kartu Pendaftaran
+                    <FileText className="w-4 h-4 mr-1.5" />
+                    Bukti Pendaftaran
                   </Button>
                   <Button
                     onClick={() => navigate('/student/wizard?mode=final')}
-                    fullWidth
                     variant="primary"
+                    className="w-full sm:flex-1 text-xs sm:text-sm py-2.5 justify-center"
                   >
                     Finalisasi Profile
                   </Button>
-                </>
+                </div>
               )}
-              {(status === 'Selesai' || status === 'Terverifikasi') && allComplete && (
-                <p className="text-sm text-brand-green font-medium w-full text-center py-2">
-                  Pendaftaran telah {status === 'Selesai' ? 'difinalisasi' : 'terverifikasi'}
-                </p>
+              {(status === 'Selesai' || status === 'Terverifikasi') && (
+                <div className="w-full flex flex-col sm:flex-row sm:items-center justify-between p-3.5 bg-emerald-50 border border-emerald-200/80 rounded-xl gap-3">
+                  <div className="flex items-start sm:items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-brand-green text-white flex items-center justify-center font-bold text-sm shrink-0 mt-0.5 sm:mt-0">
+                      ✓
+                    </div>
+                    <div>
+                      <p className="text-xs sm:text-sm font-bold text-slate-800">
+                        Pendaftaran telah {status === 'Selesai' ? 'difinalisasi' : 'terverifikasi'}
+                      </p>
+                      <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5">
+                        Bukti pendaftaran Anda siap dicetak/didownload kapan saja.
+                      </p>
+                    </div>
+                  </div>
+                  <Button
+                    onClick={() => navigate('/student/kartu-pendaftaran')}
+                    variant="primary"
+                    className="w-full sm:w-auto text-xs py-2.5 sm:py-2 shrink-0 justify-center"
+                  >
+                    <FileText className="w-4 h-4 mr-1.5" />
+                    Bukti Pendaftaran
+                  </Button>
+                </div>
               )}
             </div>
           )}
@@ -288,6 +321,25 @@ export default function DashboardSiswa() {
               <span className="text-slate-800 font-medium">{data.namaLengkap || '-'}</span>
             </div>
           </Card>
+        )}
+
+        {filteredEvents.length > 0 && (
+          <div className="space-y-3.5">
+            <div className="flex items-center gap-2 px-1">
+              <Newspaper className="w-4 h-4 text-brand-green" />
+              <h3 className="text-sm font-semibold text-slate-700">Berita & Informasi</h3>
+            </div>
+            <div className="space-y-6">
+              {filteredEvents.map((event) => (
+                <InstagramPost
+                  key={event.id_event}
+                  event={event}
+                  studentName={user?.nama}
+                  userEmail={user?.email}
+                />
+              ))}
+            </div>
+          </div>
         )}
       </div>
     </div>
