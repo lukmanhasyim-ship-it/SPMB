@@ -14,6 +14,10 @@ const AdminGelombang = lazy(() => import('./pages/admin/AdminGelombang'))
 const AdminBroadcast = lazy(() => import('./pages/admin/AdminBroadcast'))
 const AdminManajemen = lazy(() => import('./pages/admin/AdminManajemen'))
 const GuruDashboard = lazy(() => import('./pages/guru/GuruDashboard'))
+const MplsLayout = lazy(() => import('./pages/mpls/MplsLayout'))
+const MplsDashboard = lazy(() => import('./pages/mpls/MplsDashboard'))
+const MplsScan = lazy(() => import('./pages/mpls/MplsScan'))
+const MplsInformasi = lazy(() => import('./pages/mpls/MplsInformasi'))
 
 function SuspenseWrapper({ children }: { children: React.ReactNode }) {
   return (
@@ -23,7 +27,7 @@ function SuspenseWrapper({ children }: { children: React.ReactNode }) {
   )
 }
 
-function ProtectedRoute({ children, role }: { children: React.ReactNode; role: 'siswa' | 'admin' | 'guru' }) {
+function ProtectedRoute({ children, role }: { children: React.ReactNode; role: 'siswa' | 'admin' | 'guru' | 'panitia_mpls' }) {
   const isLoggedIn = useAuthStore((s) => s.isLoggedIn)
   const user = useAuthStore((s) => s.user)
   if (!isLoggedIn || !user) return <Navigate to="/" replace />
@@ -95,6 +99,21 @@ function App() {
       >
         <Route index element={<Navigate to="/guru/dashboard" replace />} />
         <Route path="dashboard" element={<SuspenseWrapper><GuruDashboard /></SuspenseWrapper>} />
+      </Route>
+      <Route
+        path="/mpls"
+        element={
+          <ProtectedRoute role="panitia_mpls">
+            <SuspenseWrapper>
+              <MplsLayout />
+            </SuspenseWrapper>
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<Navigate to="/mpls/dashboard" replace />} />
+        <Route path="dashboard" element={<SuspenseWrapper><MplsDashboard /></SuspenseWrapper>} />
+        <Route path="scan" element={<SuspenseWrapper><MplsScan /></SuspenseWrapper>} />
+        <Route path="informasi" element={<SuspenseWrapper><MplsInformasi /></SuspenseWrapper>} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

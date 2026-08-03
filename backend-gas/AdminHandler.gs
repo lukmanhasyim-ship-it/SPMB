@@ -4,13 +4,21 @@ function handleAdminList() {
   return { status: 'ok', data: admins }
 }
 
+function normalizeRole_(rawRole) {
+  var role = (rawRole || '').trim().toLowerCase()
+  if (role === 'guru') return 'guru'
+  if (role === 'panitia_mpls' || role === 'panitia-mpls' || role === 'mpls' || role === 'panitia mpls') {
+    return 'panitia_mpls'
+  }
+  return 'admin'
+}
+
 function handleAdminAdd(params) {
   initializeSheets()
 
   var email = (params.email || '').toLowerCase().trim()
   var nama = (params.nama || '').trim()
-  var rawRole = (params.role || 'admin').trim()
-  var role = (rawRole === 'guru') ? 'guru' : 'admin'
+  var role = normalizeRole_(params.role)
   var noTelp = params.no_telp || ''
 
   if (!email) return { status: 'error', message: 'Email wajib diisi' }
@@ -41,6 +49,7 @@ function handleAdminUpdate(params) {
   var updateData = {}
   if (params.nama !== undefined) updateData.nama = params.nama
   if (params.no_telp !== undefined) updateData.no_telp = params.no_telp
+  if (params.role !== undefined) updateData.role = normalizeRole_(params.role)
 
   updateRow('Admin', 'email', email, updateData)
   return { status: 'ok', message: 'Admin berhasil diperbarui' }

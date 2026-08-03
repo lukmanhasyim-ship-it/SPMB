@@ -19,6 +19,8 @@ Copy semua file `.gs` ke dalam project Apps Script:
 - `AuthHandler.gs` → `AuthHandler.gs`
 - `SiswaHandler.gs` → `SiswaHandler.gs`
 - `ConfigHandler.gs` → `ConfigHandler.gs`
+- `AdminHandler.gs` → `AdminHandler.gs`
+- `MplsHandler.gs` → `MplsHandler.gs`
 - `DriveHandler.gs` → `DriveHandler.gs`
 - `SeedData.gs` → `SeedData.gs`
 - `appsscript.json` → `appsscript.json` (di Project Settings > Show manifest file)
@@ -92,6 +94,17 @@ Semua request menggunakan `POST` dengan JSON body berisi field `action`:
 - **action: `getEvents`** — Riwayat notifikasi
 - **action: `sendBroadcast`** — Kirim notifikasi baru
 
+### MPLS (Panitia MPLS)
+- **action: `mplsLookupById`** — Cari siswa berdasarkan `id_pendaftaran`
+  ```json
+  { "action": "mplsLookupById", "id_pendaftaran": "SPMB-2627-G1-89CA2" }
+  ```
+- **action: `mplsAddKehadiran`** — Catat kehadiran siswa (absensi scan barcode)
+  ```json
+  { "action": "mplsAddKehadiran", "id_pendaftaran": "SPMB-2627-G1-89CA2", "scan_oleh": "Panitia MPLS" }
+  ```
+- **action: `mplsGetKehadiran`** — Ambil daftar kehadiran (opsional filter `tanggal` yyyy-MM-dd)
+
 ### Upload
 - **action: `upload`** — Upload file ke Google Drive
   ```json
@@ -105,3 +118,4 @@ Semua request menggunakan `POST` dengan JSON body berisi field `action`:
 - **Pengaturan_Gelombang** — Konfigurasi gelombang
 - **Sistem_Config** — Key-value config
 - **Informasi_Event** — Riwayat broadcast
+- **Kehadiran_MPLS** — Log absensi siswa baru (scan barcode bukti pendaftaran)

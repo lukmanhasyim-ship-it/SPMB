@@ -113,4 +113,15 @@ export const api = {
     delete: (email: string) =>
       request('deleteAdmin', { email }),
   },
+
+  mpls: {
+    lookupById: (idPendaftaran: string) =>
+      request('mplsLookupById', { id_pendaftaran: idPendaftaran }),
+
+    addKehadiran: (idPendaftaran: string, scanOleh: string) =>
+      request('mplsAddKehadiran', { id_pendaftaran: idPendaftaran, scan_oleh: scanOleh }),
+
+    getKehadiran: (tanggal?: string) =>
+      request('mplsGetKehadiran', { tanggal: tanggal || '' }),
+  },
 }

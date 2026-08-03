@@ -161,5 +161,10 @@ function initializeSheets() {
     'id_event', 'email', 'nama', 'created_at'
   ])
 
+  ensureHeaders('Kehadiran_MPLS', [
+    'id_kehadiran', 'id_pendaftaran', 'nama_lengkap', 'email', 'jurusan',
+    'gelombang', 'tanggal', 'jam', 'scan_oleh', 'created_at'
+  ])
+
   seedInitialData()
 }

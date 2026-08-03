@@ -89,6 +89,15 @@ function doPost(e) {
       case 'deleteAdmin':
         result = handleAdminDelete(params)
         break
+      case 'mplsLookupById':
+        result = handleMplsLookupById(params)
+        break
+      case 'mplsAddKehadiran':
+        result = handleMplsAddKehadiran(params)
+        break
+      case 'mplsGetKehadiran':
+        result = handleMplsGetKehadiran(params)
+        break
 
       default:
         result = { status: 'error', message: 'Unknown action: ' + action }

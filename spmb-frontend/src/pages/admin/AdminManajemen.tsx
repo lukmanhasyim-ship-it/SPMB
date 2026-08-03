@@ -112,7 +112,7 @@ export default function AdminManajemen() {
         }
 
         try {
-          const res = await api.admin.add(email, nama, role === 'admin' ? 'admin' : 'guru', no_telp)
+          const res = await api.admin.add(email, nama, role, no_telp)
           if (res.status === 'ok') {
             success++
           } else {
@@ -139,7 +139,7 @@ export default function AdminManajemen() {
     const ws = XLSX.utils.aoa_to_sheet([
       ['email', 'nama', 'role', 'no_telp'],
       ['guru1@gmail.com', 'Guru Satu', 'guru', '08123456789'],
-      ['guru2@gmail.com', 'Guru Dua', '', ''],
+      ['mpls1@gmail.com', 'Panitia MPLS', 'panitia_mpls', '08129876543'],
     ])
     ws['!cols'] = [
       { wch: 28 }, { wch: 20 }, { wch: 10 }, { wch: 15 },
@@ -217,7 +217,7 @@ export default function AdminManajemen() {
                     <span className="px-1.5 py-0.5 bg-white rounded border border-slate-200">no_telp</span>
                   </div>
                   <p className="text-[10px] text-slate-400 mt-2">
-                    Kolom <span className="font-medium">role</span> opsional (default: guru). Kolom <span className="font-medium">no_telp</span> juga opsional.
+                    Kolom <span className="font-medium">role</span> opsional (default: guru, opsi lain: admin / panitia_mpls). Kolom <span className="font-medium">no_telp</span> juga opsional.
                   </p>
                 </div>
 
@@ -297,7 +297,7 @@ export default function AdminManajemen() {
               </div>
               <div className="flex items-center gap-2">
                 <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-brand-green-light text-brand-green-dark">
-                  {admin.role === 'guru' ? 'Guru' : 'Admin'}
+                  {admin.role === 'guru' ? 'Guru' : admin.role === 'panitia_mpls' ? 'Panitia MPLS' : 'Admin'}
                 </span>
                 <button
                   onClick={() => openEdit(admin)}
@@ -361,6 +361,7 @@ export default function AdminManajemen() {
                 >
                   <option value="admin">Admin</option>
                   <option value="guru">Guru</option>
+                  <option value="panitia_mpls">Panitia MPLS</option>
                 </select>
               </div>
               <div>

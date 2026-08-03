@@ -8,8 +8,8 @@ interface AuthState {
   loading: boolean
   error: string | null
 
-  login: (email: string, nama?: string, fotoUrl?: string, idToken?: string) => Promise<'siswa' | 'admin' | 'guru' | 'new' | null>
-  devLogin: (role: 'siswa' | 'admin' | 'guru', email?: string) => void
+  login: (email: string, nama?: string, fotoUrl?: string, idToken?: string) => Promise<'siswa' | 'admin' | 'guru' | 'panitia_mpls' | 'new' | null>
+  devLogin: (role: 'siswa' | 'admin' | 'guru' | 'panitia_mpls', email?: string) => void
   register: (email: string, nama: string, fotoUrl?: string) => Promise<void>
   logout: () => void
   clearError: () => void
@@ -29,13 +29,18 @@ export const useAuthStore = create<AuthState>((set) => ({
       if (result.status === 'ok') {
         const userData = result.user as { email: string; nama: string; fotoUrl?: string }
         const role = result.role as string
-        const normalizedRole: 'siswa' | 'admin' | 'guru' | 'new' = role === 'siswa' ? 'siswa' : role === 'new' ? 'new' : role === 'guru' ? 'guru' : 'admin'
+        const normalizedRole: 'siswa' | 'admin' | 'guru' | 'panitia_mpls' | 'new' =
+          role === 'siswa' ? 'siswa'
+          : role === 'new' ? 'new'
+          : role === 'guru' ? 'guru'
+          : role === 'panitia_mpls' ? 'panitia_mpls'
+          : 'admin'
 
         set({
           user: {
             email: userData.email,
             nama: userData.nama || userData.email,
-            role: normalizedRole === 'siswa' ? 'siswa' : normalizedRole === 'guru' ? 'guru' : 'admin',
+            role: normalizedRole === 'siswa' ? 'siswa' : normalizedRole === 'guru' ? 'guru' : normalizedRole === 'panitia_mpls' ? 'panitia_mpls' : 'admin',
             fotoUrl: userData.fotoUrl || '',
           },
           isLoggedIn: normalizedRole !== 'new',

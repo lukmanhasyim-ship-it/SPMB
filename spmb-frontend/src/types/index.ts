@@ -1,7 +1,7 @@
 export type Jurusan = 'PPLG' | 'TJKT' | 'TO' | 'AKL' | 'Busana';
 export type Gelombang = 'Gelombang 1' | 'Gelombang 2' | 'Gelombang 3';
 export type StatusPendaftaran = 'Draft' | 'Terdaftar' | 'Selesai' | 'Terverifikasi';
-export type Role = 'siswa' | 'admin' | 'guru';
+export type Role = 'siswa' | 'admin' | 'guru' | 'panitia_mpls';
 export type TinggalBersama = 'Orang Tua' | 'Wali' | 'Pondok';
 export type Agama = 'Islam' | 'Kristen' | 'Katolik' | 'Hindu' | 'Buddha' | 'Konghucu';
 export type JenisKelamin = 'Laki-laki' | 'Perempuan';
@@ -79,4 +79,18 @@ export interface StepInfo {
   nomor: number;
   label: string;
   selesai: boolean;
+}
+
+export interface KehadiranMpls {
+  id_kehadiran: string;
+  id_pendaftaran: string;
+  nama_lengkap: string;
+  email: string;
+  jurusan: string;
+  gelombang: string;
+  tanggal: string;
+  jam: string;
+  keterangan?: string;
+  scan_oleh: string;
+  created_at: string;
 }

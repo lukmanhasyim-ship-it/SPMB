@@ -13,9 +13,9 @@ export default function LoginPage() {
 
   const isLoading = loading || internalLoading
 
-  const handleDevLogin = (role: 'siswa' | 'admin' | 'guru') => {
+  const handleDevLogin = (role: 'siswa' | 'admin' | 'guru' | 'panitia_mpls') => {
     devLogin(role, devEmail)
-    navigate(role === 'admin' ? '/admin/dashboard' : role === 'guru' ? '/guru/dashboard' : '/student/dashboard')
+    navigate(role === 'admin' ? '/admin/dashboard' : role === 'guru' ? '/guru/dashboard' : role === 'panitia_mpls' ? '/mpls/dashboard' : '/student/dashboard')
   }
 
   const handleGoogleClick = () => {
@@ -58,6 +58,8 @@ export default function LoginPage() {
           navigate('/student/dashboard')
         } else if (result === 'guru') {
           navigate('/guru/dashboard')
+        } else if (result === 'panitia_mpls') {
+          navigate('/mpls/dashboard')
         } else {
           navigate('/register', { state: { email, nama, fotoUrl } })
         }
@@ -120,7 +122,7 @@ export default function LoginPage() {
         </button>
 
         <p className="text-xs text-slate-400 text-center mt-6">
-          Login dengan akun Google Anda
+          Lanjutkan dengan Google
         </p>
 
         {isDevLoginEnabled && (
@@ -149,6 +151,13 @@ export default function LoginPage() {
                 className="w-full px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-sm font-medium text-white transition-all disabled:opacity-50"
               >
                 Masuk sebagai Guru
+              </button>
+              <button
+                onClick={() => handleDevLogin('panitia_mpls')}
+                disabled={isLoading}
+                className="w-full px-4 py-2 rounded-lg bg-teal-500 hover:bg-teal-600 text-sm font-medium text-white transition-all disabled:opacity-50"
+              >
+                Masuk sebagai Panitia MPLS
               </button>
               <button
                 onClick={() => handleDevLogin('admin')}
