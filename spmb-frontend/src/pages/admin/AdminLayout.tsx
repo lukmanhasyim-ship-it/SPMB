@@ -1,13 +1,17 @@
 import { Outlet, NavLink, useNavigate } from 'react-router-dom'
-import { LayoutDashboard, Users, Calendar, Image, LogOut, GraduationCap, Menu, X, Shield } from 'lucide-react'
+import { LayoutDashboard, Users, Calendar, Image, FileText, LogOut, GraduationCap, Menu, X, Shield, UserPlus, Milestone, UserCheck } from 'lucide-react'
 import { useState } from 'react'
 import { useAuthStore } from '../../store/authStore'
 
 const navItems = [
   { to: '/admin/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
   { to: '/admin/siswa', icon: Users, label: 'Data Siswa' },
+  { to: '/admin/daftarkan-siswa', icon: UserPlus, label: 'Daftarkan Siswa' },
+  { to: '/admin/referral', icon: UserCheck, label: 'Referral' },
   { to: '/admin/gelombang', icon: Calendar, label: 'Gelombang' },
+  { to: '/admin/timeline', icon: Milestone, label: 'Timeline' },
   { to: '/admin/broadcast', icon: Image, label: 'Postingan' },
+  { to: '/admin/formulir', icon: FileText, label: 'Formulir' },
   { to: '/admin/admin-manajemen', icon: Shield, label: 'User' },
 ]
 
@@ -75,7 +79,7 @@ export default function AdminLayout() {
         </div>
       </aside>
 
-      <div className="md:hidden fixed top-0 left-0 right-0 bg-white border-b border-slate-200 z-50 px-4 py-3 flex items-center justify-between">
+      <div className="md:hidden print:hidden fixed top-0 left-0 right-0 bg-white border-b border-slate-200 z-50 px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <GraduationCap className="w-5 h-5 text-brand-green" />
           <span className="text-sm font-bold text-slate-800">Admin SPMB</span>

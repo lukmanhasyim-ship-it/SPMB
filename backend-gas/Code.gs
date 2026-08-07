@@ -32,8 +32,14 @@ function doPost(e) {
       case 'getSiswa':
         result = handleGetSiswa(params)
         break
+      case 'getReferralStats':
+        result = handleGetReferralStats()
+        break
       case 'updateSiswa':
         result = handleUpdateSiswa(params)
+        break
+      case 'adminRegisterSiswa':
+        result = handleAdminRegisterSiswa(params)
         break
       case 'getGelombang':
         result = handleGetGelombang()
@@ -76,6 +82,18 @@ function doPost(e) {
         break
       case 'updateEvent':
         result = handleUpdateEvent(params)
+        break
+      case 'getTimeline':
+        result = handleGetTimeline()
+        break
+      case 'addTimeline':
+        result = handleAddTimeline(params)
+        break
+      case 'updateTimeline':
+        result = handleUpdateTimeline(params)
+        break
+      case 'deleteTimeline':
+        result = handleDeleteTimeline(params)
         break
       case 'getAdminList':
         result = handleAdminList()

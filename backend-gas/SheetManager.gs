@@ -65,7 +65,7 @@ function findRowByKey(sheetName, keyColumn, keyValue) {
   return null
 }
 
-function addRow(sheetName, data) {
+function addRow(sheetName, data, textColumns) {
   var sheet = getSheet(sheetName)
   var headers = sheet.getDataRange().getValues()[0]
 
@@ -79,10 +79,19 @@ function addRow(sheetName, data) {
     row.push(data[headers[i]] || '')
   }
   sheet.appendRow(row)
+
+  if (textColumns) {
+    var lastRow = sheet.getLastRow()
+    for (var j = 0; j < headers.length; j++) {
+      if (textColumns.indexOf(headers[j]) > -1) {
+        sheet.getRange(lastRow, j + 1).setNumberFormat('@').setValue(String(data[headers[j]] || ''))
+      }
+    }
+  }
   return true
 }
 
-function updateRow(sheetName, keyColumn, keyValue, data) {
+function updateRow(sheetName, keyColumn, keyValue, data, textColumns) {
   var existing = findRowByKey(sheetName, keyColumn, keyValue)
   if (!existing) return false
 
@@ -92,10 +101,34 @@ function updateRow(sheetName, keyColumn, keyValue, data) {
 
   for (var j = 0; j < headers.length; j++) {
     if (data[headers[j]] !== undefined) {
-      sheet.getRange(rowIndex, j + 1).setValue(data[headers[j]])
+      var range = sheet.getRange(rowIndex, j + 1)
+      if (textColumns && textColumns.indexOf(headers[j]) > -1) {
+        range.setNumberFormat('@').setValue(String(data[headers[j]] || ''))
+      } else {
+        range.setValue(data[headers[j]])
+      }
     }
   }
   return true
+}
+
+function deleteRowsByKey(sheetName, keyColumn, keyValue) {
+  var sheet = getSheet(sheetName)
+  var data = sheet.getDataRange().getValues()
+  if (data.length < 2) return 0
+
+  var headers = data[0]
+  var keyIndex = headers.indexOf(keyColumn)
+  if (keyIndex === -1) return 0
+
+  var deleted = 0
+  for (var i = data.length - 1; i >= 1; i--) {
+    if (String(data[i][keyIndex]) === String(keyValue)) {
+      sheet.deleteRow(i + 1)
+      deleted++
+    }
+  }
+  return deleted
 }
 
 function ensureHeaders(sheetName, headers) {
@@ -127,7 +160,8 @@ function initializeSheets() {
     'desa', 'kecamatan', 'kabupaten', 'kode_pos', 'koordinat_maps',
     'tinggal_bersama', 'nama_ayah', 'kerja_ayah', 'nama_ibu', 'kerja_ibu',
     'telepon_ortu', 'foto_profil_url', 'berkas_pdf_url', 'prestasi',
-    'alasan_pilih_jurusan', 'gelombang', 'tahun_ajaran', 'status_pendaftaran',
+    'alasan_pilih_jurusan', 'referral_nama', 'referral_kategori',
+    'gelombang', 'tahun_ajaran', 'status_pendaftaran',
     'waktu_daftar', 'created_at', 'updated_at'
   ])
 
@@ -164,6 +198,11 @@ function initializeSheets() {
   ensureHeaders('Kehadiran_MPLS', [
     'id_kehadiran', 'id_pendaftaran', 'nama_lengkap', 'email', 'jurusan',
     'gelombang', 'tanggal', 'jam', 'scan_oleh', 'created_at'
+  ])
+
+  ensureHeaders('Timeline_SPMB', [
+    'id_timeline', 'urutan', 'nama_tahapan', 'deskripsi',
+    'tanggal_mulai', 'tanggal_selesai', 'status', 'created_at', 'updated_at'
   ])
 
   seedInitialData()

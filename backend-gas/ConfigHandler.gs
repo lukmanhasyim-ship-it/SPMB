@@ -1,3 +1,6 @@
+var EVENT_TEXT_COLUMNS = ['tanggal_pelaksanaan', 'waktu_pelaksanaan']
+var GELOMBANG_TEXT_COLUMNS = ['tanggal_mulai', 'tanggal_selesai']
+
 function handleGetGelombang() {
   initializeSheets()
   var data = getAllRows('Pengaturan_Gelombang')
@@ -18,14 +21,14 @@ function handleUpdateGelombang(params) {
       tanggal_selesai: params.tanggal_selesai || '',
       link_group_wa: params.link_group_wa || '',
       status: params.status || 'Non-Aktif'
-    })
+    }, GELOMBANG_TEXT_COLUMNS)
   } else {
     var updateData = {}
     if (params.tanggal_mulai !== undefined) updateData.tanggal_mulai = params.tanggal_mulai
     if (params.tanggal_selesai !== undefined) updateData.tanggal_selesai = params.tanggal_selesai
     if (params.link_group_wa !== undefined) updateData.link_group_wa = params.link_group_wa
     if (params.status !== undefined) updateData.status = params.status
-    updateRow('Pengaturan_Gelombang', 'gelombang', gelombang, updateData)
+    updateRow('Pengaturan_Gelombang', 'gelombang', gelombang, updateData, GELOMBANG_TEXT_COLUMNS)
   }
 
   var allData = getAllRows('Pengaturan_Gelombang')
@@ -85,6 +88,11 @@ function handleDeleteGelombang(params) {
 function handleGetEvents() {
   initializeSheets()
   var data = getAllRows('Informasi_Event')
+  data.sort(function (a, b) {
+    var ta = new Date(a.created_at || 0).getTime()
+    var tb = new Date(b.created_at || 0).getTime()
+    return tb - ta
+  })
   return { status: 'ok', data: data }
 }
 
@@ -128,7 +136,7 @@ function handleSendBroadcast(params) {
     tempat_pelaksanaan: tempatPelaksanaan,
     status_kirim: 'Terkirim',
     created_at: getWIBTime()
-  })
+  }, EVENT_TEXT_COLUMNS)
 
   return {
     status: 'ok',
@@ -155,6 +163,11 @@ function handleDeleteEvent(params) {
   for (var i = 1; i < data.length; i++) {
     if (String(data[i][idIdx]) === idEvent) {
       sheet.deleteRow(i + 1)
+
+      deleteRowsByKey('Event_Like', 'id_event', idEvent)
+      deleteRowsByKey('Event_Komentar', 'id_event', idEvent)
+      deleteRowsByKey('Event_Pengingat', 'id_event', idEvent)
+
       var allData = getAllRows('Informasi_Event')
       return { status: 'ok', message: 'Postingan berhasil dihapus', data: allData }
     }
@@ -181,7 +194,7 @@ function handleUpdateEvent(params) {
   if (params.waktu_pelaksanaan !== undefined) updateData.waktu_pelaksanaan = params.waktu_pelaksanaan
   if (params.tempat_pelaksanaan !== undefined) updateData.tempat_pelaksanaan = params.tempat_pelaksanaan
 
-  updateRow('Informasi_Event', 'id_event', idEvent, updateData)
+  updateRow('Informasi_Event', 'id_event', idEvent, updateData, EVENT_TEXT_COLUMNS)
 
   var allData = getAllRows('Informasi_Event')
   return { status: 'ok', message: 'Postingan berhasil diperbarui', data: allData }

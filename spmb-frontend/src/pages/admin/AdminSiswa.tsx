@@ -21,6 +21,8 @@ interface SiswaRow {
   pilihanJurusan: string
   gelombang: string
   statusPendaftaran: string
+  referralNama: string
+  referralKategori: string
 }
 
 export default function AdminSiswa() {
@@ -41,6 +43,8 @@ export default function AdminSiswa() {
             pilihanJurusan: s.pilihan_jurusan || '-',
             gelombang: s.gelombang || '-',
             statusPendaftaran: s.status_pendaftaran || 'Draft',
+            referralNama: s.referral_nama || '',
+            referralKategori: s.referral_kategori || '',
           }))
           setSiswaList(list)
         }
@@ -75,12 +79,14 @@ export default function AdminSiswa() {
       'Jurusan': s.pilihanJurusan,
       'Gelombang': s.gelombang,
       'Status': s.statusPendaftaran,
+      'Referral (Kategori)': s.referralKategori,
+      'Referral (Nama)': s.referralNama,
     }))
     const ws = XLSX.utils.json_to_sheet(data)
     const wb = XLSX.utils.book_new()
     XLSX.utils.book_append_sheet(wb, ws, 'Data Siswa')
     const colWidths = [
-      { wch: 5 }, { wch: 18 }, { wch: 28 }, { wch: 30 }, { wch: 20 }, { wch: 12 }, { wch: 14 },
+      { wch: 5 }, { wch: 18 }, { wch: 28 }, { wch: 30 }, { wch: 20 }, { wch: 12 }, { wch: 14 }, { wch: 16 }, { wch: 20 },
     ]
     ws['!cols'] = colWidths
     XLSX.writeFile(wb, `data-siswa-${Date.now()}.xlsx`)
@@ -142,13 +148,14 @@ export default function AdminSiswa() {
                   <th className="text-left px-4 py-3 font-semibold text-slate-600 text-xs uppercase">Nama</th>
                   <th className="text-left px-4 py-3 font-semibold text-slate-600 text-xs uppercase">Jurusan</th>
                   <th className="text-left px-4 py-3 font-semibold text-slate-600 text-xs uppercase">Gelombang</th>
+                  <th className="text-left px-4 py-3 font-semibold text-slate-600 text-xs uppercase">Referral</th>
                   <th className="text-left px-4 py-3 font-semibold text-slate-600 text-xs uppercase">Status</th>
                 </tr>
               </thead>
               <tbody>
                 {filtered.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="px-4 py-8 text-center text-slate-400">
+                    <td colSpan={7} className="px-4 py-8 text-center text-slate-400">
                       Tidak ada data yang cocok
                     </td>
                   </tr>
@@ -163,6 +170,16 @@ export default function AdminSiswa() {
                       </td>
                       <td className="px-4 py-3 text-slate-700">{siswa.pilihanJurusan}</td>
                       <td className="px-4 py-3 text-slate-700">{siswa.gelombang}</td>
+                      <td className="px-4 py-3">
+                        {siswa.referralNama ? (
+                          <>
+                            <p className="font-medium text-slate-800">{siswa.referralNama}</p>
+                            <p className="text-xs text-slate-400">{siswa.referralKategori || '-'}</p>
+                          </>
+                        ) : (
+                          <span className="text-xs text-slate-400">-</span>
+                        )}
+                      </td>
                       <td className="px-4 py-3">
                         <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${statusColors[siswa.statusPendaftaran]}`}>
                           {siswa.statusPendaftaran}

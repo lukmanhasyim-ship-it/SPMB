@@ -53,6 +53,14 @@ export const api = {
 
     update: (email: string, data: Record<string, unknown>) =>
       request('updateSiswa', { email, ...data }),
+
+    create: (data: Record<string, unknown>) =>
+      request('adminRegisterSiswa', data),
+  },
+
+  referral: {
+    getStats: () =>
+      request('getReferralStats'),
   },
 
   gelombang: {
@@ -123,5 +131,19 @@ export const api = {
 
     getKehadiran: (tanggal?: string) =>
       request('mplsGetKehadiran', { tanggal: tanggal || '' }),
+  },
+
+  timeline: {
+    get: () =>
+      request('getTimeline'),
+
+    add: (data: Record<string, unknown>) =>
+      request('addTimeline', data),
+
+    update: (idTimeline: string, data: Record<string, unknown>) =>
+      request('updateTimeline', { id_timeline: idTimeline, ...data }),
+
+    delete: (idTimeline: string) =>
+      request('deleteTimeline', { id_timeline: idTimeline }),
   },
 }

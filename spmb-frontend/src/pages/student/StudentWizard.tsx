@@ -12,8 +12,10 @@ export default function StudentWizard() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const idPendaftaran = useStudentStore((s) => s.data.idPendaftaran)
+  const statusPendaftaran = useStudentStore((s) => s.data.statusPendaftaran)
   const getCurrentStep = useStudentStore((s) => s.getCurrentStep)
   const loadSiswa = useStudentStore((s) => s.loadSiswa)
+  const selesaikanPendaftaranAwal = useStudentStore((s) => s.selesaikanPendaftaranAwal)
   const user = useAuthStore((s) => s.user)
   const loaded = useRef(false)
 
@@ -33,10 +35,13 @@ export default function StudentWizard() {
     }
   }, [idPendaftaran, user?.email, loadSiswa])
 
-  const handleStepComplete = () => {
+  const handleStepComplete = async () => {
     if (mode === 'awal') {
       const nextStep = getCurrentStep()
       if (nextStep > 3) {
+        if (statusPendaftaran === 'Draft') {
+          await selesaikanPendaftaranAwal()
+        }
         navigate('/student/kartu-pendaftaran')
       } else {
         navigate(`/student/wizard?mode=awal&step=${nextStep}`)

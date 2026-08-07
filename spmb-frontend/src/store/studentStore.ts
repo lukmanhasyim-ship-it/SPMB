@@ -39,7 +39,10 @@ const initialState: DataSiswa = {
   teleponOrtu: '',
   fotoProfilBase64: '',
   berkasPdfBase64: '',
+  prestasiFotoBase64: '',
   prestasi: '',
+  referralNama: '',
+  referralKategori: '',
   gelombang: '',
   tahunAjaran: '',
   statusPendaftaran: 'Draft',
@@ -76,7 +79,10 @@ function mapApiToData(apiData: Record<string, unknown>): DataSiswa {
     teleponOrtu: String(apiData.telepon_ortu || ''),
     fotoProfilBase64: String(apiData.foto_profil_url || ''),
     berkasPdfBase64: String(apiData.berkas_pdf_url || ''),
+    prestasiFotoBase64: String(apiData.prestasi_foto_url || ''),
     prestasi: String(apiData.prestasi || ''),
+    referralNama: String(apiData.referral_nama || ''),
+    referralKategori: (String(apiData.referral_kategori || '') as DataSiswa['referralKategori']),
     gelombang: (String(apiData.gelombang || '') as DataSiswa['gelombang']),
     tahunAjaran: String(apiData.tahun_ajaran || ''),
     statusPendaftaran: (apiData.status_pendaftaran as DataSiswa['statusPendaftaran']) || 'Draft',
@@ -111,6 +117,8 @@ function mapDataToApi(data: DataSiswa): Record<string, unknown> {
     kerja_ibu: data.kerjaIbu,
     telepon_ortu: data.teleponOrtu,
     prestasi: data.prestasi,
+    referral_nama: data.referralNama,
+    referral_kategori: data.referralKategori,
     status_pendaftaran: data.statusPendaftaran,
   }
 }
@@ -152,7 +160,7 @@ export const useStudentStore = create<StudentState>((set, get) => ({
         if (mapped.namaLengkap) completedSteps.push(2)
         if (mapped.dusun) completedSteps.push(3)
         if (mapped.namaAyah || mapped.namaIbu) completedSteps.push(4)
-        if (mapped.berkasPdfBase64 || mapped.prestasi) completedSteps.push(5)
+        if (mapped.berkasPdfBase64 || mapped.prestasiFotoBase64 || mapped.prestasi) completedSteps.push(5)
 
         set({
           data: mapped,
@@ -205,30 +213,38 @@ export const useStudentStore = create<StudentState>((set, get) => ({
   },
 
   selesaikanPendaftaranAwal: async () => {
+    const currentStatus = get().data.statusPendaftaran
+    const nextStatus: DataSiswa['statusPendaftaran'] =
+      currentStatus === 'Draft' || !currentStatus ? 'Terdaftar' : currentStatus
+
     set((state) => ({
       steps: state.steps.map((s) =>
         s.nomor <= 3 ? { ...s, selesai: true } : s
       ),
       data: {
         ...state.data,
-        statusPendaftaran: 'Terdaftar' as const,
+        statusPendaftaran: nextStatus,
       },
     }))
 
     const { data } = get()
     if (data.email) {
       await api.siswa.update(data.email, {
-        status_pendaftaran: 'Terdaftar',
+        status_pendaftaran: nextStatus,
         ...mapDataToApi(get().data),
       })
     }
   },
 
   finalisasi: async () => {
+    const currentStatus = get().data.statusPendaftaran
+    const nextStatus: DataSiswa['statusPendaftaran'] =
+      currentStatus === 'Terverifikasi' ? currentStatus : 'Selesai'
+
     set((state) => ({
       data: {
         ...state.data,
-        statusPendaftaran: 'Selesai' as const,
+        statusPendaftaran: nextStatus,
         waktuDaftar: new Date().toISOString(),
       },
     }))
@@ -236,7 +252,7 @@ export const useStudentStore = create<StudentState>((set, get) => ({
     const { data } = get()
     if (data.email) {
       await api.siswa.update(data.email, {
-        status_pendaftaran: 'Selesai',
+        status_pendaftaran: nextStatus,
         ...mapDataToApi(get().data),
       })
     }

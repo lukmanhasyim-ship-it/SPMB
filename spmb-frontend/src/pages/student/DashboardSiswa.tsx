@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { LogOut, User, MessageCircle, FileText, UserCheck, MapPin, Award, Newspaper } from 'lucide-react'
+import { LogOut, User, MessageCircle, FileText, UserCheck, MapPin, Award, Newspaper, Loader2 } from 'lucide-react'
 import { useAuthStore } from '../../store/authStore'
 import { useStudentStore } from '../../store/studentStore'
 import Card from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
 import { api } from '../../services/api'
-import { formatWIBShort } from '../../utils/dateUtils'
+import { formatWIBShort, getSapaanWIB } from '../../utils/dateUtils'
 import InstagramPost from './components/InstagramPost'
+import TimelineSiswa from './components/TimelineSiswa'
 
 const statusStyle: Record<string, string> = {
   Draft: 'bg-amber-50 text-amber-700',
@@ -25,11 +26,15 @@ export default function DashboardSiswa() {
   const loadSiswa = useStudentStore((s) => s.loadSiswa)
   const loading = useStudentStore((s) => s.loading)
   const getProgressPercent = useStudentStore((s) => s.getProgressPercent)
+  const [initialLoading, setInitialLoading] = useState(true)
   const [gelombangAktif, setGelombangAktif] = useState<{ gelombang: string; tanggalMulai: string; tanggalSelesai: string; linkGroupWA: string } | null>(null)
   const [events, setEvents] = useState<Array<{ id_event: string; target_gelombang: string; judul: string; deskripsi: string; gambar_url: string; tanggal_pelaksanaan: string; waktu_pelaksanaan: string; tempat_pelaksanaan: string; created_at: string }>>([])
 
   useEffect(() => {
-    if (!user?.email) return
+    if (!user?.email) {
+      setInitialLoading(false)
+      return
+    }
     Promise.all([
       loadSiswa(user.email),
       api.gelombang.get().then((res) => {
@@ -51,12 +56,13 @@ export default function DashboardSiswa() {
           setEvents(res.data as Array<{ id_event: string; target_gelombang: string; judul: string; deskripsi: string; gambar_url: string; tanggal_pelaksanaan: string; waktu_pelaksanaan: string; tempat_pelaksanaan: string; created_at: string }>)
         }
       }),
-    ]).catch(() => {})
+    ]).catch(() => {}).finally(() => setInitialLoading(false))
   }, [user?.email])
 
   const isInitialized = data.idPendaftaran !== ''
   const progressPercent = getProgressPercent()
   const status = data.statusPendaftaran
+  const sapaan = getSapaanWIB()
 
   const langkah123Selesai = steps[0].selesai && steps[1].selesai && steps[2].selesai
 
@@ -132,10 +138,10 @@ export default function DashboardSiswa() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 mb-4">
             <div>
               <h2 className="text-base sm:text-lg font-bold text-slate-800">
-                {!isInitialized ? 'Selamat Datang!' : status === 'Terdaftar' ? 'Pendaftaran Tersimpan' : 'Dashboard Pendaftaran'}
+                Selamat {sapaan}, {user?.nama || 'Calon Siswa'}!!
               </h2>
               <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
-                {loading ? 'Memuat...' : !isInitialized
+                {initialLoading || loading ? 'Mohon tunggu, sedang memuat data Anda...' : !isInitialized
                   ? 'Silakan mulai pendaftaran Anda'
                   : status === 'Draft'
                   ? 'Lengkapi data pendaftaran awal'
@@ -169,9 +175,16 @@ export default function DashboardSiswa() {
           )}
 
           {!isInitialized ? (
-            <Button onClick={handleMulaiPendaftaran} fullWidth className="py-3">
-              Mulai Pendaftaran
-            </Button>
+            initialLoading || loading ? (
+              <div className="flex flex-col items-center gap-2.5 py-3">
+                <Loader2 className="w-5 h-5 text-brand-green animate-spin" />
+                <p className="text-xs text-slate-500">Mohon tunggu, sedang memuat data pendaftaran Anda...</p>
+              </div>
+            ) : (
+              <Button onClick={handleMulaiPendaftaran} fullWidth className="py-3">
+                Mulai Pendaftaran
+              </Button>
+            )
           ) : (
             <div className="w-full">
               {status === 'Draft' && (
@@ -184,50 +197,50 @@ export default function DashboardSiswa() {
                   Lanjutkan Isi Formulir
                 </Button>
               )}
-              {status === 'Terdaftar' && (
-                <div className="flex flex-col sm:flex-row gap-2.5 w-full">
-                  <Button
-                    onClick={() => navigate('/student/kartu-pendaftaran')}
-                    variant="secondary"
-                    className="w-full sm:flex-1 text-xs sm:text-sm py-2.5 justify-center"
-                  >
-                    <FileText className="w-4 h-4 mr-1.5" />
-                    Bukti Pendaftaran
-                  </Button>
-                  <Button
-                    onClick={() => navigate('/student/wizard?mode=final')}
-                    variant="primary"
-                    className="w-full sm:flex-1 text-xs sm:text-sm py-2.5 justify-center"
-                  >
-                    Finalisasi Profile
-                  </Button>
-                </div>
-              )}
-              {(status === 'Selesai' || status === 'Terverifikasi') && (
-                <div className="w-full flex flex-col sm:flex-row sm:items-center justify-between p-3.5 bg-emerald-50 border border-emerald-200/80 rounded-xl gap-3">
-                  <div className="flex items-start sm:items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-brand-green text-white flex items-center justify-center font-bold text-sm shrink-0 mt-0.5 sm:mt-0">
-                      ✓
-                    </div>
-                    <div>
-                      <p className="text-xs sm:text-sm font-bold text-slate-800">
-                        Pendaftaran telah {status === 'Selesai' ? 'difinalisasi' : 'terverifikasi'}
-                      </p>
-                      <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5">
-                        Bukti pendaftaran Anda siap dicetak/didownload kapan saja.
-                      </p>
-                    </div>
+            {status === 'Terdaftar' && (
+              <div className="flex flex-col sm:flex-row gap-2.5 w-full">
+                <Button
+                  onClick={() => navigate('/student/kartu-pendaftaran')}
+                  variant="secondary"
+                  className="w-full sm:flex-1 text-xs sm:text-sm py-2.5 justify-center"
+                >
+                  <FileText className="w-4 h-4 mr-1.5" />
+                  Bukti Pendaftaran
+                </Button>
+                <Button
+                  onClick={() => navigate('/student/wizard?mode=final')}
+                  variant="primary"
+                  className="w-full sm:flex-1 text-xs sm:text-sm py-2.5 justify-center"
+                >
+                  Finalisasi Profile
+                </Button>
+              </div>
+            )}
+            {(status === 'Selesai' || status === 'Terverifikasi') && (
+              <div className="w-full flex flex-col sm:flex-row sm:items-center justify-between p-3.5 bg-emerald-50 border border-emerald-200/80 rounded-xl gap-3">
+                <div className="flex items-start sm:items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-brand-green text-white flex items-center justify-center font-bold text-sm shrink-0 mt-0.5 sm:mt-0">
+                    ✓
                   </div>
-                  <Button
-                    onClick={() => navigate('/student/kartu-pendaftaran')}
-                    variant="primary"
-                    className="w-full sm:w-auto text-xs py-2.5 sm:py-2 shrink-0 justify-center"
-                  >
-                    <FileText className="w-4 h-4 mr-1.5" />
-                    Bukti Pendaftaran
-                  </Button>
+                  <div>
+                    <p className="text-xs sm:text-sm font-bold text-slate-800">
+                      Pendaftaran telah {status === 'Selesai' ? 'difinalisasi' : 'terverifikasi'}
+                    </p>
+                    <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5">
+                      Bukti pendaftaran Anda siap dicetak/didownload kapan saja.
+                    </p>
+                  </div>
                 </div>
-              )}
+                <Button
+                  onClick={() => navigate('/student/kartu-pendaftaran')}
+                  variant="primary"
+                  className="w-full sm:w-auto text-xs py-2.5 sm:py-2 shrink-0 justify-center"
+                >
+                  <FileText className="w-4 h-4 mr-1.5" />
+                  Bukti Pendaftaran
+                </Button>
+              </div>
+            )}
             </div>
           )}
         </Card>
@@ -255,11 +268,9 @@ export default function DashboardSiswa() {
                         )}
                       </div>
                     </div>
-                    {!step.selesai && (
-                      <Button onClick={() => navigate(`/student/wizard?mode=awal&step=${step.nomor}`)} variant="ghost" className="text-xs">
-                        Isi
-                      </Button>
-                    )}
+                    <Button onClick={() => navigate(`/student/wizard?mode=awal&step=${step.nomor}`)} variant="ghost" className="text-xs">
+                      {step.selesai ? 'Ubah' : 'Isi'}
+                    </Button>
                   </div>
                 </Card>
               )
@@ -286,16 +297,14 @@ export default function DashboardSiswa() {
                             </p>
                             {step.selesai ? (
                               <p className="text-xs text-brand-green">Selesai</p>
-                            ) : status === 'Terdaftar' ? (
+                            ) : (
                               <p className="text-xs text-amber-600">Belum diisi</p>
-                            ) : null}
+                            )}
                           </div>
                         </div>
-                        {!step.selesai && status === 'Terdaftar' && (
-                          <Button onClick={() => navigate(`/student/wizard?mode=final&step=${step.nomor}`)} variant="ghost" className="text-xs">
-                            Isi
-                          </Button>
-                        )}
+                        <Button onClick={() => navigate(`/student/wizard?mode=final&step=${step.nomor}`)} variant="ghost" className="text-xs">
+                          {step.selesai ? 'Ubah' : 'Isi'}
+                        </Button>
                       </div>
                     </Card>
                   )
@@ -322,6 +331,8 @@ export default function DashboardSiswa() {
             </div>
           </Card>
         )}
+
+        <TimelineSiswa />
 
         {filteredEvents.length > 0 && (
           <div className="space-y-3.5">

@@ -1,6 +1,6 @@
 import type { ChangeEvent } from 'react'
 import { useRef, useState } from 'react'
-import { Upload, FileText, Award } from 'lucide-react'
+import { Upload, Award } from 'lucide-react'
 import { useStudentStore } from '../../../store/studentStore'
 import StepLayout from '../components/StepLayout'
 import Card from '../../../components/ui/Card'
@@ -23,9 +23,9 @@ function fileToBase64(file: File): Promise<string> {
 export default function Step5Berkas({ onComplete, onBack }: Step5Props) {
   const { data, steps, updateData, completeStep, finalisasi } = useStudentStore()
   const fotoRef = useRef<HTMLInputElement>(null)
-  const berkasRef = useRef<HTMLInputElement>(null)
+  const prestasiRef = useRef<HTMLInputElement>(null)
   const [uploadingFoto, setUploadingFoto] = useState(false)
-  const [uploadingBerkas, setUploadingBerkas] = useState(false)
+  const [uploadingPrestasi, setUploadingPrestasi] = useState(false)
   const [loading, setLoading] = useState(false)
 
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -46,17 +46,17 @@ export default function Step5Berkas({ onComplete, onBack }: Step5Props) {
     setUploadingFoto(false)
   }
 
-  const handleUploadBerkas = async (e: ChangeEvent<HTMLInputElement>) => {
+  const handleUploadPrestasi = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
-    if (file.size > 5 * 1024 * 1024) {
-      alert('Ukuran file maksimal 5MB')
+    if (file.size > 2 * 1024 * 1024) {
+      alert('Ukuran file maksimal 2MB')
       return
     }
-    setUploadingBerkas(true)
+    setUploadingPrestasi(true)
     const base64 = await fileToBase64(file)
-    updateData({ berkasPdfBase64: base64 })
-    setUploadingBerkas(false)
+    updateData({ prestasiFotoBase64: base64 })
+    setUploadingPrestasi(false)
   }
 
   const handleSelesai = async () => {
@@ -70,7 +70,7 @@ export default function Step5Berkas({ onComplete, onBack }: Step5Props) {
   return (
     <StepLayout
       title="Berkas & Prestasi"
-      subtitle="Unggah berkas yang diperlukan dan catat prestasi Anda"
+      subtitle="Unggah pas foto dan catat prestasi Anda"
       steps={steps}
       currentStep={5}
       isLast
@@ -122,44 +122,18 @@ export default function Step5Berkas({ onComplete, onBack }: Step5Props) {
           )}
         </Card>
 
-        <Card className="p-4">
-          <div className="flex items-center gap-3 mb-3">
+        <Card className="p-4 bg-blue-50/50 border-blue-100">
+          <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center">
-              <FileText className="w-5 h-5 text-blue-600" />
+              <Award className="w-5 h-5 text-blue-600" />
             </div>
             <div>
-              <p className="text-sm font-medium text-slate-800">Berkas Gabungan (KK, Akta, SKL)</p>
-              <p className="text-xs text-slate-500">Gabungkan dalam 1 file PDF, maks 5MB</p>
+              <p className="text-sm font-medium text-slate-800">Berkas Fisik (KK, Akta, SKL)</p>
+              <p className="text-xs text-slate-500">
+                Tidak perlu diunggah. Berkas akan diperiksa langsung oleh panitia SPMB.
+              </p>
             </div>
           </div>
-
-          <input
-            ref={berkasRef}
-            type="file"
-            accept=".pdf"
-            onChange={handleUploadBerkas}
-            className="hidden"
-          />
-
-          {data.berkasPdfBase64 ? (
-            <div className="flex items-center gap-2">
-              <FileText className="w-5 h-5 text-green-600" />
-              <span className="text-sm text-slate-700">Berkas terunggah</span>
-              <Button onClick={() => berkasRef.current?.click()} variant="ghost" className="text-xs">
-                Ganti
-              </Button>
-            </div>
-          ) : (
-            <Button
-              onClick={() => berkasRef.current?.click()}
-              variant="secondary"
-              loading={uploadingBerkas}
-              className="w-full"
-            >
-              <Upload className="w-4 h-4" />
-              Pilih Berkas PDF
-            </Button>
-          )}
         </Card>
 
         <Card className="p-4">
@@ -180,6 +154,42 @@ export default function Step5Berkas({ onComplete, onBack }: Step5Props) {
             rows={4}
             className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-brand-green/30 focus:border-brand-green transition-all text-sm resize-none"
           />
+
+          <p className="text-xs font-medium text-slate-700 mt-4 mb-1">
+            Foto Sertifikat/Piagam <span className="text-slate-400">(Opsional)</span>
+          </p>
+          <p className="text-xs text-slate-500 mb-2">Maks 2MB, format JPG/PNG</p>
+
+          <input
+            ref={prestasiRef}
+            type="file"
+            accept="image/*"
+            onChange={handleUploadPrestasi}
+            className="hidden"
+          />
+
+          {data.prestasiFotoBase64 ? (
+            <div className="flex items-center gap-3">
+              <img
+                src={data.prestasiFotoBase64}
+                alt="Preview Sertifikat"
+                className="w-20 h-20 rounded-lg object-cover border border-slate-200"
+              />
+              <Button onClick={() => prestasiRef.current?.click()} variant="ghost" className="text-xs">
+                Ganti Foto
+              </Button>
+            </div>
+          ) : (
+            <Button
+              onClick={() => prestasiRef.current?.click()}
+              variant="secondary"
+              loading={uploadingPrestasi}
+              className="w-full"
+            >
+              <Upload className="w-4 h-4" />
+              Pilih Foto
+            </Button>
+          )}
         </Card>
 
         <div className="bg-amber-50 rounded-xl p-4 text-sm text-amber-800">

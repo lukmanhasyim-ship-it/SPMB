@@ -5,7 +5,7 @@ import Button from '../../components/ui/Button'
 import Loader from '../../components/ui/Loader'
 import { api } from '../../services/api'
 import { compressAndCropImage } from '../../utils/imageCompress'
-import { formatWIBShort } from '../../utils/dateUtils'
+import { formatWIBShort, formatWIBTime } from '../../utils/dateUtils'
 
 interface EventItem {
   id_event: string
@@ -305,7 +305,7 @@ export default function MplsInformasi() {
                   </div>
                   <p className="text-xs text-slate-500 line-clamp-2">{event.deskripsi}</p>
                   <p className="text-[11px] text-slate-400 mt-1">
-                    {event.tanggal_pelaksanaan ? `${formatWIBShort(event.tanggal_pelaksanaan)}${event.waktu_pelaksanaan ? ` • ${event.waktu_pelaksanaan}` : ''}${event.tempat_pelaksanaan ? ` • ${event.tempat_pelaksanaan}` : ''}` : formatWIBShort(event.created_at)}
+                    {event.tanggal_pelaksanaan ? `${formatWIBShort(event.tanggal_pelaksanaan)}${event.waktu_pelaksanaan ? ` • ${formatWIBTime(event.waktu_pelaksanaan)}` : ''}${event.tempat_pelaksanaan ? ` • ${event.tempat_pelaksanaan}` : ''}` : formatWIBShort(event.created_at)}
                   </p>
                 </div>
                 <button

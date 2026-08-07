@@ -5,6 +5,7 @@ export type Role = 'siswa' | 'admin' | 'guru' | 'panitia_mpls';
 export type TinggalBersama = 'Orang Tua' | 'Wali' | 'Pondok';
 export type Agama = 'Islam' | 'Kristen' | 'Katolik' | 'Hindu' | 'Buddha' | 'Konghucu';
 export type JenisKelamin = 'Laki-laki' | 'Perempuan';
+export type KategoriReferral = 'Guru SMKS AL AZHAR SEMPU' | 'Siswa Kelas X' | 'Siswa Kelas XI' | 'Siswa Kelas XII' | 'Alumni' | 'Lainnya';
 
 export interface User {
   email: string;
@@ -42,7 +43,10 @@ export interface DataSiswa {
   teleponOrtu: string;
   fotoProfilBase64: string;
   berkasPdfBase64: string;
+  prestasiFotoBase64: string;
   prestasi: string;
+  referralNama: string;
+  referralKategori: KategoriReferral | '';
   gelombang: Gelombang | '';
   tahunAjaran: string;
   statusPendaftaran: StatusPendaftaran;

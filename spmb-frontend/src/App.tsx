@@ -10,8 +10,12 @@ const KartuPendaftaran = lazy(() => import('./pages/student/KartuPendaftaran'))
 const AdminLayout = lazy(() => import('./pages/admin/AdminLayout'))
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'))
 const AdminSiswa = lazy(() => import('./pages/admin/AdminSiswa'))
+const AdminDaftarSiswa = lazy(() => import('./pages/admin/AdminDaftarSiswa'))
+const AdminReferral = lazy(() => import('./pages/admin/AdminReferral'))
 const AdminGelombang = lazy(() => import('./pages/admin/AdminGelombang'))
+const AdminTimeline = lazy(() => import('./pages/admin/AdminTimeline'))
 const AdminBroadcast = lazy(() => import('./pages/admin/AdminBroadcast'))
+const AdminFormulir = lazy(() => import('./pages/admin/AdminFormulir'))
 const AdminManajemen = lazy(() => import('./pages/admin/AdminManajemen'))
 const GuruDashboard = lazy(() => import('./pages/guru/GuruDashboard'))
 const MplsLayout = lazy(() => import('./pages/mpls/MplsLayout'))
@@ -83,8 +87,12 @@ function App() {
         <Route index element={<Navigate to="/admin/dashboard" replace />} />
         <Route path="dashboard" element={<SuspenseWrapper><AdminDashboard /></SuspenseWrapper>} />
         <Route path="siswa" element={<SuspenseWrapper><AdminSiswa /></SuspenseWrapper>} />
+        <Route path="daftarkan-siswa" element={<SuspenseWrapper><AdminDaftarSiswa /></SuspenseWrapper>} />
+        <Route path="referral" element={<SuspenseWrapper><AdminReferral /></SuspenseWrapper>} />
         <Route path="gelombang" element={<SuspenseWrapper><AdminGelombang /></SuspenseWrapper>} />
+        <Route path="timeline" element={<SuspenseWrapper><AdminTimeline /></SuspenseWrapper>} />
         <Route path="broadcast" element={<SuspenseWrapper><AdminBroadcast /></SuspenseWrapper>} />
+        <Route path="formulir" element={<SuspenseWrapper><AdminFormulir /></SuspenseWrapper>} />
         <Route path="admin-manajemen" element={<SuspenseWrapper><AdminManajemen /></SuspenseWrapper>} />
       </Route>
       <Route

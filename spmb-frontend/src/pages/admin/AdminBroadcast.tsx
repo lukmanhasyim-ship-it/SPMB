@@ -5,7 +5,7 @@ import Button from '../../components/ui/Button'
 import Loader from '../../components/ui/Loader'
 import { api } from '../../services/api'
 import { compressAndCropImage } from '../../utils/imageCompress'
-import { formatWIBShort } from '../../utils/dateUtils'
+import { formatWIBShort, formatWIBDateInput, formatWIBTime } from '../../utils/dateUtils'
 
 interface EventItem {
   id_event: string
@@ -168,8 +168,8 @@ export default function AdminBroadcast() {
     setEditJudul(event.judul)
     setEditDeskripsi(event.deskripsi)
     setEditTarget(event.target_gelombang)
-    setEditTanggalPelaksanaan(event.tanggal_pelaksanaan || '')
-    setEditWaktuPelaksanaan(event.waktu_pelaksanaan || '')
+    setEditTanggalPelaksanaan(formatWIBDateInput(event.tanggal_pelaksanaan))
+    setEditWaktuPelaksanaan(formatWIBTime(event.waktu_pelaksanaan))
     setEditTempatPelaksanaan(event.tempat_pelaksanaan || '')
     setEditImagePreview(event.gambar_url || null)
     setEditImageBase64(null)
@@ -481,13 +481,13 @@ export default function AdminBroadcast() {
                         {event.tanggal_pelaksanaan && (
                           <span className="flex items-center gap-1">
                             <Calendar className="w-3 h-3" />
-                            {event.tanggal_pelaksanaan}
+                            {formatWIBShort(event.tanggal_pelaksanaan)}
                           </span>
                         )}
                         {event.waktu_pelaksanaan && (
                           <span className="flex items-center gap-1">
                             <Clock className="w-3 h-3" />
-                            {event.waktu_pelaksanaan}
+                            {formatWIBTime(event.waktu_pelaksanaan)} WIB
                           </span>
                         )}
                         {event.tempat_pelaksanaan && (

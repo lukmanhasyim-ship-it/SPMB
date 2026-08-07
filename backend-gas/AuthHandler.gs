@@ -7,6 +7,9 @@ function handleAuth(params) {
     if (!verify.valid) {
       return { status: 'error', message: 'Token Google tidak valid: ' + (verify.error || '') }
     }
+    if (!verify.payload.email) {
+      return { status: 'error', message: 'Token Google tidak valid: email tidak ditemukan' }
+    }
     email = verify.payload.email.toLowerCase().trim()
     nama = verify.payload.name || ''
     fotoUrl = verify.payload.picture || ''
@@ -60,24 +63,36 @@ function handleAuth(params) {
 
 function verifyGoogleToken_(token) {
   // Try as OAuth2 access token first (from initTokenClient flow)
-  var url = 'https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=' + token
-  var response = UrlFetchApp.fetch(url, { muteHttpExceptions: true })
-  var payload = JSON.parse(response.getContentText())
-
-  if (!payload.error) {
+  var payload = fetchTokenInfo_('https://oauth2.googleapis.com/tokeninfo?access_token=' + encodeURIComponent(token))
+  if (payload && payload.email && !isTokenError_(payload)) {
     return { valid: true, payload: payload }
   }
 
   // Fallback: try as Google ID token (JWT)
-  url = 'https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=' + token
-  response = UrlFetchApp.fetch(url, { muteHttpExceptions: true })
-  payload = JSON.parse(response.getContentText())
-
-  if (!payload.error) {
+  payload = fetchTokenInfo_('https://oauth2.googleapis.com/tokeninfo?id_token=' + encodeURIComponent(token))
+  if (payload && payload.email && !isTokenError_(payload)) {
     return { valid: true, payload: payload }
   }
 
-  return { valid: false, error: payload.error || 'Invalid token' }
+  var err = (payload && (payload.error || payload.error_description)) || 'Token tidak valid'
+  return { valid: false, error: err }
+}
+
+function fetchTokenInfo_(url) {
+  try {
+    var response = UrlFetchApp.fetch(url, { muteHttpExceptions: true })
+    var body = response.getContentText()
+    if (!body) return null
+    var payload = JSON.parse(body)
+    if (typeof payload === 'string') payload = JSON.parse(payload)
+    return payload
+  } catch (e) {
+    return null
+  }
+}
+
+function isTokenError_(payload) {
+  return !!(payload.error || payload.error_description)
 }
 
 function handleRegister(params) {
@@ -97,6 +112,8 @@ function handleRegister(params) {
   var email = (params.email || '').toLowerCase().trim()
   var nama = (params.nama || '').trim()
   var fotoUrl = params.fotoUrl || ''
+  var referralNama = (params.referral_nama || '').trim()
+  var referralKategori = (params.referral_kategori || '').trim()
 
   if (!email) return { status: 'error', message: 'Email wajib diisi' }
   if (!nama) return { status: 'error', message: 'Nama wajib diisi' }
@@ -127,6 +144,8 @@ function handleRegister(params) {
     email: email,
     nama_lengkap: nama,
     foto_profil_url: fotoUrl,
+    referral_nama: referralNama,
+    referral_kategori: referralKategori,
     gelombang: gelombangAktif,
     tahun_ajaran: tahunAjaran,
     status_pendaftaran: 'Draft',

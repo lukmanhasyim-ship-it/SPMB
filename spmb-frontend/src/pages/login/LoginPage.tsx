@@ -38,7 +38,7 @@ export default function LoginPage() {
 
       try {
         const userRes = await fetch(
-          'https://www.googleapis.com/oauth2/v2/userinfo',
+          'https://openidconnect.googleapis.com/v1/userinfo',
           { headers: { Authorization: `Bearer ${accessToken}` } },
         )
         if (!userRes.ok) {

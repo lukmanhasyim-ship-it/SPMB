@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { Heart, MessageCircle, Calendar, Clock, MapPin, Check, CalendarPlus, Smile, Loader2 } from 'lucide-react'
-import { formatWIBShort } from '../../../utils/dateUtils'
+import { formatWIBShort, formatWIBDateInput, formatWIBTime } from '../../../utils/dateUtils'
 import { api } from '../../../services/api'
 
 export interface EventType {
@@ -216,7 +216,9 @@ export default function InstagramPost({ event, studentName, userEmail }: Instagr
   }
 
   // Generate calendar link variables
-  const effectiveDate = event.tanggal_pelaksanaan || (event.created_at ? String(event.created_at).substring(0, 10) : '')
+  const effectiveDate = event.tanggal_pelaksanaan
+    ? formatWIBDateInput(event.tanggal_pelaksanaan)
+    : (event.created_at ? formatWIBDateInput(event.created_at) : '')
   const reminderUrl = effectiveDate
     ? buildCalendarUrl({
       title: `[Pengingat] ${event.judul}`,
@@ -233,7 +235,7 @@ export default function InstagramPost({ event, studentName, userEmail }: Instagr
     ? buildCalendarUrl({
       title: event.judul,
       date: effectiveDate,
-      time: event.waktu_pelaksanaan || '08:00',
+      time: formatWIBTime(event.waktu_pelaksanaan) || '08:00',
       location: event.tempat_pelaksanaan || undefined,
       details: event.deskripsi,
     })
@@ -471,7 +473,7 @@ export default function InstagramPost({ event, studentName, userEmail }: Instagr
           {event.waktu_pelaksanaan && (
             <div className="flex items-center gap-2">
               <Clock className="w-3.5 h-3.5 text-brand-green" />
-              <span>Waktu: <span className="font-semibold text-slate-800">{event.waktu_pelaksanaan} WIB</span></span>
+              <span>Waktu: <span className="font-semibold text-slate-800">{formatWIBTime(event.waktu_pelaksanaan)} WIB</span></span>
             </div>
           )}
           {event.tempat_pelaksanaan && (
