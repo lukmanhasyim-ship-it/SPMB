@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { Info, LogIn, User, School, MapPin, Users, Award, X } from 'lucide-react'
 import { useAuthStore } from '../../store/authStore'
 import Card from '../../components/ui/Card'
 
@@ -10,6 +11,7 @@ export default function LoginPage() {
   const { login, devLogin, loading } = useAuthStore()
   const [internalLoading, setInternalLoading] = useState(false)
   const [devEmail, setDevEmail] = useState('')
+  const [caraDaftarOpen, setCaraDaftarOpen] = useState(false)
 
   const isLoading = loading || internalLoading
 
@@ -125,6 +127,14 @@ export default function LoginPage() {
           Lanjutkan dengan Google
         </p>
 
+        <button
+          onClick={() => setCaraDaftarOpen(true)}
+          className="w-full mt-4 flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl border-2 border-brand-green/30 bg-brand-green-light/20 hover:bg-brand-green-light/40 text-sm font-semibold text-brand-green-dark transition-all"
+        >
+          <Info className="w-4 h-4" />
+          Cara Daftar Pendaftaran
+        </button>
+
         {isDevLoginEnabled && (
           <div className="mt-8 pt-6 border-t border-dashed border-slate-200">
             <p className="text-[11px] font-bold uppercase tracking-wider text-amber-600 text-center mb-3">
@@ -170,6 +180,66 @@ export default function LoginPage() {
           </div>
         )}
       </Card>
+
+      {caraDaftarOpen && (
+        <div
+          className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4"
+          onClick={() => setCaraDaftarOpen(false)}
+        >
+          <div
+            className="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-5">
+              <div className="flex items-center gap-2">
+                <Info className="w-5 h-5 text-brand-green shrink-0" />
+                <h3 className="text-base font-bold text-slate-800">Cara Daftar</h3>
+              </div>
+              <button
+                onClick={() => setCaraDaftarOpen(false)}
+                aria-label="Tutup"
+                className="p-1 rounded-lg hover:bg-slate-100 transition-colors"
+              >
+                <X className="w-5 h-5 text-slate-400" />
+              </button>
+            </div>
+
+            <p className="text-xs text-slate-500 mb-5">
+              Ikuti langkah berikut untuk mendaftar sebagai calon murid baru:
+            </p>
+
+            <ol className="space-y-3">
+              {[
+                { icon: LogIn, title: 'Login dengan Google', desc: 'Klik tombol di atas menggunakan akun Gmail yang aktif' },
+                { icon: User, title: 'Lengkapi data akun', desc: 'Isi nama lengkap dan upload foto profil' },
+                { icon: School, title: 'Pilih jurusan', desc: 'Pilih kompetensi keahlian yang Anda minati' },
+                { icon: MapPin, title: 'Isi data pribadi & alamat', desc: 'Lengkapi data pribadi, alamat, dan peta lokasi' },
+                { icon: Users, title: 'Isi data orang tua/wali', desc: 'Lengkapi data ayah, ibu, atau wali' },
+                { icon: Award, title: 'Unggah berkas & selesai', desc: 'Unggah pas foto, catat prestasi (opsional), lalu finalisasi — kartu bukti pendaftaran langsung terbit' },
+              ].map(({ icon: Icon, title, desc }, index) => (
+                <li key={title} className="flex items-start gap-3">
+                  <span className="w-6 h-6 rounded-full bg-brand-green text-white text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">
+                    {index + 1}
+                  </span>
+                  <div>
+                    <p className="text-sm font-medium text-slate-800 flex items-center gap-1.5">
+                      <Icon className="w-4 h-4 text-brand-green" />
+                      {title}
+                    </p>
+                    <p className="text-xs text-slate-500 mt-0.5">{desc}</p>
+                  </div>
+                </li>
+              ))}
+            </ol>
+
+            <div className="bg-amber-50 rounded-xl p-3 mt-5">
+              <p className="text-xs text-amber-800">
+                Siapkan Gmail aktif, pas foto JPG/PNG maks 2MB, dan berkas fisik (KK, Akta, SKL) untuk diperiksa panitia SPMB.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
