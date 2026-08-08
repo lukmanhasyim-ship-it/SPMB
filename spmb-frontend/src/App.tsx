@@ -21,6 +21,7 @@ const GuruDashboard = lazy(() => import('./pages/guru/GuruDashboard'))
 const MplsLayout = lazy(() => import('./pages/mpls/MplsLayout'))
 const MplsDashboard = lazy(() => import('./pages/mpls/MplsDashboard'))
 const MplsScan = lazy(() => import('./pages/mpls/MplsScan'))
+const MplsIzin = lazy(() => import('./pages/mpls/MplsIzin'))
 const MplsInformasi = lazy(() => import('./pages/mpls/MplsInformasi'))
 
 function SuspenseWrapper({ children }: { children: React.ReactNode }) {
@@ -121,6 +122,7 @@ function App() {
         <Route index element={<Navigate to="/mpls/dashboard" replace />} />
         <Route path="dashboard" element={<SuspenseWrapper><MplsDashboard /></SuspenseWrapper>} />
         <Route path="scan" element={<SuspenseWrapper><MplsScan /></SuspenseWrapper>} />
+        <Route path="izin" element={<SuspenseWrapper><MplsIzin /></SuspenseWrapper>} />
         <Route path="informasi" element={<SuspenseWrapper><MplsInformasi /></SuspenseWrapper>} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />

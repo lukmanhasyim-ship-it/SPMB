@@ -116,6 +116,15 @@ function doPost(e) {
       case 'mplsGetKehadiran':
         result = handleMplsGetKehadiran(params)
         break
+      case 'mplsAddIzin':
+        result = handleMplsAddIzin(params)
+        break
+      case 'mplsGetIzin':
+        result = handleMplsGetIzin(params)
+        break
+      case 'mplsDeleteIzin':
+        result = handleMplsDeleteIzin(params)
+        break
 
       default:
         result = { status: 'error', message: 'Unknown action: ' + action }

@@ -76,6 +76,14 @@ function handleMplsLookupById(params) {
     }
   }
 
+  var izinList = getAllRows('Izin_MPLS')
+  var izinHariIni = []
+  for (var j = 0; j < izinList.length; j++) {
+    if (String(izinList[j].id_pendaftaran) === idPendaftaran && normalizeWIBDate_(izinList[j].tanggal) === today) {
+      izinHariIni.push(cleanIzinRow_(izinList[j]))
+    }
+  }
+
   return {
     status: 'ok',
     data: {
@@ -88,7 +96,8 @@ function handleMplsLookupById(params) {
       status_pendaftaran: siswa.status_pendaftaran || '',
       hadir_hari_ini: absensiHariIni.length > 0,
       sesi_sekarang: getAbsenKeterangan_(getWIBTime()),
-      absensi_hari_ini: absensiHariIni
+      absensi_hari_ini: absensiHariIni,
+      izin_hari_ini: izinHariIni
     }
   }
 }
@@ -199,4 +208,130 @@ function handleMplsGetKehadiran(params) {
     }
   }
   return { status: 'ok', data: result }
+}
+
+function cleanIzinRow_(row) {
+  var cleaned = {}
+  var keys = Object.keys(row)
+  for (var i = 0; i < keys.length; i++) {
+    if (keys[i] !== '_rowIndex') {
+      cleaned[keys[i]] = row[keys[i]]
+    }
+  }
+  cleaned.tanggal = normalizeWIBDate_(cleaned.tanggal)
+  cleaned.created_at = normalizeWIBTime_(cleaned.created_at)
+  return cleaned
+}
+
+function handleMplsAddIzin(params) {
+  initializeSheets()
+
+  var lock = LockService.getScriptLock()
+  var locked = false
+  try {
+    locked = lock.tryLock(10000)
+  } catch (e) {
+    locked = false
+  }
+  if (!locked) {
+    return { status: 'error', message: 'Sistem sedang sibuk, silakan coba lagi' }
+  }
+
+  var idPendaftaran = (params.id_pendaftaran || '').trim()
+  var jenisIzin = (params.jenis_izin || '').trim()
+  var catatan = (params.catatan || '').trim()
+  var diinputOleh = (params.diinput_oleh || '').trim()
+
+  if (!idPendaftaran) { lock.releaseLock(); return { status: 'error', message: 'ID pendaftaran wajib diisi' } }
+  if (!jenisIzin) { lock.releaseLock(); return { status: 'error', message: 'Jenis izin wajib dipilih' } }
+
+  var siswa = findRowByKey('Siswa', 'id_pendaftaran', idPendaftaran)
+  if (!siswa) { lock.releaseLock(); return { status: 'error', message: 'Siswa tidak ditemukan. Periksa barcode bukti pendaftaran.' } }
+
+  var today = getWIBDate_()
+  var izinList = getAllRows('Izin_MPLS')
+  var existing = null
+  for (var i = 0; i < izinList.length; i++) {
+    if (String(izinList[i].id_pendaftaran) === idPendaftaran && normalizeWIBDate_(izinList[i].tanggal) === today) {
+      existing = cleanIzinRow_(izinList[i])
+      break
+    }
+  }
+
+  if (existing) {
+    lock.releaseLock()
+    return { status: 'error', message: 'Izin a.n ' + siswa.nama_lengkap + ' untuk hari ini sudah dicatat (' + existing.jenis_izin + '). Hapus izin yang ada terlebih dahulu jika ingin mengganti.' }
+  }
+
+  var now = new Date()
+  var idIzin = 'IZN-' + now.getTime().toString(36).toUpperCase()
+
+  addRow('Izin_MPLS', {
+    id_izin: idIzin,
+    id_pendaftaran: idPendaftaran,
+    nama_lengkap: siswa.nama_lengkap || '',
+    email: siswa.email || '',
+    jurusan: siswa.pilihan_jurusan || '',
+    gelombang: siswa.gelombang || '',
+    tanggal: today,
+    jenis_izin: jenisIzin,
+    catatan: catatan,
+    diinput_oleh: diinputOleh,
+    created_at: getWIBTime()
+  })
+
+  lock.releaseLock()
+
+  return {
+    status: 'ok',
+    message: 'Izin berhasil dicatat',
+    data: {
+      id_izin: idIzin,
+      id_pendaftaran: idPendaftaran,
+      nama_lengkap: siswa.nama_lengkap || '',
+      email: siswa.email || '',
+      jurusan: siswa.pilihan_jurusan || '',
+      gelombang: siswa.gelombang || '',
+      tanggal: today,
+      jenis_izin: jenisIzin,
+      catatan: catatan,
+      diinput_oleh: diinputOleh,
+      created_at: getWIBTime()
+    }
+  }
+}
+
+function handleMplsGetIzin(params) {
+  initializeSheets()
+
+  var allData = getAllRows('Izin_MPLS')
+  var tanggal = normalizeWIBDate_(params.tanggal) || ''
+
+  if (!tanggal) {
+    var allResult = []
+    for (var k = 0; k < allData.length; k++) {
+      allResult.push(cleanIzinRow_(allData[k]))
+    }
+    return { status: 'ok', data: allResult }
+  }
+
+  var result = []
+  for (var i = 0; i < allData.length; i++) {
+    if (normalizeWIBDate_(allData[i].tanggal) === tanggal) {
+      result.push(cleanIzinRow_(allData[i]))
+    }
+  }
+  return { status: 'ok', data: result }
+}
+
+function handleMplsDeleteIzin(params) {
+  initializeSheets()
+
+  var idIzin = (params.id_izin || '').trim()
+  if (!idIzin) return { status: 'error', message: 'ID izin wajib diisi' }
+
+  var deleted = deleteRowsByKey('Izin_MPLS', 'id_izin', idIzin)
+  if (deleted === 0) return { status: 'error', message: 'Izin tidak ditemukan' }
+
+  return { status: 'ok', message: 'Izin berhasil dihapus' }
 }

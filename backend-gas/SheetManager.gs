@@ -200,6 +200,11 @@ function initializeSheets() {
     'gelombang', 'tanggal', 'jam', 'scan_oleh', 'created_at'
   ])
 
+  ensureHeaders('Izin_MPLS', [
+    'id_izin', 'id_pendaftaran', 'nama_lengkap', 'email', 'jurusan',
+    'gelombang', 'tanggal', 'jenis_izin', 'catatan', 'diinput_oleh', 'created_at'
+  ])
+
   ensureHeaders('Timeline_SPMB', [
     'id_timeline', 'urutan', 'nama_tahapan', 'deskripsi',
     'tanggal_mulai', 'tanggal_selesai', 'status', 'created_at', 'updated_at'

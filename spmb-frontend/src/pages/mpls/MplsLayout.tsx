@@ -1,11 +1,12 @@
 import { Outlet, NavLink, useNavigate } from 'react-router-dom'
-import { LayoutDashboard, ScanLine, Image, LogOut, GraduationCap, Menu, X, Users } from 'lucide-react'
+import { LayoutDashboard, ScanLine, Image, LogOut, GraduationCap, Menu, X, Users, ClipboardX } from 'lucide-react'
 import { useState } from 'react'
 import { useAuthStore } from '../../store/authStore'
 
 const navItems = [
   { to: '/mpls/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
   { to: '/mpls/scan', icon: ScanLine, label: 'Scan Absen' },
+  { to: '/mpls/izin', icon: ClipboardX, label: 'Izin MPLS' },
   { to: '/mpls/informasi', icon: Image, label: 'Informasi' },
 ]
 

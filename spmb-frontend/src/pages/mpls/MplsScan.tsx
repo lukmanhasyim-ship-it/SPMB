@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
-import { Camera, ScanLine, CheckCircle2, XCircle, RefreshCw, Loader2 } from 'lucide-react'
+import { Camera, ScanLine, CheckCircle2, XCircle, RefreshCw, Loader2, ClipboardX } from 'lucide-react'
 import { Html5Qrcode, Html5QrcodeSupportedFormats } from 'html5-qrcode'
 import { useAuthStore } from '../../store/authStore'
 import Card from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
 import Toast from '../../components/ui/Toast'
 import { api } from '../../services/api'
+import type { IzinMpls } from '../../types'
 
 const READER_ID = 'mpls-qr-reader'
 
@@ -26,6 +27,7 @@ interface LookupData {
   hadir_hari_ini: boolean
   sesi_sekarang?: string
   absensi_hari_ini?: AbsensiHariIni[]
+  izin_hari_ini?: IzinMpls[]
 }
 
 const SESSIONS = ['Absen Pagi', 'Absen Siang', 'Absen Malam']
@@ -82,40 +84,52 @@ export default function MplsScan() {
     setScanError('')
     setSavedMsg('')
     setSaving(true)
+
+    const lookupPromise = api.mpls.lookupById(idPendaftaran)
+    const savePromise = api.mpls.addKehadiran(idPendaftaran, user?.nama || user?.email || '')
+    savePromise.catch(() => {})
+
+    let data: LookupData | null = null
     try {
-      const res = await api.mpls.lookupById(idPendaftaran)
-      if (res.status !== 'ok') return
-      const data = res.data as LookupData
-      setScanResult(data)
-      try {
-        const saveRes = await api.mpls.addKehadiran(idPendaftaran, user?.nama || user?.email || '')
-        if (saveRes.status === 'ok') {
-          const saved = saveRes.data as { jam: string; keterangan?: string }
-          setScanResult({
-            ...data,
-            hadir_hari_ini: true,
-            absensi_hari_ini: [
-              ...(data.absensi_hari_ini || []),
-              {
-                keterangan: saved.keterangan || data.sesi_sekarang || '',
-                jam: String(saved.jam),
-                scan_oleh: user?.nama || user?.email || '',
-              },
-            ],
-          })
-          const pesan = `Absensi berhasil — ${data.nama_lengkap} • ${String(saved.jam).slice(0, 5)}`
-          setSavedMsg(`${pesan} (${saved.keterangan || data.sesi_sekarang || ''})`)
-          showToast('success', pesan)
-        }
-      } catch (err) {
-        const message = err instanceof Error ? err.message : 'Gagal menyimpan absensi'
-        setScanError(message)
-        showToast('error', message)
+      const res = await lookupPromise
+      if (res.status !== 'ok') {
+        setSaving(false)
+        return
       }
+      data = res.data as LookupData
+      setScanResult(data)
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Gagal memuat data siswa'
       setScanError(message)
       setScanResult(null)
+      showToast('error', message)
+      setSaving(false)
+      return
+    }
+
+    try {
+      const saveRes = await savePromise
+      if (saveRes.status === 'ok' && data) {
+        const saved = saveRes.data as { jam: string; keterangan?: string }
+        setScanResult({
+          ...data,
+          hadir_hari_ini: true,
+          absensi_hari_ini: [
+            ...(data.absensi_hari_ini || []),
+            {
+              keterangan: saved.keterangan || data.sesi_sekarang || '',
+              jam: String(saved.jam),
+              scan_oleh: user?.nama || user?.email || '',
+            },
+          ],
+        })
+        const pesan = `Absensi berhasil — ${data.nama_lengkap} • ${String(saved.jam).slice(0, 5)}`
+        setSavedMsg(`${pesan} (${saved.keterangan || data.sesi_sekarang || ''})`)
+        showToast('success', pesan)
+      }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Gagal menyimpan absensi'
+      setScanError(message)
       showToast('error', message)
     } finally {
       setSaving(false)
@@ -329,16 +343,16 @@ export default function MplsScan() {
 
           {scanResult && (
             <Card className="p-5">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-semibold text-slate-700">Data Siswa Terdeteksi</h3>
-                <button
-                  onClick={resetScan}
-                  className="flex items-center gap-1 text-xs text-slate-400 hover:text-brand-green transition-colors"
-                >
-                  <RefreshCw className="w-3.5 h-3.5" />
-                  Scan Lagi
-                </button>
-              </div>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-sm font-semibold text-slate-700">Data Siswa Terdeteksi</h3>
+                  <button
+                    onClick={resetScan}
+                    className="flex items-center gap-1 text-xs text-slate-400 hover:text-brand-green transition-colors"
+                  >
+                    <RefreshCw className="w-3.5 h-3.5" />
+                    Scan Lagi
+                  </button>
+                </div>
 
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between border-b border-slate-50 pb-2">
@@ -366,6 +380,28 @@ export default function MplsScan() {
                   <span className="text-slate-700">{scanResult.status_pendaftaran || '-'}</span>
                 </div>
               </div>
+
+              {scanResult.izin_hari_ini && scanResult.izin_hari_ini.length > 0 && (
+                <div className="mt-4 space-y-2">
+                  {scanResult.izin_hari_ini.map((izin) => (
+                    <div
+                      key={izin.id_izin}
+                      className="flex items-start gap-2 p-3 rounded-xl bg-amber-50 border border-amber-100 text-amber-700 text-sm"
+                    >
+                      <ClipboardX className="w-4 h-4 shrink-0 mt-0.5" />
+                      <div className="flex-1">
+                        <p className="font-medium">
+                          IZIN — {izin.jenis_izin || 'Tanpa keterangan'}
+                        </p>
+                        {izin.catatan && <p className="text-xs mt-0.5 text-amber-700/80">{izin.catatan}</p>}
+                        <p className="text-xs mt-1 text-slate-500">
+                          Dicatat oleh {izin.diinput_oleh || '-'} · {String(izin.created_at).slice(0, 5)}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
 
               <div className="mt-4 pt-4 border-t border-slate-100">
                 <p className="text-xs font-medium text-slate-500 mb-2">Kehadiran Hari Ini</p>

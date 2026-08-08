@@ -98,3 +98,17 @@ export interface KehadiranMpls {
   scan_oleh: string;
   created_at: string;
 }
+
+export interface IzinMpls {
+  id_izin: string;
+  id_pendaftaran: string;
+  nama_lengkap: string;
+  email: string;
+  jurusan: string;
+  gelombang: string;
+  tanggal: string;
+  jenis_izin: string;
+  catatan?: string;
+  diinput_oleh: string;
+  created_at: string;
+}

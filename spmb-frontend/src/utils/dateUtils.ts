@@ -10,6 +10,7 @@ export function formatWIB(dateStr: string | Date | undefined): string {
       day: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
+      hourCycle: 'h23',
       timeZone: 'Asia/Jakarta',
     }) + ' WIB'
   } catch {

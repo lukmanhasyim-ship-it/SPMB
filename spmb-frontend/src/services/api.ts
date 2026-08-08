@@ -131,6 +131,15 @@ export const api = {
 
     getKehadiran: (tanggal?: string) =>
       request('mplsGetKehadiran', { tanggal: tanggal || '' }),
+
+    addIzin: (data: Record<string, unknown>) =>
+      request('mplsAddIzin', data),
+
+    getIzin: (tanggal?: string) =>
+      request('mplsGetIzin', { tanggal: tanggal || '' }),
+
+    deleteIzin: (idIzin: string) =>
+      request('mplsDeleteIzin', { id_izin: idIzin }),
   },
 
   timeline: {

@@ -87,3 +87,5 @@ export const DATA_PROSPEK_KARIR: Record<string, string[]> = {
     'Dapat Melanjutkan ke Perguruan Tinggi yang Relevan',
   ],
 }
+
+export const DATA_JENIS_IZIN = ['Sakit', 'Keperluan Keluarga', 'Lainnya']
