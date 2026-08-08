@@ -4,6 +4,7 @@ import { Html5Qrcode, Html5QrcodeSupportedFormats } from 'html5-qrcode'
 import { useAuthStore } from '../../store/authStore'
 import Card from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
+import Toast from '../../components/ui/Toast'
 import { api } from '../../services/api'
 
 const READER_ID = 'mpls-qr-reader'
@@ -55,6 +56,14 @@ export default function MplsScan() {
   const [manualId, setManualId] = useState('')
   const [saving, setSaving] = useState(false)
   const [savedMsg, setSavedMsg] = useState('')
+  const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
+  const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const showToast = (type: 'success' | 'error', message: string) => {
+    setToast({ type, message })
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current)
+    toastTimerRef.current = setTimeout(() => setToast(null), 3000)
+  }
 
   const stopCamera = async () => {
     if (scannerRef.current) {
@@ -94,16 +103,20 @@ export default function MplsScan() {
               },
             ],
           })
-          setSavedMsg(`Absensi berhasil tercatat — ${data.nama_lengkap} pukul ${String(saved.jam).slice(0, 5)}`)
+          const pesan = `Absensi berhasil — ${data.nama_lengkap} • ${String(saved.jam).slice(0, 5)}`
+          setSavedMsg(`${pesan} (${saved.keterangan || data.sesi_sekarang || ''})`)
+          showToast('success', pesan)
         }
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Gagal menyimpan absensi'
         setScanError(message)
+        showToast('error', message)
       }
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Gagal memuat data siswa'
       setScanError(message)
       setScanResult(null)
+      showToast('error', message)
     } finally {
       setSaving(false)
     }
@@ -117,7 +130,9 @@ export default function MplsScan() {
     lastScanRef.current = { text, time: now }
     const idPendaftaran = extractIdPendaftaran(text)
     if (!idPendaftaran) {
-      setScanError('Barcode tidak mengandung ID pendaftaran yang valid')
+      const pesan = 'Barcode tidak mengandung ID pendaftaran yang valid'
+      setScanError(pesan)
+      showToast('error', pesan)
       return
     }
     await handleScannedId(idPendaftaran)
@@ -166,7 +181,9 @@ export default function MplsScan() {
   const handleManual = async () => {
     const id = manualId.trim()
     if (!id) {
-      setScanError('Masukkan ID pendaftaran terlebih dahulu')
+      const pesan = 'Masukkan ID pendaftaran terlebih dahulu'
+      setScanError(pesan)
+      showToast('error', pesan)
       return
     }
     await handleScannedId(id)
@@ -174,6 +191,7 @@ export default function MplsScan() {
 
   useEffect(() => {
     return () => {
+      if (toastTimerRef.current) clearTimeout(toastTimerRef.current)
       if (scannerRef.current) {
         try {
           scannerRef.current.stop()
@@ -193,6 +211,14 @@ export default function MplsScan() {
 
   return (
     <div className="space-y-5">
+      {toast && (
+        <Toast
+          type={toast.type}
+          message={toast.message}
+          onClose={() => setToast(null)}
+        />
+      )}
+
       <div>
         <h1 className="text-xl font-bold text-slate-800">Scan Absen</h1>
         <p className="text-sm text-slate-500">
