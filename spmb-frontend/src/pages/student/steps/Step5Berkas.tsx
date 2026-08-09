@@ -23,9 +23,7 @@ function fileToBase64(file: File): Promise<string> {
 export default function Step5Berkas({ onComplete, onBack }: Step5Props) {
   const { data, steps, updateData, completeStep, finalisasi } = useStudentStore()
   const fotoRef = useRef<HTMLInputElement>(null)
-  const prestasiRef = useRef<HTMLInputElement>(null)
   const [uploadingFoto, setUploadingFoto] = useState(false)
-  const [uploadingPrestasi, setUploadingPrestasi] = useState(false)
   const [loading, setLoading] = useState(false)
 
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -44,19 +42,6 @@ export default function Step5Berkas({ onComplete, onBack }: Step5Props) {
     const base64 = await fileToBase64(file)
     updateData({ fotoProfilBase64: base64 })
     setUploadingFoto(false)
-  }
-
-  const handleUploadPrestasi = async (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-    if (file.size > 2 * 1024 * 1024) {
-      alert('Ukuran file maksimal 2MB')
-      return
-    }
-    setUploadingPrestasi(true)
-    const base64 = await fileToBase64(file)
-    updateData({ prestasiFotoBase64: base64 })
-    setUploadingPrestasi(false)
   }
 
   const handleSelesai = async () => {
@@ -155,41 +140,13 @@ export default function Step5Berkas({ onComplete, onBack }: Step5Props) {
             className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-brand-green/30 focus:border-brand-green transition-all text-sm resize-none"
           />
 
-          <p className="text-xs font-medium text-slate-700 mt-4 mb-1">
-            Foto Sertifikat/Piagam <span className="text-slate-400">(Opsional)</span>
-          </p>
-          <p className="text-xs text-slate-500 mb-2">Maks 2MB, format JPG/PNG</p>
-
-          <input
-            ref={prestasiRef}
-            type="file"
-            accept="image/*"
-            onChange={handleUploadPrestasi}
-            className="hidden"
-          />
-
-          {data.prestasiFotoBase64 ? (
-            <div className="flex items-center gap-3">
-              <img
-                src={data.prestasiFotoBase64}
-                alt="Preview Sertifikat"
-                className="w-20 h-20 rounded-lg object-cover border border-slate-200"
-              />
-              <Button onClick={() => prestasiRef.current?.click()} variant="ghost" className="text-xs">
-                Ganti Foto
-              </Button>
-            </div>
-          ) : (
-            <Button
-              onClick={() => prestasiRef.current?.click()}
-              variant="secondary"
-              loading={uploadingPrestasi}
-              className="w-full"
-            >
-              <Upload className="w-4 h-4" />
-              Pilih Foto
-            </Button>
-          )}
+          <div className="mt-4 flex items-start gap-3 bg-blue-50/50 border border-blue-100 rounded-xl p-3">
+            <Award className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
+            <p className="text-xs text-slate-600 leading-relaxed">
+              Sertifikat/Piagam pendukung tidak perlu diunggah, tetapi siapkan fisiknya untuk
+              keperluan administrasi dan validasi oleh panitia SPMB saat verifikasi berkas.
+            </p>
+          </div>
         </Card>
 
         <div className="bg-amber-50 rounded-xl p-4 text-sm text-amber-800">

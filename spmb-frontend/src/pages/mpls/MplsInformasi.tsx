@@ -158,6 +158,7 @@ export default function MplsInformasi() {
         </p>
       </div>
 
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 items-start">
       <Card className="p-5">
         <h3 className="text-sm font-semibold text-slate-700 mb-4">Buat Informasi Baru</h3>
         <div className="space-y-3">
@@ -324,6 +325,7 @@ export default function MplsInformasi() {
           </div>
         )}
       </Card>
+      </div>
     </div>
   )
 }

@@ -96,7 +96,7 @@ export default function FormulirPendaftaran({ data }: FormulirPendaftaranProps) 
               <FieldItem label="Jurusan Utama" value={jurusanLabel(data.pilihan_jurusan)} span2 />
               <FieldItem label="Jurusan Alternatif" value={jurusanLabel(data.pilihan_alternatif)} />
               <FieldItem label="Asal Sekolah" value={data.asal_sekolah} />
-              <BoxField label="Alasan Memilih Jurusan" value={data.alasan_pilih_jurusan} />
+              <BoxField label="Alasan Memilih Jurusan Alternatif" value={data.alasan_pilih_jurusan} />
             </div>
           </section>
 

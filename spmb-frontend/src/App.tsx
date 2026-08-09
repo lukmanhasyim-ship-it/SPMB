@@ -17,6 +17,7 @@ const AdminTimeline = lazy(() => import('./pages/admin/AdminTimeline'))
 const AdminBroadcast = lazy(() => import('./pages/admin/AdminBroadcast'))
 const AdminFormulir = lazy(() => import('./pages/admin/AdminFormulir'))
 const AdminManajemen = lazy(() => import('./pages/admin/AdminManajemen'))
+const GuruLayout = lazy(() => import('./pages/guru/GuruLayout'))
 const GuruDashboard = lazy(() => import('./pages/guru/GuruDashboard'))
 const MplsLayout = lazy(() => import('./pages/mpls/MplsLayout'))
 const MplsDashboard = lazy(() => import('./pages/mpls/MplsDashboard'))
@@ -101,7 +102,7 @@ function App() {
         element={
           <ProtectedRoute role="guru">
             <SuspenseWrapper>
-              <GuruDashboard />
+              <GuruLayout />
             </SuspenseWrapper>
           </ProtectedRoute>
         }

@@ -23,7 +23,7 @@ export default function Step1Jurusan({ onComplete, onBack }: Step1Props) {
       return
     }
     if (data.pilihanAlternatif && !data.alasanPilihJurusan.trim()) {
-      alert('Isi alasan memilih jurusan terlebih dahulu')
+      alert('Isi Alasan Memilih Jurusan Alternatif terlebih dahulu')
       return
     }
     completeStep(1)

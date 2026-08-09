@@ -1,15 +1,27 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { LogOut, Users, GraduationCap } from 'lucide-react'
+import { Users, FileCheck, Clock, AlertTriangle, School } from 'lucide-react'
 import { useAuthStore } from '../../store/authStore'
 import Card from '../../components/ui/Card'
 import Loader from '../../components/ui/Loader'
+import StatCard from '../../components/ui/StatCard'
+import DonutChart from '../../components/ui/DonutChart'
+import ProgressBar from '../../components/ui/ProgressBar'
 import { api } from '../../services/api'
 
+const JURUSAN_PALETTE = ['#007643', '#38bdf8', '#f59e0b', '#14b8a6', '#8b5cf6', '#f472b6']
+
+function getSapaanWIB(): string {
+  const h = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Jakarta' })).getHours()
+  if (h < 10) return 'Selamat pagi'
+  if (h < 15) return 'Selamat siang'
+  if (h < 19) return 'Selamat sore'
+  return 'Selamat malam'
+}
+
 export default function GuruDashboard() {
-  const navigate = useNavigate()
-  const { user, logout } = useAuthStore()
+  const { user } = useAuthStore()
   const [totalSiswa, setTotalSiswa] = useState(0)
+  const [statusCounts, setStatusCounts] = useState<Record<string, number>>({})
   const [jurusanCounts, setJurusanCounts] = useState<Record<string, number>>({})
   const [gelombangCounts, setGelombangCounts] = useState<Record<string, number>>({})
   const [loading, setLoading] = useState(true)
@@ -24,6 +36,7 @@ export default function GuruDashboard() {
 
           const jurusan: Record<string, number> = {}
           const gelombang: Record<string, number> = {}
+          const status: Record<string, number> = {}
           list.forEach((s) => {
             if (s.pilihan_jurusan) {
               jurusan[s.pilihan_jurusan] = (jurusan[s.pilihan_jurusan] || 0) + 1
@@ -31,9 +44,12 @@ export default function GuruDashboard() {
             if (s.gelombang) {
               gelombang[s.gelombang] = (gelombang[s.gelombang] || 0) + 1
             }
+            const st = s.status_pendaftaran || 'Draft'
+            status[st] = (status[st] || 0) + 1
           })
           setJurusanCounts(jurusan)
           setGelombangCounts(gelombang)
+          setStatusCounts(status)
         }
       } catch {
         // Handle error
@@ -44,105 +60,89 @@ export default function GuruDashboard() {
     fetchData()
   }, [])
 
-  const handleLogout = () => {
-    logout()
-    navigate('/')
-  }
+  const donutData = Object.entries(jurusanCounts).map(([label, value], i) => ({
+    label,
+    value,
+    color: JURUSAN_PALETTE[i % JURUSAN_PALETTE.length],
+  }))
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <nav className="bg-white border-b border-slate-200 sticky top-0 z-50">
-        <div className="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 bg-amber-50 rounded-full flex items-center justify-center">
-              <GraduationCap className="w-5 h-5 text-amber-600" />
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-slate-800">{user?.nama}</p>
-              <p className="text-xs text-slate-500">{user?.email}</p>
-            </div>
+    <div className="space-y-6">
+      <Card glass className="p-5 sm:p-6 relative overflow-hidden">
+        <div className="absolute -right-16 -top-16 w-56 h-56 rounded-full bg-brand-orange/15 blur-2xl pointer-events-none" />
+        <div className="relative flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <p className="text-xs font-semibold text-brand-green">{getSapaanWIB()}</p>
+            <h1 className="text-xl sm:text-2xl font-extrabold text-slate-800 mt-1">
+              {user?.nama}
+            </h1>
+            <p className="text-sm text-slate-500 mt-1">
+              Pantau perkembangan pendaftaran murid baru
+            </p>
           </div>
-          <button
-            onClick={handleLogout}
-            className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-red-500 transition-colors"
-          >
-            <LogOut className="w-4 h-4" />
-            Keluar
-          </button>
+          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-brand-orange/10 text-orange-600 text-xs font-semibold">
+            <School className="w-3.5 h-3.5" />
+            Panel Guru
+          </span>
         </div>
-      </nav>
+      </Card>
 
-      <div className="max-w-3xl mx-auto px-4 py-6 space-y-5">
-        <div>
-          <h1 className="text-xl font-bold text-slate-800">Statistik Pendaftaran</h1>
-          <p className="text-sm text-slate-500">Ringkasan data pendaftar SPMB</p>
-        </div>
+      {loading ? (
+        <Loader />
+      ) : (
+        <>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <StatCard icon={Users} label="Total Pendaftar" value={totalSiswa} tone="blue" hint="Seluruh calon siswa" />
+            <StatCard icon={FileCheck} label="Terverifikasi" value={statusCounts['Terverifikasi'] || 0} tone="green" />
+            <StatCard icon={Clock} label="Selesai" value={statusCounts['Selesai'] || 0} tone="amber" />
+            <StatCard icon={AlertTriangle} label="Draft" value={statusCounts['Draft'] || 0} tone="slate" />
+          </div>
 
-        {loading ? (
-          <Loader />
-        ) : (
-          <>
-            <Card className="p-5">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
-                  <Users className="w-5 h-5" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-slate-800">{totalSiswa}</p>
-                  <p className="text-xs text-slate-500">Total Pendaftar</p>
-                </div>
-              </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card glass className="p-5">
+              <h3 className="text-sm font-bold text-slate-800 mb-1">Jumlah per Program Keahlian</h3>
+              <p className="text-xs text-slate-400 mb-4">Distribusi pendaftar antar jurusan</p>
+              {donutData.length > 0 ? (
+                <DonutChart data={donutData} centerLabel="Pendaftar" />
+              ) : (
+                <p className="text-sm text-slate-400 text-center py-10">Belum ada data</p>
+              )}
             </Card>
 
-            <Card className="p-5">
-              <h3 className="text-sm font-semibold text-slate-700 mb-4">
-                Jumlah Per Program Keahlian
-              </h3>
-              <div className="space-y-3">
-                {Object.entries(jurusanCounts).length > 0 ? (
-                  Object.entries(jurusanCounts).map(([jurusan, count]) => {
-                    const percent = totalSiswa > 0 ? Math.round((count / totalSiswa) * 100) : 0
-                    return (
-                      <div key={jurusan}>
-                        <div className="flex justify-between text-xs mb-1">
-                          <span className="text-slate-700 font-medium">{jurusan}</span>
-                          <span className="text-slate-500">{count} siswa</span>
-                        </div>
-                        <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
-                          <div
-                            className="h-full bg-brand-green rounded-full transition-all"
-                            style={{ width: `${percent}%` }}
-                          />
-                        </div>
+            <Card glass className="p-5">
+              <h3 className="text-sm font-bold text-slate-800 mb-4">Jumlah per Gelombang</h3>
+              {Object.entries(gelombangCounts).length > 0 ? (
+                <>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-5">
+                    {Object.entries(gelombangCounts).map(([gelombang, count]) => (
+                      <div
+                        key={gelombang}
+                        className="glass-card-hover p-4 rounded-2xl glass-badge text-center"
+                      >
+                        <p className="text-xl font-extrabold text-slate-800 tabular-nums">{count}</p>
+                        <p className="text-[11px] font-semibold text-slate-500 mt-0.5">{gelombang}</p>
                       </div>
-                    )
-                  })
-                ) : (
-                  <p className="text-xs text-slate-400">Belum ada data</p>
-                )}
-              </div>
+                    ))}
+                  </div>
+                  <div className="space-y-4">
+                    {Object.entries(gelombangCounts).map(([gelombang, count]) => (
+                      <ProgressBar
+                        key={gelombang}
+                        label={gelombang}
+                        count={count}
+                        total={totalSiswa}
+                        color="bg-blue-500"
+                      />
+                    ))}
+                  </div>
+                </>
+              ) : (
+                <p className="text-sm text-slate-400 text-center py-10">Belum ada data</p>
+              )}
             </Card>
-
-            <Card className="p-5">
-              <h3 className="text-sm font-semibold text-slate-700 mb-4">
-                Jumlah Per Gelombang
-              </h3>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                {Object.entries(gelombangCounts).length > 0 ? (
-                  Object.entries(gelombangCounts).map(([gelombang, count]) => (
-                    <div key={gelombang} className="p-3 rounded-xl bg-slate-50 border border-slate-100 text-center">
-                      <p className="text-lg font-bold text-slate-800">{count}</p>
-                      <p className="text-xs text-slate-500">{gelombang}</p>
-                    </div>
-                  ))
-                ) : (
-                  <p className="text-xs text-slate-400 col-span-full">Belum ada data</p>
-                )}
-              </div>
-            </Card>
-          </>
-        )}
-      </div>
+          </div>
+        </>
+      )}
     </div>
   )
 }

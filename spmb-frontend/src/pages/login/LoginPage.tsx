@@ -5,8 +5,6 @@ import { useAuthStore } from '../../store/authStore'
 import Card from '../../components/ui/Card'
 import { DATA_JURUSAN } from '../../data/constants'
 
-const isDevLoginEnabled = import.meta.env.DEV && import.meta.env.VITE_DEV_LOGIN === '1'
-
 const CARA_DAFTAR_STEPS = [
   { icon: LogIn, title: 'Login dengan Google', desc: 'Klik tombol di atas menggunakan akun Gmail yang aktif' },
   { icon: User, title: 'Lengkapi data akun', desc: 'Isi nama lengkap dan upload foto profil' },
@@ -18,17 +16,11 @@ const CARA_DAFTAR_STEPS = [
 
 export default function LoginPage() {
   const navigate = useNavigate()
-  const { login, devLogin, loading } = useAuthStore()
+  const { login, loading } = useAuthStore()
   const [internalLoading, setInternalLoading] = useState(false)
-  const [devEmail, setDevEmail] = useState('')
   const [caraDaftarOpen, setCaraDaftarOpen] = useState(false)
 
   const isLoading = loading || internalLoading
-
-  const handleDevLogin = (role: 'siswa' | 'admin' | 'guru' | 'panitia_mpls') => {
-    devLogin(role, devEmail)
-    navigate(role === 'admin' ? '/admin/dashboard' : role === 'guru' ? '/guru/dashboard' : role === 'panitia_mpls' ? '/mpls/dashboard' : '/student/dashboard')
-  }
 
   const handleGoogleClick = () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -214,51 +206,6 @@ export default function LoginPage() {
               Cara Daftar Pendaftaran
             </button>
           </div>
-
-          {isDevLoginEnabled && (
-            <div className="mt-8 pt-6 border-t border-dashed border-slate-200">
-              <p className="text-[11px] font-bold uppercase tracking-wider text-amber-600 text-center mb-3">
-                Mode Pengembangan - Bypass Login
-              </p>
-              <input
-                type="email"
-                value={devEmail}
-                onChange={(e) => setDevEmail(e.target.value)}
-                placeholder="Email user (opsional)"
-                className="w-full px-3 py-2 mb-3 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
-              />
-              <div className="flex flex-col gap-2">
-                <button
-                  onClick={() => handleDevLogin('siswa')}
-                  disabled={isLoading}
-                  className="w-full px-4 py-2 rounded-lg bg-sky-500 hover:bg-sky-600 text-sm font-medium text-white transition-all disabled:opacity-50"
-                >
-                  Masuk sebagai Siswa
-                </button>
-                <button
-                  onClick={() => handleDevLogin('guru')}
-                  disabled={isLoading}
-                  className="w-full px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-sm font-medium text-white transition-all disabled:opacity-50"
-                >
-                  Masuk sebagai Guru
-                </button>
-                <button
-                  onClick={() => handleDevLogin('panitia_mpls')}
-                  disabled={isLoading}
-                  className="w-full px-4 py-2 rounded-lg bg-teal-500 hover:bg-teal-600 text-sm font-medium text-white transition-all disabled:opacity-50"
-                >
-                  Masuk sebagai Panitia MPLS
-                </button>
-                <button
-                  onClick={() => handleDevLogin('admin')}
-                  disabled={isLoading}
-                  className="w-full px-4 py-2 rounded-lg bg-rose-500 hover:bg-rose-600 text-sm font-medium text-white transition-all disabled:opacity-50"
-                >
-                  Masuk sebagai Admin
-                </button>
-              </div>
-            </div>
-          )}
 
           <p className="text-[11px] text-slate-300 text-center mt-8">
             © {new Date().getFullYear()} SMKS AL AZHAR SEMPU — SPMB

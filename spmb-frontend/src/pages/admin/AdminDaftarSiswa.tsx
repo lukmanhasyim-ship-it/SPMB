@@ -210,12 +210,12 @@ export default function AdminDaftarSiswa() {
             ]}
           />
           <InputField
-            label="Alasan Memilih Jurusan"
+            label="Alasan Memilih Jurusan Alternatif"
             name="alasanPilihJurusan"
             value={form.alasanPilihJurusan}
             onChange={handleChange}
             textarea
-            placeholder="Alasan memilih jurusan (opsional)"
+            placeholder="Alasan Memilih Jurusan Alternatif (opsional)"
           />
           <div className="border-t border-slate-100 pt-4">
             <p className="text-sm font-semibold text-slate-700 mb-1">

@@ -261,6 +261,7 @@ export default function AdminBroadcast() {
         <p className="text-sm text-slate-500">Kelola postingan informasi untuk calon siswa</p>
       </div>
 
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
       <Card className="p-5">
         <h3 className="text-sm font-semibold text-slate-700 mb-4">
           Buat Postingan Baru
@@ -505,6 +506,7 @@ export default function AdminBroadcast() {
           </div>
         )}
       </Card>
+      </div>
 
       {editModalOpen && editingEvent && (
         <div className="fixed inset-0 bg-black/30 z-50 flex items-center justify-center p-4">

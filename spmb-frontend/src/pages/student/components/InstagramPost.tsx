@@ -320,7 +320,7 @@ export default function InstagramPost({ event, studentName, userEmail }: Instagr
               </div>
             </div>
             <span className="text-[10px] text-slate-500 leading-none">
-              {event.tempat_pelaksanaan || 'SMKS AL AZHAR SEMPU'} • Resmi
+              SMKS AL AZHAR SEMPU • Resmi
             </span>
           </div>
         </div>
@@ -558,8 +558,8 @@ export default function InstagramPost({ event, studentName, userEmail }: Instagr
           type="submit"
           disabled={!newComment.trim()}
           className={`text-xs font-bold transition-colors ${newComment.trim()
-              ? 'text-sky-500 hover:text-sky-600 cursor-pointer'
-              : 'text-sky-200 cursor-default'
+            ? 'text-sky-500 hover:text-sky-600 cursor-pointer'
+            : 'text-sky-200 cursor-default'
             }`}
         >
           Kirim

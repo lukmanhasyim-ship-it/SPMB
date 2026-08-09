@@ -9,7 +9,6 @@ interface AuthState {
   error: string | null
 
   login: (email: string, nama?: string, fotoUrl?: string, idToken?: string) => Promise<'siswa' | 'admin' | 'guru' | 'panitia_mpls' | 'new' | null>
-  devLogin: (role: 'siswa' | 'admin' | 'guru' | 'panitia_mpls', email?: string) => void
   register: (email: string, nama: string, fotoUrl?: string) => Promise<void>
   logout: () => void
   clearError: () => void
@@ -57,21 +56,6 @@ export const useAuthStore = create<AuthState>((set) => ({
       set({ loading: false, error: message })
       return null
     }
-  },
-
-  devLogin: (role, email) => {
-    const emailFinal = email?.trim() || `dev.${role}@spmb.local`
-    set({
-      user: {
-        email: emailFinal,
-        nama: email?.trim() ? `Dev (${role})` : `Dev ${role}`,
-        role,
-        fotoUrl: '',
-      },
-      isLoggedIn: true,
-      loading: false,
-      error: null,
-    })
   },
 
   register: async (email: string, nama: string, fotoUrl?: string) => {
