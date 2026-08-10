@@ -3,7 +3,14 @@ import { useNavigate } from 'react-router-dom'
 import { Info, LogIn, User, School, MapPin, Users, Award, X, Loader2, Sparkles } from 'lucide-react'
 import { useAuthStore } from '../../store/authStore'
 import Card from '../../components/ui/Card'
-import { DATA_JURUSAN } from '../../data/constants'
+
+const LOGIN_JURUSAN = [
+  { code: 'AKL', label: 'Akuntansi dan Keuangan Lembaga' },
+  { code: 'TKR', label: 'Teknik Kendaraan Ringan' },
+  { code: 'PPLG', label: 'Pengembangan Perangkat Lunak dan Gim' },
+  { code: 'TJKT', label: 'Teknik Jaringan Komputer dan Telekomunikasi' },
+  { code: 'DPB', label: 'Desain dan Produksi Busana' },
+]
 
 const CARA_DAFTAR_STEPS = [
   { icon: LogIn, title: 'Login dengan Google', desc: 'Klik tombol di atas menggunakan akun Gmail yang aktif' },
@@ -129,15 +136,15 @@ export default function LoginPage() {
               Kompetensi Keahlian
             </p>
             <div className="flex flex-wrap gap-2">
-              {DATA_JURUSAN.map((j, i) => (
+              {LOGIN_JURUSAN.map((j, i) => (
                 <span
-                  key={j.value}
+                  key={j.code}
                   className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-white/15 backdrop-blur-sm text-xs font-semibold hover:bg-white/20 transition-colors"
                 >
                   <span className="w-5 h-5 rounded-full bg-brand-orange text-brand-teal text-[10px] font-bold flex items-center justify-center">
                     {i + 1}
                   </span>
-                  {j.value}
+                  {j.label}
                 </span>
               ))}
             </div>
