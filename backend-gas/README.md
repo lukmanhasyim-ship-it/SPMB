@@ -22,6 +22,7 @@ Copy semua file `.gs` ke dalam project Apps Script:
 - `AdminHandler.gs` → `AdminHandler.gs`
 - `MplsHandler.gs` → `MplsHandler.gs`
 - `DriveHandler.gs` → `DriveHandler.gs`
+- `Security.gs` → `Security.gs`
 - `SeedData.gs` → `SeedData.gs`
 - `appsscript.json` → `appsscript.json` (di Project Settings > Show manifest file)
 
@@ -33,6 +34,7 @@ Di menu **Project Settings > Script Properties**, tambahkan:
 |---|---|
 | `SHEET_ID` | ID Google Sheet Anda |
 | `DRIVE_FOLDER_ID` | (Opsional) Biarkan kosong, akan dibuat otomatis |
+| `GOOGLE_CLIENT_ID` | Client ID frontend (`VITE_GOOGLE_CLIENT_ID` di `.env`) — dipakai validasi `aud` token Google |
 
 ### 3. Seed Data
 
@@ -63,17 +65,33 @@ VITE_API_URL=https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec
 
 ## Struktur API
 
-Semua request menggunakan `POST` dengan JSON body berisi field `action`:
+Semua request menggunakan `POST` dengan JSON body berisi field `action`.
+Setiap aksi **wajib menyertakan token sesi** (`token`) yang didapat dari `auth`/`register`,
+kecuali `auth`, `register`, dan `setup`.
+
+> ⚠️ Keamanan: sejak versi ini, **login tidak bisa lagi menggunakan email polos**.
+> Setiap login/daftar harus mengirim `idToken` (access token Google dari GIS).
+> Aksi admin/staf diotorisasi oleh role di server, bukan sekadar guard UI.
 
 ### Auth
-- **action: `auth`** — Login/cek role
+- **action: `auth`** — Login/cek role (wajib `idToken` Google)
   ```json
-  { "action": "auth", "email": "user@gmail.com" }
+  { "action": "auth", "idToken": "ya29...." }
   ```
-- **action: `register`** — Registrasi siswa baru
+  → Mengembalikan `role`, `user`, dan `sessionToken`.
+- **action: `register`** — Registrasi siswa baru (wajib `idToken`, email harus sama dengan email di token)
   ```json
-  { "action": "register", "email": "...", "nama": "...", "fotoUrl": "..." }
+  { "action": "register", "idToken": "ya29....", "email": "...", "nama": "..." }
   ```
+
+### Contoh request terautentikasi
+```json
+{ "action": "getEvents", "token": "<sessionToken>" }
+```
+
+Catatan: `setup` hanya berfungsi **sekali** (saat `SHEET_ID` belum di-set).
+Untuk mengubah spreadsheet tujuan, ubah manual lewat Script Properties.
+
 
 ### Siswa
 - **action: `getSiswa`** — Ambil data siswa (dengan email) atau semua (tanpa email)

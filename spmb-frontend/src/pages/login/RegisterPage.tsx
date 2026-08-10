@@ -42,6 +42,13 @@ export default function RegisterPage() {
 
   const handleRegister = async () => {
     setLocalError('')
+
+    const googleToken = sessionStorage.getItem('spmb.google-token') || ''
+    if (!googleToken) {
+      setLocalError('Sesi Google tidak ditemukan. Silakan login ulang dari halaman awal.')
+      return
+    }
+
     if (!nama.trim()) {
       setLocalError('Nama lengkap harus diisi')
       return
@@ -55,7 +62,12 @@ export default function RegisterPage() {
       return
     }
     try {
-      await register(email.trim(), nama.trim(), fotoBase64 || undefined)
+      await register(email.trim(), nama.trim(), fotoBase64 || undefined, googleToken)
+      try {
+        sessionStorage.removeItem('spmb.google-token')
+      } catch {
+        /* noop */
+      }
       navigate('/student/dashboard')
     } catch {
       setLocalError(error || 'Registrasi gagal')

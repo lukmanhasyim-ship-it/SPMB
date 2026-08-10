@@ -1,17 +1,51 @@
 const API_URL = import.meta.env.VITE_API_URL || ''
+const TOKEN_KEY = 'spmb.session-token'
 
 interface ApiResponse {
   status: 'ok' | 'error'
   message?: string
+  code?: string
   data?: unknown
   [key: string]: unknown
 }
 
+export function getSessionToken(): string {
+  try {
+    return localStorage.getItem(TOKEN_KEY) || ''
+  } catch {
+    return ''
+  }
+}
+
+export function setSessionToken(token: string): void {
+  try {
+    if (token) {
+      localStorage.setItem(TOKEN_KEY, token)
+    } else {
+      localStorage.removeItem(TOKEN_KEY)
+    }
+  } catch {
+    /* noop */
+  }
+}
+
+export function clearSessionToken(): void {
+  try {
+    localStorage.removeItem(TOKEN_KEY)
+  } catch {
+    /* noop */
+  }
+}
+
 async function request(action: string, payload: Record<string, unknown> = {}): Promise<ApiResponse> {
+  const token = getSessionToken()
+  const body: Record<string, unknown> = { action, ...payload }
+  if (token) body.token = token
+
   const response = await fetch(API_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'text/plain' },
-    body: JSON.stringify({ action, ...payload }),
+    body: JSON.stringify(body),
   })
 
   if (!response.ok) {
@@ -21,6 +55,10 @@ async function request(action: string, payload: Record<string, unknown> = {}): P
   const result: ApiResponse = await response.json()
 
   if (result.status === 'error') {
+    if (result.code === 'AUTH_REQUIRED') {
+      clearSessionToken()
+      window.location.href = '/'
+    }
     throw new Error(result.message || 'Unknown error')
   }
 
@@ -40,8 +78,12 @@ export const api = {
       return request('auth', payload)
     },
 
-    register: (email: string, nama: string, fotoUrl?: string) =>
-      request('register', { email, nama, fotoUrl }),
+    register: (email: string, nama: string, fotoUrl?: string, idToken?: string) => {
+      const payload: Record<string, unknown> = { email, nama }
+      if (fotoUrl) payload.fotoUrl = fotoUrl
+      if (idToken) payload.idToken = idToken
+      return request('register', payload)
+    },
   },
 
   siswa: {

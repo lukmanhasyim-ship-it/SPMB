@@ -1,4 +1,8 @@
 function seedInitialData() {
+  // Hanya seed satu kali untuk menghemat quota Sheets.
+  var seeded = PropertiesService.getScriptProperties().getProperty('SEEDED')
+  if (seeded === '1') return
+
   var gelombangSheet = getSheet('Pengaturan_Gelombang')
   var existingGel = gelombangSheet.getDataRange().getValues()
   if (existingGel.length <= 1) {
@@ -56,4 +60,5 @@ function seedInitialData() {
   }
 
   Logger.log('Seed data initialized successfully')
+  PropertiesService.getScriptProperties().setProperty('SEEDED', '1')
 }

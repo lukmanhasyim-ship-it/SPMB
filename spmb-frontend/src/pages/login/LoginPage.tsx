@@ -65,6 +65,11 @@ export default function LoginPage() {
         } else if (result === 'panitia_mpls') {
           navigate('/mpls/dashboard')
         } else {
+          try {
+            sessionStorage.setItem('spmb.google-token', accessToken)
+          } catch {
+            /* noop */
+          }
           navigate('/register', { state: { email, nama, fotoUrl } })
         }
       } catch (err) {

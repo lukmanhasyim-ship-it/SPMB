@@ -1,8 +1,8 @@
-function handleSendReminder(params) {
+function handleSendReminder(params, session) {
   initializeSheets()
 
   var idEvent = (params.id_event || '').trim()
-  var email = (params.email || '').toLowerCase().trim()
+  var email = (session && session.email) || (params.email || '').toLowerCase().trim()
   var nama = (params.nama || '').trim()
 
   if (!idEvent) return { status: 'error', message: 'ID event wajib diisi' }
@@ -10,6 +10,13 @@ function handleSendReminder(params) {
 
   var event = findRowByKey('Informasi_Event', 'id_event', idEvent)
   if (!event) return { status: 'error', message: 'Event tidak ditemukan' }
+
+  var existingReminders = getAllRows('Event_Pengingat')
+  for (var i = 0; i < existingReminders.length; i++) {
+    if (String(existingReminders[i].id_event) === idEvent && String(existingReminders[i].email || '').toLowerCase() === email) {
+      return { status: 'error', message: 'Pengingat untuk event ini sudah dibuat' }
+    }
+  }
 
   var calendarUrl = String(event.calendar_url || '').trim()
   var calendarEventId = String(event.calendar_event_id || '').trim()

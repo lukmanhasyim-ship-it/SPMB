@@ -1,9 +1,9 @@
-function handleGetEngagement(params) {
+function handleGetEngagement(params, session) {
   initializeSheets()
 
   var idEvent = (params.id_event || '').trim()
   if (!idEvent) return { status: 'error', message: 'ID event wajib diisi' }
-  var email = (params.email || '').toLowerCase().trim()
+  var email = (session && session.email) || ''
 
   var likes = getAllRows('Event_Like')
   var likeCount = 0
@@ -26,11 +26,11 @@ function handleGetEngagement(params) {
   }
 }
 
-function handleToggleLike(params) {
+function handleToggleLike(params, session) {
   initializeSheets()
 
   var idEvent = (params.id_event || '').trim()
-  var email = (params.email || '').toLowerCase().trim()
+  var email = (session && session.email) || ''
   if (!idEvent) return { status: 'error', message: 'ID event wajib diisi' }
   if (!email) return { status: 'error', message: 'Email wajib diisi' }
 
@@ -80,11 +80,11 @@ function handleToggleLike(params) {
   return { status: 'ok', data: { like_count: count, is_liked: !isLiked } }
 }
 
-function handleAddKomentar(params) {
+function handleAddKomentar(params, session) {
   initializeSheets()
 
   var idEvent = (params.id_event || '').trim()
-  var email = (params.email || '').toLowerCase().trim()
+  var email = (session && session.email) || ''
   var nama = (params.nama || '').trim()
   var teks = (params.teks || '').trim()
 

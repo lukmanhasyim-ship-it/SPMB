@@ -1,10 +1,22 @@
 var SHEET_ID = PropertiesService.getScriptProperties().getProperty('SHEET_ID')
 
 function setupSheet(sheetId) {
+  var existingId = PropertiesService.getScriptProperties().getProperty('SHEET_ID')
+
+  // Setelah terhubung, tidak boleh diarahkan ulang via API.
+  if (existingId) {
+    SHEET_ID = existingId
+    return { status: 'ok', message: 'Spreadsheet sudah terhubung', sheetId: existingId }
+  }
+
   if (sheetId) {
-    SpreadsheetApp.openById(sheetId)
+    try {
+      SpreadsheetApp.openById(sheetId)
+    } catch (e) {
+      return { status: 'error', message: 'Sheet ID tidak valid' }
+    }
+    PropertiesService.getScriptProperties().setProperty('SHEET_ID', sheetId)
     SHEET_ID = sheetId
-    PropertiesService.getScriptProperties().setProperty('SHEET_ID', SHEET_ID)
     return { status: 'ok', message: 'Sheet terhubung', sheetId: SHEET_ID }
   }
 
@@ -153,6 +165,13 @@ function ensureHeaders(sheetName, headers) {
 }
 
 function initializeSheets() {
+  // Hanya jalankan ensureHeaders sekali untuk menghemat quota Sheets.
+  var schemaReady = PropertiesService.getScriptProperties().getProperty('SCHEMA_READY')
+  if (schemaReady === '1') {
+    seedInitialData()
+    return
+  }
+
   ensureHeaders('Siswa', [
     'id_pendaftaran', 'email', 'pilihan_jurusan', 'pilihan_alternatif',
     'nama_lengkap', 'jenis_kelamin', 'nisn', 'nik', 'tempat_lahir',
@@ -209,6 +228,8 @@ function initializeSheets() {
     'id_timeline', 'urutan', 'nama_tahapan', 'deskripsi',
     'tanggal_mulai', 'tanggal_selesai', 'status', 'created_at', 'updated_at'
   ])
+
+  PropertiesService.getScriptProperties().setProperty('SCHEMA_READY', '1')
 
   seedInitialData()
 }

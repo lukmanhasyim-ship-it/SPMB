@@ -1,3 +1,50 @@
+// Tabel route dengan role yang diizinkan.
+// 'auth' dan 'register' menangani verifikasi token Google sendiri (guard dilewati di doPost).
+var ROUTES = {
+  auth: { handler: handleAuth, roles: [] },
+  register: { handler: handleRegister, roles: [] },
+
+  getSiswa: { handler: handleGetSiswa, roles: ['siswa', 'admin', 'guru', 'panitia_mpls'] },
+  updateSiswa: { handler: handleUpdateSiswa, roles: ['siswa', 'admin'] },
+  adminRegisterSiswa: { handler: handleAdminRegisterSiswa, roles: ['admin'] },
+  getReferralStats: { handler: handleGetReferralStats, roles: ['admin', 'guru'] },
+
+  getGelombang: { handler: handleGetGelombang, roles: ['siswa', 'admin', 'guru', 'panitia_mpls'] },
+  updateGelombang: { handler: handleUpdateGelombang, roles: ['admin'] },
+  deleteGelombang: { handler: handleDeleteGelombang, roles: ['admin'] },
+  getConfig: { handler: handleGetConfig, roles: ['siswa', 'admin', 'guru', 'panitia_mpls'] },
+  updateConfig: { handler: handleUpdateConfig, roles: ['admin'] },
+
+  getEvents: { handler: handleGetEvents, roles: ['siswa', 'admin', 'guru', 'panitia_mpls'] },
+  sendBroadcast: { handler: handleSendBroadcast, roles: ['admin', 'panitia_mpls'] },
+  deleteEvent: { handler: handleDeleteEvent, roles: ['admin', 'panitia_mpls'] },
+  updateEvent: { handler: handleUpdateEvent, roles: ['admin', 'panitia_mpls'] },
+
+  upload: { handler: handleUpload, roles: ['siswa', 'admin', 'panitia_mpls'] },
+
+  getEngagement: { handler: handleGetEngagement, roles: ['siswa', 'admin', 'guru', 'panitia_mpls'] },
+  toggleLike: { handler: handleToggleLike, roles: ['siswa', 'admin', 'guru', 'panitia_mpls'] },
+  addKomentar: { handler: handleAddKomentar, roles: ['siswa', 'admin', 'guru', 'panitia_mpls'] },
+  sendReminder: { handler: handleSendReminder, roles: ['siswa', 'admin', 'guru', 'panitia_mpls'] },
+
+  getTimeline: { handler: handleGetTimeline, roles: ['siswa', 'admin', 'guru', 'panitia_mpls'] },
+  addTimeline: { handler: handleAddTimeline, roles: ['admin'] },
+  updateTimeline: { handler: handleUpdateTimeline, roles: ['admin'] },
+  deleteTimeline: { handler: handleDeleteTimeline, roles: ['admin'] },
+
+  getAdminList: { handler: handleAdminList, roles: ['admin'] },
+  addAdmin: { handler: handleAdminAdd, roles: ['admin'] },
+  updateAdmin: { handler: handleAdminUpdate, roles: ['admin'] },
+  deleteAdmin: { handler: handleAdminDelete, roles: ['admin'] },
+
+  mplsLookupById: { handler: handleMplsLookupById, roles: ['panitia_mpls', 'admin', 'guru'] },
+  mplsAddKehadiran: { handler: handleMplsAddKehadiran, roles: ['panitia_mpls', 'admin'] },
+  mplsGetKehadiran: { handler: handleMplsGetKehadiran, roles: ['panitia_mpls', 'admin', 'guru'] },
+  mplsAddIzin: { handler: handleMplsAddIzin, roles: ['panitia_mpls', 'admin'] },
+  mplsGetIzin: { handler: handleMplsGetIzin, roles: ['panitia_mpls', 'admin', 'guru'] },
+  mplsDeleteIzin: { handler: handleMplsDeleteIzin, roles: ['panitia_mpls', 'admin'] }
+}
+
 function doGet() {
   return ContentService
     .createTextOutput(JSON.stringify({ status: 'ok', message: 'SPMB API is running' }))
@@ -12,135 +59,48 @@ function doOptions() {
 
 function doPost(e) {
   try {
-    const params = JSON.parse(e.postData.contents)
-    const action = params.action
+    var params = JSON.parse(e.postData.contents)
+    var action = params.action
 
     if (action === 'setup') {
-      return ContentService
-        .createTextOutput(JSON.stringify(setupSheet(params.sheetId)))
-        .setMimeType(ContentService.MimeType.JSON)
+      var setupResult = setupSheet(params.sheetId)
+      if (params.googleClientId) {
+        var props = PropertiesService.getScriptProperties()
+        if (!props.getProperty('GOOGLE_CLIENT_ID')) {
+          props.setProperty('GOOGLE_CLIENT_ID', String(params.googleClientId).trim())
+        }
+      }
+      return jsonOutput(setupResult)
     }
 
-    let result
-    switch (action) {
-      case 'auth':
-        result = handleAuth(params)
-        break
-      case 'register':
-        result = handleRegister(params)
-        break
-      case 'getSiswa':
-        result = handleGetSiswa(params)
-        break
-      case 'getReferralStats':
-        result = handleGetReferralStats()
-        break
-      case 'updateSiswa':
-        result = handleUpdateSiswa(params)
-        break
-      case 'adminRegisterSiswa':
-        result = handleAdminRegisterSiswa(params)
-        break
-      case 'getGelombang':
-        result = handleGetGelombang()
-        break
-      case 'updateGelombang':
-        result = handleUpdateGelombang(params)
-        break
-      case 'getConfig':
-        result = handleGetConfig()
-        break
-      case 'updateConfig':
-        result = handleUpdateConfig(params)
-        break
-      case 'getEvents':
-        result = handleGetEvents()
-        break
-      case 'sendBroadcast':
-        result = handleSendBroadcast(params)
-        break
-      case 'deleteGelombang':
-        result = handleDeleteGelombang(params)
-        break
-      case 'upload':
-        result = handleUpload(params)
-        break
-      case 'getEngagement':
-        result = handleGetEngagement(params)
-        break
-      case 'toggleLike':
-        result = handleToggleLike(params)
-        break
-      case 'addKomentar':
-        result = handleAddKomentar(params)
-        break
-      case 'sendReminder':
-        result = handleSendReminder(params)
-        break
-      case 'deleteEvent':
-        result = handleDeleteEvent(params)
-        break
-      case 'updateEvent':
-        result = handleUpdateEvent(params)
-        break
-      case 'getTimeline':
-        result = handleGetTimeline()
-        break
-      case 'addTimeline':
-        result = handleAddTimeline(params)
-        break
-      case 'updateTimeline':
-        result = handleUpdateTimeline(params)
-        break
-      case 'deleteTimeline':
-        result = handleDeleteTimeline(params)
-        break
-      case 'getAdminList':
-        result = handleAdminList()
-        break
-      case 'addAdmin':
-        result = handleAdminAdd(params)
-        break
-      case 'updateAdmin':
-        result = handleAdminUpdate(params)
-        break
-      case 'deleteAdmin':
-        result = handleAdminDelete(params)
-        break
-      case 'mplsLookupById':
-        result = handleMplsLookupById(params)
-        break
-      case 'mplsAddKehadiran':
-        result = handleMplsAddKehadiran(params)
-        break
-      case 'mplsGetKehadiran':
-        result = handleMplsGetKehadiran(params)
-        break
-      case 'mplsAddIzin':
-        result = handleMplsAddIzin(params)
-        break
-      case 'mplsGetIzin':
-        result = handleMplsGetIzin(params)
-        break
-      case 'mplsDeleteIzin':
-        result = handleMplsDeleteIzin(params)
-        break
-
-      default:
-        result = { status: 'error', message: 'Unknown action: ' + action }
+    var route = ROUTES[action]
+    if (!route) {
+      return jsonOutput({ status: 'error', message: 'Unknown action: ' + action })
     }
 
-    return ContentService
-      .createTextOutput(JSON.stringify(result))
-      .setMimeType(ContentService.MimeType.JSON)
+    var session = null
+    if (action !== 'auth' && action !== 'register') {
+      var guard = requireAuth_(params, route.roles)
+      if (guard.error) {
+        return jsonOutput({ status: 'error', code: 'AUTH_REQUIRED', message: guard.error })
+      }
+      session = guard.session
+    }
+
+    var result = route.handler(params, session)
+    return jsonOutput(result)
   } catch (err) {
-    return ContentService
-      .createTextOutput(JSON.stringify({ status: 'error', message: err.toString() }))
-      .setMimeType(ContentService.MimeType.JSON)
+    console.error('SPMB API error (' + new Date().toISOString() + '): ' + (err && err.stack ? err.stack : err))
+    return jsonOutput({ status: 'error', message: 'Terjadi kesalahan pada server. Silakan coba lagi.' })
   }
+}
+
+function jsonOutput(obj) {
+  return ContentService
+    .createTextOutput(JSON.stringify(obj))
+    .setMimeType(ContentService.MimeType.JSON)
 }
 
 function getWIBTime() {
   return Utilities.formatDate(new Date(), "GMT+7", "yyyy-MM-dd HH:mm:ss");
 }
-

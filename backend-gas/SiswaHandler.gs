@@ -1,11 +1,20 @@
-function handleGetSiswa(params) {
+function handleGetSiswa(params, session) {
   initializeSheets()
 
   var email = (params.email || '').toLowerCase().trim()
+  var isStaff = session && (session.role === 'admin' || session.role === 'guru' || session.role === 'panitia_mpls')
+
   if (email) {
+    if (!isStaff && (!session || session.email !== email)) {
+      return { status: 'error', message: 'Akses ditolak: Anda hanya dapat mengakses data Anda sendiri' }
+    }
     var siswa = findRowByKey('Siswa', 'email', email)
     if (!siswa) return { status: 'error', message: 'Data tidak ditemukan' }
     return { status: 'ok', data: cleanSiswaRow(siswa) }
+  }
+
+  if (!isStaff) {
+    return { status: 'error', message: 'Akses ditolak' }
   }
 
   var allSiswa = getAllRows('Siswa')
@@ -16,8 +25,16 @@ function handleGetSiswa(params) {
   return { status: 'ok', data: result }
 }
 
-function handleUpdateSiswa(params) {
+function handleUpdateSiswa(params, session) {
   initializeSheets()
+
+  var email = (params.email || '').toLowerCase().trim()
+  if (!email) return { status: 'error', message: 'Email wajib diisi' }
+
+  var isAdmin = session && session.role === 'admin'
+  if (!isAdmin && (!session || session.email !== email)) {
+    return { status: 'error', message: 'Akses ditolak: Anda hanya dapat mengubah data Anda sendiri' }
+  }
 
   var lock = LockService.getScriptLock()
   var locked = false
@@ -29,9 +46,6 @@ function handleUpdateSiswa(params) {
   if (!locked) {
     return { status: 'error', message: 'Sistem sedang sibuk, silakan coba lagi' }
   }
-
-  var email = (params.email || '').toLowerCase().trim()
-  if (!email) { lock.releaseLock(); return { status: 'error', message: 'Email wajib diisi' } }
 
   var existing = findRowByKey('Siswa', 'email', email)
   if (!existing) { lock.releaseLock(); return { status: 'error', message: 'Data tidak ditemukan' } }
