@@ -7,6 +7,8 @@ var ROUTES = {
   getSiswa: { handler: handleGetSiswa, roles: ['siswa', 'admin', 'guru', 'panitia_mpls'] },
   updateSiswa: { handler: handleUpdateSiswa, roles: ['siswa', 'admin'] },
   adminRegisterSiswa: { handler: handleAdminRegisterSiswa, roles: ['admin'] },
+  deleteSiswa: { handler: handleDeleteSiswa, roles: ['admin'] },
+  deleteAllSiswa: { handler: handleDeleteAllSiswa, roles: ['admin'] },
   getReferralStats: { handler: handleGetReferralStats, roles: ['admin', 'guru'] },
 
   getGelombang: { handler: handleGetGelombang, roles: ['siswa', 'admin', 'guru', 'panitia_mpls'] },

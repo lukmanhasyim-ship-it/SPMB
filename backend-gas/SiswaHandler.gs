@@ -172,6 +172,90 @@ function handleAdminRegisterSiswa(params) {
   }
 }
 
+function handleDeleteSiswa(params) {
+  initializeSheets()
+
+  var idPendaftaran = (params.id_pendaftaran || '').toString().trim()
+  var email = (params.email || '').toLowerCase().trim()
+  if (!idPendaftaran && !email) {
+    return { status: 'error', message: 'ID pendaftaran atau email wajib diisi' }
+  }
+
+  var lock = LockService.getScriptLock()
+  var locked = false
+  try {
+    locked = lock.tryLock(10000)
+  } catch (e) {
+    locked = false
+  }
+  if (!locked) {
+    return { status: 'error', message: 'Sistem sedang sibuk, silakan coba lagi' }
+  }
+
+  var siswa = null
+  if (idPendaftaran) {
+    siswa = findRowByKey('Siswa', 'id_pendaftaran', idPendaftaran)
+  }
+  if (!siswa && email) {
+    siswa = findRowByKey('Siswa', 'email', email)
+  }
+  if (!siswa) { lock.releaseLock(); return { status: 'error', message: 'Data siswa tidak ditemukan' } }
+
+  var rowEmail = String(siswa.email || '').toLowerCase().trim()
+  var deleted = deleteRowsByKey('Siswa', 'id_pendaftaran', String(siswa.id_pendaftaran))
+
+  var relatedDeleted = 0
+  if (rowEmail) {
+    relatedDeleted += deleteRowsByKey('Kehadiran_MPLS', 'email', rowEmail)
+    relatedDeleted += deleteRowsByKey('Izin_MPLS', 'email', rowEmail)
+    relatedDeleted += deleteRowsByKey('Event_Like', 'email', rowEmail)
+    relatedDeleted += deleteRowsByKey('Event_Komentar', 'email', rowEmail)
+    relatedDeleted += deleteRowsByKey('Event_Pengingat', 'email', rowEmail)
+  }
+
+  lock.releaseLock()
+
+  return {
+    status: 'ok',
+    message: 'Data siswa berhasil dihapus',
+    deleted: deleted,
+    relatedDeleted: relatedDeleted
+  }
+}
+
+function handleDeleteAllSiswa(params) {
+  initializeSheets()
+
+  if (String(params.confirm || '').trim().toUpperCase() !== 'HAPUS') {
+    return { status: 'error', message: 'Konfirmasi gagal: ketik HAPUS untuk melanjutkan' }
+  }
+
+  var lock = LockService.getScriptLock()
+  var locked = false
+  try {
+    locked = lock.tryLock(10000)
+  } catch (e) {
+    locked = false
+  }
+  if (!locked) {
+    return { status: 'error', message: 'Sistem sedang sibuk, silakan coba lagi' }
+  }
+
+  var counts = {}
+  var sheets = ['Siswa', 'Kehadiran_MPLS', 'Izin_MPLS', 'Event_Like', 'Event_Komentar', 'Event_Pengingat']
+  for (var i = 0; i < sheets.length; i++) {
+    counts[sheets[i]] = clearAllRows_(sheets[i])
+  }
+
+  lock.releaseLock()
+
+  return {
+    status: 'ok',
+    message: 'Semua data siswa berhasil dihapus',
+    counts: counts
+  }
+}
+
 function cleanSiswaRow(row) {
   var cleaned = {}
   var keys = Object.keys(row)

@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from 'react'
-import { Search, Filter, ChevronDown, Download } from 'lucide-react'
+import { Search, Filter, ChevronDown, Download, Trash2, AlertTriangle, X } from 'lucide-react'
 import * as XLSX from 'xlsx'
 import Card from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
@@ -30,31 +30,35 @@ export default function AdminSiswa() {
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [filterStatus, setFilterStatus] = useState<StatusPendaftaran | 'Semua'>('Semua')
+  const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [confirmModalOpen, setConfirmModalOpen] = useState(false)
+  const [confirmText, setConfirmText] = useState('')
+  const [deletingAll, setDeletingAll] = useState(false)
+
+  const fetchData = async () => {
+    try {
+      const res = await api.siswa.getAll()
+      if (res.status === 'ok') {
+        const list = (res.data as Array<Record<string, string>>).map((s) => ({
+          idPendaftaran: s.id_pendaftaran || '',
+          email: s.email || '',
+          namaLengkap: s.nama_lengkap || '',
+          pilihanJurusan: s.pilihan_jurusan || '-',
+          gelombang: s.gelombang || '-',
+          statusPendaftaran: s.status_pendaftaran || 'Draft',
+          referralNama: s.referral_nama || '',
+          referralKategori: s.referral_kategori || '',
+        }))
+        setSiswaList(list)
+      }
+    } catch {
+      // Handle error
+    } finally {
+      setLoading(false)
+    }
+  }
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await api.siswa.getAll()
-        if (res.status === 'ok') {
-          const list = (res.data as Array<Record<string, string>>).map((s) => ({
-            idPendaftaran: s.id_pendaftaran || '',
-            email: s.email || '',
-            namaLengkap: s.nama_lengkap || '',
-            pilihanJurusan: s.pilihan_jurusan || '-',
-            gelombang: s.gelombang || '-',
-            statusPendaftaran: s.status_pendaftaran || 'Draft',
-            referralNama: s.referral_nama || '',
-            referralKategori: s.referral_kategori || '',
-          }))
-          setSiswaList(list)
-        }
-      } catch {
-        // Handle error
-      } finally {
-        setLoading(false)
-      }
-    }
-
     fetchData()
   }, [])
 
@@ -92,6 +96,38 @@ export default function AdminSiswa() {
     XLSX.writeFile(wb, `data-siswa-${Date.now()}.xlsx`)
   }
 
+  const handleDeleteOne = async (siswa: SiswaRow) => {
+    if (!confirm(`Yakin ingin menghapus data ${siswa.namaLengkap} (${siswa.idPendaftaran})?`)) return
+    setDeletingId(siswa.idPendaftaran)
+    try {
+      await api.siswa.remove(siswa.idPendaftaran, siswa.email)
+      fetchData()
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Gagal menghapus data siswa')
+    } finally {
+      setDeletingId(null)
+    }
+  }
+
+  const handleOpenConfirmModal = () => {
+    setConfirmText('')
+    setConfirmModalOpen(true)
+  }
+
+  const handleDeleteAll = async () => {
+    setDeletingAll(true)
+    try {
+      await api.siswa.deleteAll('HAPUS')
+      setConfirmModalOpen(false)
+      setConfirmText('')
+      fetchData()
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Gagal menghapus semua data siswa')
+    } finally {
+      setDeletingAll(false)
+    }
+  }
+
   return (
     <div className="page-fade-in space-y-6">
       <div>
@@ -127,11 +163,19 @@ export default function AdminSiswa() {
           </select>
           <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
         </div>
-        {filtered.length > 0 && (
-          <Button variant="secondary" onClick={handleExport} className="flex items-center gap-1.5 whitespace-nowrap">
-            <Download className="w-4 h-4" />
-            Export Excel
-          </Button>
+        {siswaList.length > 0 && (
+          <>
+            {filtered.length > 0 && (
+              <Button variant="secondary" onClick={handleExport} className="flex items-center gap-1.5 whitespace-nowrap">
+                <Download className="w-4 h-4" />
+                Export Excel
+              </Button>
+            )}
+            <Button variant="danger" onClick={handleOpenConfirmModal} className="flex items-center gap-1.5 whitespace-nowrap">
+              <Trash2 className="w-4 h-4" />
+              Hapus Semua
+            </Button>
+          </>
         )}
       </div>
 
@@ -150,12 +194,13 @@ export default function AdminSiswa() {
                   <th className="text-left px-4 py-3 font-semibold text-slate-600 text-xs uppercase">Gelombang</th>
                   <th className="text-left px-4 py-3 font-semibold text-slate-600 text-xs uppercase">Referral</th>
                   <th className="text-left px-4 py-3 font-semibold text-slate-600 text-xs uppercase">Status</th>
+                  <th className="text-left px-4 py-3 font-semibold text-slate-600 text-xs uppercase">Aksi</th>
                 </tr>
               </thead>
               <tbody>
                 {filtered.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="px-4 py-8 text-center text-slate-400">
+                    <td colSpan={8} className="px-4 py-8 text-center text-slate-400">
                       Tidak ada data yang cocok
                     </td>
                   </tr>
@@ -185,12 +230,82 @@ export default function AdminSiswa() {
                           {siswa.statusPendaftaran}
                         </span>
                       </td>
+                      <td className="px-4 py-3">
+                        <button
+                          onClick={() => handleDeleteOne(siswa)}
+                          disabled={deletingId !== null}
+                          className="p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors disabled:opacity-50"
+                          title="Hapus data siswa"
+                        >
+                          {deletingId === siswa.idPendaftaran ? (
+                            <svg className="animate-spin w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                            </svg>
+                          ) : (
+                            <Trash2 className="w-4 h-4" />
+                          )}
+                        </button>
+                      </td>
                     </tr>
                   ))
                 )}
               </tbody>
             </table>
           </Card>
+        </div>
+      )}
+
+      {confirmModalOpen && (
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-base font-bold text-slate-800">Hapus Semua Data Siswa</h3>
+              <button onClick={() => setConfirmModalOpen(false)} disabled={deletingAll}>
+                <X className="w-5 h-5 text-slate-400" />
+              </button>
+            </div>
+
+            <div className="p-4 rounded-xl bg-red-50 border border-red-100 mb-4">
+              <div className="flex items-center gap-2 text-sm font-semibold text-red-600 mb-1">
+                <AlertTriangle className="w-4 h-4" />
+                Tindakan ini tidak dapat dibatalkan
+              </div>
+              <p className="text-xs text-red-500">
+                Semua data calon siswa ({siswaList.length}) beserta data terkait
+                (MPLS kehadiran/izin, like/komentar/pengingat event) akan dihapus permanen.
+                Akun admin, guru, dan panitia tidak terpengaruh.
+              </p>
+            </div>
+
+            <label className="text-xs font-medium text-slate-600 mb-1 block">
+              Ketik <span className="font-bold tracking-wide">HAPUS</span> untuk konfirmasi
+            </label>
+            <input
+              type="text"
+              value={confirmText}
+              onChange={(e) => setConfirmText(e.target.value)}
+              disabled={deletingAll}
+              placeholder="HAPUS"
+              className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-red-500/30 focus:border-red-500"
+            />
+
+            <div className="flex gap-2 mt-6">
+              <Button variant="ghost" className="flex-1" onClick={() => setConfirmModalOpen(false)} disabled={deletingAll}>
+                Batal
+              </Button>
+              <Button
+                variant="danger"
+                className="flex-1"
+                onClick={handleDeleteAll}
+                disabled={confirmText.trim().toUpperCase() !== 'HAPUS'}
+                loading={deletingAll}
+              >
+                <Trash2 className="w-4 h-4" />
+                Hapus Semua
+              </Button>
+            </div>
+          </div>
         </div>
       )}
     </div>

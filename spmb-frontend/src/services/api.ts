@@ -98,6 +98,12 @@ export const api = {
 
     create: (data: Record<string, unknown>) =>
       request('adminRegisterSiswa', data),
+
+    remove: (idPendaftaran: string, email?: string) =>
+      request('deleteSiswa', { id_pendaftaran: idPendaftaran, email: email || '' }),
+
+    deleteAll: (confirm: string) =>
+      request('deleteAllSiswa', { confirm }),
   },
 
   referral: {

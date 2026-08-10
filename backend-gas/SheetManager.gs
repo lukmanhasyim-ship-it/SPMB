@@ -143,6 +143,17 @@ function deleteRowsByKey(sheetName, keyColumn, keyValue) {
   return deleted
 }
 
+function clearAllRows_(sheetName) {
+  var sheet = getSheet(sheetName)
+  var lastRow = sheet.getLastRow()
+  var deleted = 0
+  for (var i = lastRow; i > 1; i--) {
+    sheet.deleteRow(i)
+    deleted++
+  }
+  return deleted
+}
+
 function ensureHeaders(sheetName, headers) {
   var sheet = getSheet(sheetName)
   var existing = sheet.getDataRange().getValues()
