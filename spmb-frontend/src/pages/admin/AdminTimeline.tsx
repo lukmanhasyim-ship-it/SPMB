@@ -246,7 +246,7 @@ export default function AdminTimeline() {
             </div>
 
             <div className="space-y-3">
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
                   <label className="text-xs font-medium text-slate-600 mb-1 block">Urutan</label>
                   <input

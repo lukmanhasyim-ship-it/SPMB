@@ -286,7 +286,7 @@ export default function AdminGelombang() {
 
       {modalOpen && (
         <div className="fixed inset-0 bg-black/30 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-sm font-bold text-slate-800">
                 {editingGelombang ? 'Edit Gelombang' : 'Tambah Gelombang'}
