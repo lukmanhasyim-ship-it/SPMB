@@ -1,40 +1,32 @@
 import { create } from 'zustand'
-import type { User } from '../types'
-import { api, getSessionToken, setSessionToken, clearSessionToken } from '../services/api'
+import type { User, Role } from '../types'
+import {
+  api,
+  getSessionToken,
+  setSessionToken,
+  clearSessionToken,
+  getStoredUser,
+  writeStoredUser,
+} from '../services/api'
 
-const SESSION_KEY = 'spmb.session'
+const KNOWN_ROLES = ['siswa', 'admin', 'guru', 'guru_smp', 'panitia_mpls'] as const
 
-function readStoredUser(): User | null {
-  try {
-    const raw = localStorage.getItem(SESSION_KEY)
-    if (!raw) return null
-    const user = JSON.parse(raw) as User
-    return user && user.email ? user : null
-  } catch {
-    return null
+function normalizeRole(raw: unknown): Role {
+  if (typeof raw === 'string' && (KNOWN_ROLES as readonly string[]).includes(raw)) {
+    return raw as Role
   }
-}
-
-function writeStoredUser(user: User | null): void {
-  try {
-    if (user) {
-      localStorage.setItem(SESSION_KEY, JSON.stringify(user))
-    } else {
-      localStorage.removeItem(SESSION_KEY)
-    }
-  } catch {
-    /* noop */
-  }
+  return 'new'
 }
 
 interface AuthState {
   user: User | null
   isLoggedIn: boolean
+  registrationRequired: boolean
   loading: boolean
   error: string | null
 
   restoreSession: () => void
-  login: (email: string, nama?: string, fotoUrl?: string, idToken?: string) => Promise<'siswa' | 'admin' | 'guru' | 'guru_smp' | 'panitia_mpls' | 'new' | null>
+  login: (email: string, nama?: string, fotoUrl?: string, idToken?: string) => Promise<Role | null>
   register: (
     email: string,
     nama: string,
@@ -49,16 +41,18 @@ interface AuthState {
 export const useAuthStore = create<AuthState>((set) => ({
   user: null,
   isLoggedIn: false,
+  registrationRequired: false,
   loading: false,
   error: null,
 
   restoreSession: () => {
-    const user = readStoredUser()
+    const user = getStoredUser<User>()
     if (user && getSessionToken()) {
-      set({ user, isLoggedIn: true })
+      set({ user, isLoggedIn: true, registrationRequired: false })
     } else {
       clearSessionToken()
       writeStoredUser(null)
+      set({ user: null, isLoggedIn: false, registrationRequired: false })
     }
   },
 
@@ -69,14 +63,7 @@ export const useAuthStore = create<AuthState>((set) => ({
 
       if (result.status === 'ok') {
         const userData = result.user as { email: string; nama: string; fotoUrl?: string }
-        const role = result.role as string
-        const normalizedRole: 'siswa' | 'admin' | 'guru' | 'guru_smp' | 'panitia_mpls' | 'new' =
-          role === 'siswa' ? 'siswa'
-          : role === 'new' ? 'new'
-          : role === 'guru' ? 'guru'
-          : role === 'guru_smp' ? 'guru_smp'
-          : role === 'panitia_mpls' ? 'panitia_mpls'
-          : 'admin'
+        const normalizedRole = normalizeRole(result.role)
 
         const sessionToken = result.sessionToken as string | undefined
         if (sessionToken) setSessionToken(sessionToken)
@@ -84,12 +71,7 @@ export const useAuthStore = create<AuthState>((set) => ({
         const user: User = {
           email: userData.email,
           nama: userData.nama || userData.email,
-          role: normalizedRole === 'siswa' ? 'siswa'
-            : normalizedRole === 'guru' ? 'guru'
-            : normalizedRole === 'guru_smp' ? 'guru_smp'
-            : normalizedRole === 'panitia_mpls' ? 'panitia_mpls'
-            : normalizedRole === 'new' ? 'admin'
-            : 'admin',
+          role: normalizedRole,
           fotoUrl: userData.fotoUrl || '',
           asal_sekolah: (userData as { asal_sekolah?: string }).asal_sekolah || '',
         }
@@ -98,10 +80,11 @@ export const useAuthStore = create<AuthState>((set) => ({
         set({
           user,
           isLoggedIn: loggedIn,
+          registrationRequired: !loggedIn,
           loading: false,
         })
 
-        if (loggedIn) writeStoredUser(user)
+        writeStoredUser(loggedIn ? user : null)
 
         return normalizedRole
       }
@@ -134,7 +117,7 @@ export const useAuthStore = create<AuthState>((set) => ({
           asal_sekolah: opts?.asalSekolah || '',
         }
         writeStoredUser(user)
-        set({ user, isLoggedIn: true, loading: false })
+        set({ user, isLoggedIn: true, registrationRequired: false, loading: false })
         return role
       }
       return 'siswa'
@@ -148,7 +131,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   logout: () => {
     clearSessionToken()
     writeStoredUser(null)
-    set({ user: null, isLoggedIn: false, error: null })
+    set({ user: null, isLoggedIn: false, registrationRequired: false, error: null })
   },
 
   clearError: () => {

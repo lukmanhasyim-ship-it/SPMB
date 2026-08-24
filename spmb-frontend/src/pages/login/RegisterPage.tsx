@@ -1,7 +1,9 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useMemo } from 'react'
 import { useNavigate, useLocation, Link } from 'react-router-dom'
 import { UserPlus, Upload, Camera, GraduationCap, School } from 'lucide-react'
 import { useAuthStore } from '../../store/authStore'
+import { getFriendlyAuthError } from '../../services/api'
+import { readPendingRegistration, clearPendingRegistration } from '../../services/pendingAuth'
 import Card from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
 import InputField from '../../components/ui/InputField'
@@ -19,17 +21,19 @@ export default function RegisterPage() {
   const navigate = useNavigate()
   const location = useLocation()
   const { register, loading, error } = useAuthStore()
-  const googleData = location.state as { email?: string; nama?: string; fotoUrl?: string } | null
+  const locationData = location.state as { email?: string; nama?: string; fotoUrl?: string } | null
+  const pending = useMemo(() => readPendingRegistration(), [])
+  const pendingData = pending && !pending.expired ? pending.data : null
 
-  const [nama, setNama] = useState(googleData?.nama || '')
-  const [email, setEmail] = useState(googleData?.email || '')
-  const [fotoBase64, setFotoBase64] = useState(googleData?.fotoUrl || '')
+  const [nama, setNama] = useState(locationData?.nama || pendingData?.nama || '')
+  const [email, setEmail] = useState(locationData?.email || pendingData?.email || '')
+  const [fotoBase64, setFotoBase64] = useState(locationData?.fotoUrl || pendingData?.fotoUrl || '')
   const [peran, setPeran] = useState<'siswa' | 'guru_smp'>('siswa')
   const [noTelp, setNoTelp] = useState('')
   const [asalSekolah, setAsalSekolah] = useState('')
   const [localError, setLocalError] = useState('')
   const fotoRef = useRef<HTMLInputElement>(null)
-  const fromGoogle = !!(googleData?.email)
+  const fromGoogle = !!(locationData?.email || pendingData?.email)
 
   const handleUploadFoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -46,11 +50,13 @@ export default function RegisterPage() {
   const handleRegister = async () => {
     setLocalError('')
 
-    const googleToken = sessionStorage.getItem('spmb.google-token') || ''
-    if (!googleToken) {
-      setLocalError('Sesi Google tidak ditemukan. Silakan login ulang dari halaman awal.')
+    const pendingReg = readPendingRegistration()
+    if (!pendingReg || pendingReg.expired || !pendingReg.data.token) {
+      clearPendingRegistration()
+      setLocalError('Sesi Google tidak ditemukan atau sudah kedaluwarsa. Silakan login ulang dari halaman awal.')
       return
     }
+    const googleToken = pendingReg.data.token
 
     if (!nama.trim()) {
       setLocalError('Nama lengkap harus diisi')
@@ -82,18 +88,14 @@ export default function RegisterPage() {
             }
           : undefined
       )
-      try {
-        sessionStorage.removeItem('spmb.google-token')
-      } catch {
-        /* noop */
-      }
+      clearPendingRegistration()
       navigate(role === 'guru_smp' ? '/guru/dashboard' : '/student/dashboard')
     } catch (err) {
-      const msg = err instanceof Error ? err.message : (error || '')
-      if (msg.includes('sudah terdaftar')) {
-        setLocalError(msg + '. Akun ini sudah terdaftar sebelumnya — hubungi admin untuk menghapus atau mengubah perannya.')
+      const rawMsg = err instanceof Error ? err.message : ''
+      if (/sudah terdaftar/i.test(rawMsg)) {
+        setLocalError('Email sudah terdaftar. Akun ini sudah terdaftar sebelumnya — hubungi admin untuk menghapus atau mengubah perannya.')
       } else {
-        setLocalError(msg || 'Registrasi gagal')
+        setLocalError(getFriendlyAuthError(err))
       }
     }
   }
@@ -230,6 +232,24 @@ export default function RegisterPage() {
                 placeholder="08xxxxxxxxxx (opsional)"
               />
             </>
+          )}
+
+          {pending?.expired && (
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-3">
+              <p className="text-xs text-amber-800 text-center font-medium">
+                Sesi pendaftaran sudah kedaluwarsa.{' '}
+                <Link to="/" className="underline font-semibold">Login ulang</Link> untuk melanjutkan.
+              </p>
+            </div>
+          )}
+
+          {!locationData?.email && !pending && (
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-3">
+              <p className="text-xs text-amber-800 text-center font-medium">
+                Sesi Google tidak ditemukan. Silakan mulai dari{' '}
+                <Link to="/" className="underline font-semibold">halaman masuk</Link>.
+              </p>
+            </div>
           )}
 
           {(localError || error) && (

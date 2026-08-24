@@ -1,5 +1,6 @@
 const API_URL = import.meta.env.VITE_API_URL || ''
 const TOKEN_KEY = 'spmb.session-token'
+const USER_KEY = 'spmb.session'
 
 interface ApiResponse {
   status: 'ok' | 'error'
@@ -37,7 +38,50 @@ export function clearSessionToken(): void {
   }
 }
 
+export function getStoredUser<T extends { email?: string }>(): T | null {
+  try {
+    const raw = localStorage.getItem(USER_KEY)
+    if (!raw) return null
+    const parsed = JSON.parse(raw) as T
+    return parsed && parsed.email ? parsed : null
+  } catch {
+    return null
+  }
+}
+
+export function writeStoredUser(user: unknown): void {
+  try {
+    if (user) {
+      localStorage.setItem(USER_KEY, JSON.stringify(user))
+    } else {
+      localStorage.removeItem(USER_KEY)
+    }
+  } catch {
+    /* noop */
+  }
+}
+
+const FRIENDLY_ERROR_PATTERNS: Array<[RegExp, string]> = [
+  [/sudah terdaftar/i, 'Email ini sudah terdaftar. Silakan login atau hubungi admin.'],
+  [/sesi tidak valid|sesi berakhir/i, 'Sesi Anda berakhir. Silakan login kembali.'],
+  [/token google/i, 'Verifikasi Google gagal. Silakan coba login ulang.'],
+  [/akses ditolak/i, 'Anda tidak memiliki izin untuk melakukan aksi ini.'],
+  [/terlalu banyak/i, 'Terlalu banyak percobaan. Silakan coba lagi nanti.'],
+]
+
+export function getFriendlyAuthError(err: unknown): string {
+  const raw = err instanceof Error ? err.message : String(err || '')
+  for (const [pattern, friendly] of FRIENDLY_ERROR_PATTERNS) {
+    if (pattern.test(raw)) return friendly
+  }
+  return raw || 'Terjadi kesalahan. Silakan coba lagi.'
+}
+
 async function request(action: string, payload: Record<string, unknown> = {}): Promise<ApiResponse> {
+  if (!API_URL) {
+    throw new Error('Konfigurasi API belum diatur (VITE_API_URL). Hubungi administrator.')
+  }
+
   const token = getSessionToken()
   const body: Record<string, unknown> = { action, ...payload }
   if (token) body.token = token
@@ -57,7 +101,8 @@ async function request(action: string, payload: Record<string, unknown> = {}): P
   if (result.status === 'error') {
     if (result.code === 'AUTH_REQUIRED') {
       clearSessionToken()
-      window.location.href = '/'
+      writeStoredUser(null)
+      window.location.href = '/?session=expired'
     }
     throw new Error(result.message || 'Unknown error')
   }

@@ -1,7 +1,7 @@
 export type Jurusan = 'PPLG' | 'TJKT' | 'TO' | 'AKL' | 'Busana';
 export type Gelombang = 'Gelombang 1' | 'Gelombang 2' | 'Gelombang 3';
 export type StatusPendaftaran = 'Draft' | 'Terdaftar' | 'Selesai' | 'Terverifikasi';
-export type Role = 'siswa' | 'admin' | 'guru' | 'guru_smp' | 'panitia_mpls';
+export type Role = 'siswa' | 'admin' | 'guru' | 'guru_smp' | 'panitia_mpls' | 'new';
 export type TinggalBersama = 'Orang Tua' | 'Wali' | 'Pondok';
 export type Agama = 'Islam' | 'Kristen' | 'Katolik' | 'Hindu' | 'Buddha' | 'Konghucu';
 export type JenisKelamin = 'Laki-laki' | 'Perempuan';

@@ -1,7 +1,9 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Info, LogIn, User, School, MapPin, Users, Award, X, Loader2, Sparkles } from 'lucide-react'
 import { useAuthStore } from '../../store/authStore'
+import { getFriendlyAuthError } from '../../services/api'
+import { setPendingRegistration } from '../../services/pendingAuth'
 import Card from '../../components/ui/Card'
 
 const LOGIN_JURUSAN = [
@@ -23,17 +25,29 @@ const CARA_DAFTAR_STEPS = [
 
 export default function LoginPage() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const { login, loading } = useAuthStore()
   const [internalLoading, setInternalLoading] = useState(false)
+  const [localError, setLocalError] = useState('')
   const [caraDaftarOpen, setCaraDaftarOpen] = useState(false)
 
   const isLoading = loading || internalLoading
+  const sessionExpired = searchParams.get('session') === 'expired'
 
   const handleGoogleClick = () => {
+    setLocalError('')
+
+    if (!import.meta.env.VITE_GOOGLE_CLIENT_ID) {
+      console.error('VITE_GOOGLE_CLIENT_ID is not configured')
+      setLocalError('Konfigurasi aplikasi belum lengkap (Google Client ID). Hubungi administrator.')
+      return
+    }
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const gis = (window as any).google?.accounts?.oauth2
     if (!gis) {
       console.error('GIS library not loaded yet')
+      setLocalError('Gagal memuat Google Sign-In. Muat ulang halaman lalu coba lagi.')
       return
     }
 
@@ -44,6 +58,7 @@ export default function LoginPage() {
       if (!accessToken) {
         console.error('No access_token received')
         setInternalLoading(false)
+        setLocalError('Login Google tidak mengembalikan token. Silakan coba lagi.')
         return
       }
 
@@ -73,17 +88,17 @@ export default function LoginPage() {
           navigate('/guru/dashboard')
         } else if (result === 'panitia_mpls') {
           navigate('/mpls/dashboard')
+        } else if (result === 'new') {
+          setPendingRegistration({ email, nama, fotoUrl, token: accessToken })
+          navigate('/register')
         } else {
-          try {
-            sessionStorage.setItem('spmb.google-token', accessToken)
-          } catch {
-            /* noop */
-          }
-          navigate('/register', { state: { email, nama, fotoUrl } })
+          setInternalLoading(false)
+          setLocalError('Login gagal. Silakan coba lagi.')
         }
       } catch (err) {
         console.error('Login error:', err)
         setInternalLoading(false)
+        setLocalError(getFriendlyAuthError(err))
       }
     }
 
@@ -91,7 +106,10 @@ export default function LoginPage() {
       client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
       scope: 'openid email profile',
       callback: cb,
-      error_callback: () => { setInternalLoading(false) },
+      error_callback: () => {
+        setInternalLoading(false)
+        setLocalError('Login Google dibatalkan atau gagal. Silakan coba lagi.')
+      },
     })
 
     client.requestAccessToken()
@@ -211,6 +229,18 @@ export default function LoginPage() {
             <p className="text-xs text-slate-400 text-center">
               Hanya dengan akun Gmail yang aktif
             </p>
+
+            {sessionExpired && (
+              <div className="bg-amber-50 border border-amber-200 rounded-xl p-3">
+                <p className="text-xs text-amber-800 text-center font-medium">
+                  Sesi Anda berakhir. Silakan login kembali untuk melanjutkan.
+                </p>
+              </div>
+            )}
+
+            {localError && (
+              <p className="text-sm text-red-500 text-center">{localError}</p>
+            )}
 
             <button
               onClick={() => setCaraDaftarOpen(true)}
