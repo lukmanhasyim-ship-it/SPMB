@@ -2,6 +2,44 @@ const API_URL = import.meta.env.VITE_API_URL || ''
 const TOKEN_KEY = 'spmb.session-token'
 const USER_KEY = 'spmb.session'
 
+const DEFAULT_TIMEOUT_MS = 30_000
+const HEAVY_TIMEOUT_MS = 120_000
+const RETRY_BACKOFF_MS = 800
+const MAX_ATTEMPTS = 2
+
+const HEAVY_ACTIONS = new Set(['upload', 'register', 'adminRegisterSiswa'])
+const NO_RETRY_ACTIONS = new Set(['register', 'adminRegisterSiswa'])
+
+type FailureKind = 'network' | 'timeout' | 'http'
+
+interface RequestFailure extends Error {
+  kind?: FailureKind
+  statusCode?: number
+}
+
+export const _internals = {
+  backoff: (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms)),
+  authRedirect: (url: string) => {
+    window.location.href = url
+  },
+}
+
+function makeFailure(message: string, kind?: FailureKind, statusCode?: number): RequestFailure {
+  const err = new Error(message) as RequestFailure
+  if (kind) err.kind = kind
+  if (statusCode !== undefined) err.statusCode = statusCode
+  return err
+}
+
+function isRetryable(err: unknown): boolean {
+  if (!(err instanceof Error)) return false
+  const failure = err as RequestFailure
+  if (failure.kind === 'network') return true
+  if (failure.kind === 'timeout') return false
+  const status = failure.statusCode
+  return status === 429 || (typeof status === 'number' && status >= 500 && status < 600)
+}
+
 interface ApiResponse {
   status: 'ok' | 'error'
   message?: string
@@ -67,6 +105,7 @@ const FRIENDLY_ERROR_PATTERNS: Array<[RegExp, string]> = [
   [/token google/i, 'Verifikasi Google gagal. Silakan coba login ulang.'],
   [/akses ditolak/i, 'Anda tidak memiliki izin untuk melakukan aksi ini.'],
   [/terlalu banyak/i, 'Terlalu banyak percobaan. Silakan coba lagi nanti.'],
+  [/failed to fetch|load failed|networkerror|network error/i, 'Koneksi bermasalah. Periksa internet Anda dan coba lagi.'],
 ]
 
 export function getFriendlyAuthError(err: unknown): string {
@@ -75,6 +114,40 @@ export function getFriendlyAuthError(err: unknown): string {
     if (pattern.test(raw)) return friendly
   }
   return raw || 'Terjadi kesalahan. Silakan coba lagi.'
+}
+
+function getTimeoutMs(action: string): number {
+  return HEAVY_ACTIONS.has(action) ? HEAVY_TIMEOUT_MS : DEFAULT_TIMEOUT_MS
+}
+
+async function performRequest(action: string, body: Record<string, unknown>): Promise<ApiResponse> {
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), getTimeoutMs(action))
+
+  try {
+    let response: Response
+    try {
+      response = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify(body),
+        signal: controller.signal,
+      })
+    } catch {
+      if (controller.signal.aborted) {
+        throw makeFailure('Koneksi ke server habis waktu. Silakan periksa internet dan coba lagi.', 'timeout')
+      }
+      throw makeFailure('Koneksi bermasalah. Periksa internet Anda dan coba lagi.', 'network')
+    }
+
+    if (!response.ok) {
+      throw makeFailure(`HTTP ${response.status}: ${response.statusText}`, 'http', response.status)
+    }
+
+    return await response.json()
+  } finally {
+    clearTimeout(timer)
+  }
 }
 
 async function request(action: string, payload: Record<string, unknown> = {}): Promise<ApiResponse> {
@@ -86,28 +159,31 @@ async function request(action: string, payload: Record<string, unknown> = {}): P
   const body: Record<string, unknown> = { action, ...payload }
   if (token) body.token = token
 
-  const response = await fetch(API_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'text/plain' },
-    body: JSON.stringify(body),
-  })
+  const maxAttempts = NO_RETRY_ACTIONS.has(action) ? 1 : MAX_ATTEMPTS
+  let lastError: unknown
 
-  if (!response.ok) {
-    throw new Error(`HTTP ${response.status}: ${response.statusText}`)
-  }
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      const result = await performRequest(action, body)
 
-  const result: ApiResponse = await response.json()
+      if (result.status === 'error') {
+        if (result.code === 'AUTH_REQUIRED') {
+          clearSessionToken()
+          writeStoredUser(null)
+          _internals.authRedirect('/?session=expired')
+        }
+        throw new Error(result.message || 'Unknown error')
+      }
 
-  if (result.status === 'error') {
-    if (result.code === 'AUTH_REQUIRED') {
-      clearSessionToken()
-      writeStoredUser(null)
-      window.location.href = '/?session=expired'
+      return result
+    } catch (err) {
+      lastError = err
+      if (attempt >= maxAttempts || !isRetryable(err)) break
+      await _internals.backoff(RETRY_BACKOFF_MS)
     }
-    throw new Error(result.message || 'Unknown error')
   }
 
-  return result
+  throw lastError
 }
 
 export const api = {

@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { useAuthStore } from './store/authStore'
 import type { Role } from './types'
+import ErrorBoundary from './components/ErrorBoundary'
 import LoginPage from './pages/login/LoginPage'
 import RegisterPage from './pages/login/RegisterPage'
 
@@ -46,7 +47,8 @@ function ProtectedRoute({ children, role }: { children: React.ReactNode; role: R
 
 function App() {
   return (
-    <Routes>
+    <ErrorBoundary>
+      <Routes>
       <Route path="/" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
       <Route
@@ -132,7 +134,8 @@ function App() {
         <Route path="informasi" element={<SuspenseWrapper><MplsInformasi /></SuspenseWrapper>} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+      </Routes>
+    </ErrorBoundary>
   )
 }
 
