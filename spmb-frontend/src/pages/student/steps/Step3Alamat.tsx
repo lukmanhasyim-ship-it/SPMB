@@ -1,10 +1,14 @@
 import { useState, useEffect } from 'react'
 import type { ChangeEvent } from 'react'
-import { MapPin, Crosshair, ExternalLink, Map as MapIcon } from 'lucide-react'
+import { MapPin, Crosshair, ExternalLink, Map as MapIcon, ScanLine } from 'lucide-react'
 import { useStudentStore } from '../../../store/studentStore'
 import StepLayout from '../components/StepLayout'
+import ScanAlamatModal from '../components/ScanAlamatModal'
+import type { HasilEkstraksiAlamat } from '../../../utils/ocr'
 import InputField from '../../../components/ui/InputField'
 import Card from '../../../components/ui/Card'
+import Button from '../../../components/ui/Button'
+import { api } from '../../../services/api'
 
 
 
@@ -20,6 +24,29 @@ export default function Step3Alamat({ onComplete, onBack }: Step3Props) {
   const [position, setPosition] = useState<[number, number]>(defaultPosition)
   const [locating, setLocating] = useState(false)
   const [locationError, setLocationError] = useState('')
+  const [showScan, setShowScan] = useState(false)
+
+  const handleApplyScan = (hasil: HasilEkstraksiAlamat, arsipBase64: string) => {
+    updateData({
+      dusun: hasil.alamat || data.dusun,
+      rtRw: hasil.rtRw || data.rtRw,
+      desa: hasil.desa || data.desa,
+      kecamatan: hasil.kecamatan || data.kecamatan,
+      kabupaten: hasil.kabupaten || data.kabupaten,
+      kodePos: hasil.kodePos || data.kodePos,
+    })
+    if (arsipBase64) {
+      const identitas = (data.idPendaftaran || data.email || 'siswa').replace(/[^a-zA-Z0-9_-]/g, '_')
+      api
+        .upload(`${identitas}-dokumen-alamat.jpg`, 'image/jpeg', arsipBase64)
+        .then((res) => {
+          const info = res.data as { fileUrl?: string } | undefined
+          if (info?.fileUrl) updateData({ dokumenAlamatUrl: info.fileUrl })
+        })
+        .catch(() => {})
+    }
+    setShowScan(false)
+  }
 
   useEffect(() => {
     if (data.koordinatMaps) {
@@ -121,6 +148,19 @@ export default function Step3Alamat({ onComplete, onBack }: Step3Props) {
       onNext={handleNext}
     >
       <div className="space-y-4">
+        <Card className="p-4 border-brand-green/20">
+          <div className="flex items-center justify-between gap-3 flex-wrap">
+            <div className="flex items-center gap-2 text-sm text-slate-600">
+              <ScanLine className="w-4 h-4 text-brand-green shrink-0" />
+              <span>Isi alamat otomatis dari foto KK atau KTP orang tua</span>
+            </div>
+            <Button onClick={() => setShowScan(true)} className="!px-4 !py-2 text-xs">
+              <ScanLine className="w-4 h-4" />
+              Scan Dokumen
+            </Button>
+          </div>
+        </Card>
+
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <InputField
             label="Dusun/Jalan"
@@ -243,6 +283,12 @@ export default function Step3Alamat({ onComplete, onBack }: Step3Props) {
           </div>
         </Card>
       </div>
+
+      <ScanAlamatModal
+        open={showScan}
+        onClose={() => setShowScan(false)}
+        onApply={handleApplyScan}
+      />
     </StepLayout>
   )
 }

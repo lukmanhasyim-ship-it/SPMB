@@ -7,7 +7,8 @@ import { useAuthStore } from '../../../store/authStore'
 import InputField from '../../../components/ui/InputField'
 import Card from '../../../components/ui/Card'
 import Button from '../../../components/ui/Button'
-import { DATA_JURUSAN, DATA_AGAMA, DATA_KATEGORI_REFERRAL } from '../../../data/constants'
+import ReferralFields from '../components/ReferralFields'
+import { DATA_JURUSAN, DATA_AGAMA } from '../../../data/constants'
 
 const defaultPosition: [number, number] = [-8.4112, 114.1234]
 
@@ -132,30 +133,11 @@ export default function FormPendaftaranAwal() {
               })),
             ]}
           />
-          <div className="border-t border-slate-100 pt-4">
-            <p className="text-sm font-semibold text-slate-700 mb-1">
-              Referral (Opsional)
-            </p>
-            <p className="text-xs text-slate-500 mb-3">
-              Tuliskan nama guru, siswa kelas XI/XII, atau alumni yang mendaftarkan atau memandu proses pendaftaran Anda
-            </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <InputField
-                label="Kategori"
-                name="referralKategori"
-                value={data.referralKategori}
-                onChange={handleChange}
-                options={DATA_KATEGORI_REFERRAL}
-              />
-              <InputField
-                label="Nama"
-                name="referralNama"
-                value={data.referralNama}
-                onChange={handleChange}
-                placeholder="Nama yang memandu pendaftaran"
-              />
-            </div>
-          </div>
+          <ReferralFields
+            kategori={data.referralKategori}
+            nama={data.referralNama}
+            onChange={(name, value) => updateData({ [name]: value })}
+          />
         </div>
       </Card>
 

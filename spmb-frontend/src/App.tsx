@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { useAuthStore } from './store/authStore'
+import type { Role } from './types'
 import LoginPage from './pages/login/LoginPage'
 import RegisterPage from './pages/login/RegisterPage'
 
@@ -19,6 +20,7 @@ const AdminFormulir = lazy(() => import('./pages/admin/AdminFormulir'))
 const AdminManajemen = lazy(() => import('./pages/admin/AdminManajemen'))
 const GuruLayout = lazy(() => import('./pages/guru/GuruLayout'))
 const GuruDashboard = lazy(() => import('./pages/guru/GuruDashboard'))
+const GuruDaftarSiswa = lazy(() => import('./pages/guru/GuruDaftarSiswa'))
 const MplsLayout = lazy(() => import('./pages/mpls/MplsLayout'))
 const MplsDashboard = lazy(() => import('./pages/mpls/MplsDashboard'))
 const MplsScan = lazy(() => import('./pages/mpls/MplsScan'))
@@ -33,11 +35,12 @@ function SuspenseWrapper({ children }: { children: React.ReactNode }) {
   )
 }
 
-function ProtectedRoute({ children, role }: { children: React.ReactNode; role: 'siswa' | 'admin' | 'guru' | 'panitia_mpls' }) {
+function ProtectedRoute({ children, role }: { children: React.ReactNode; role: Role | Role[] }) {
   const isLoggedIn = useAuthStore((s) => s.isLoggedIn)
   const user = useAuthStore((s) => s.user)
   if (!isLoggedIn || !user) return <Navigate to="/" replace />
-  if (user.role !== role) return <Navigate to="/" replace />
+  const allowed = Array.isArray(role) ? role.includes(user.role) : user.role === role
+  if (!allowed) return <Navigate to="/" replace />
   return <>{children}</>
 }
 
@@ -100,7 +103,7 @@ function App() {
       <Route
         path="/guru"
         element={
-          <ProtectedRoute role="guru">
+          <ProtectedRoute role={['guru', 'guru_smp']}>
             <SuspenseWrapper>
               <GuruLayout />
             </SuspenseWrapper>
@@ -109,6 +112,8 @@ function App() {
       >
         <Route index element={<Navigate to="/guru/dashboard" replace />} />
         <Route path="dashboard" element={<SuspenseWrapper><GuruDashboard /></SuspenseWrapper>} />
+        <Route path="daftarkan-siswa" element={<SuspenseWrapper><GuruDaftarSiswa /></SuspenseWrapper>} />
+        <Route path="formulir" element={<SuspenseWrapper><AdminFormulir /></SuspenseWrapper>} />
       </Route>
       <Route
         path="/mpls"

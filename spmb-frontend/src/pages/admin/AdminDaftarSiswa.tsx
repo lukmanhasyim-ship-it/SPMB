@@ -5,43 +5,60 @@ import { UserPlus, GraduationCap, MapPin, Users, Award, Mail, CheckCircle2, Prin
 import Card from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
 import InputField from '../../components/ui/InputField'
+import { useAuthStore } from '../../store/authStore'
+import type { User } from '../../types'
 import { api } from '../../services/api'
 import { DATA_JURUSAN, DATA_AGAMA, DATA_TINGGAL_BERSAMA, DATA_KATEGORI_REFERRAL } from '../../data/constants'
 
-const emptyForm = {
-  email: '',
-  namaLengkap: '',
-  pilihanJurusan: '',
-  pilihanAlternatif: '',
-  alasanPilihJurusan: '',
-  jenisKelamin: '',
-  nisn: '',
-  nik: '',
-  tempatLahir: '',
-  tanggalLahir: '',
-  agama: '',
-  asalSekolah: '',
-  dusun: '',
-  rtRw: '',
-  desa: '',
-  kecamatan: '',
-  kabupaten: '',
-  kodePos: '',
-  koordinatMaps: '',
-  tinggalBersama: '',
-  namaAyah: '',
-  kerjaAyah: '',
-  namaIbu: '',
-  kerjaIbu: '',
-  teleponOrtu: '',
-  prestasi: '',
-  referralKategori: '',
-  referralNama: '',
+const KATEGORI_GURU_INTERNAL = 'Guru SMKS AL AZHAR SEMPU'
+const KATEGORI_GURU_SMP = 'Guru SMP/MTs'
+
+const buatFormKosong = (user: User | null) => {
+  const isGuruInternal = user?.role === 'guru'
+  const isGuruSmp = user?.role === 'guru_smp'
+  return {
+    email: '',
+    namaLengkap: '',
+    pilihanJurusan: '',
+    pilihanAlternatif: '',
+    alasanPilihJurusan: '',
+    jenisKelamin: '',
+    nisn: '',
+    nik: '',
+    tempatLahir: '',
+    tanggalLahir: '',
+    agama: '',
+    asalSekolah: isGuruSmp ? user?.asal_sekolah || '' : '',
+    dusun: '',
+    rtRw: '',
+    desa: '',
+    kecamatan: '',
+    kabupaten: '',
+    kodePos: '',
+    koordinatMaps: '',
+    tinggalBersama: '',
+    namaAyah: '',
+    kerjaAyah: '',
+    namaIbu: '',
+    kerjaIbu: '',
+    teleponOrtu: '',
+    prestasi: '',
+    referralKategori: isGuruInternal ? KATEGORI_GURU_INTERNAL : isGuruSmp ? KATEGORI_GURU_SMP : '',
+    referralNama: isGuruInternal || isGuruSmp ? user?.nama || '' : '',
+  }
 }
 
-export default function AdminDaftarSiswa() {
+interface AdminDaftarSiswaProps {
+  cetakPath?: string
+}
+
+export default function AdminDaftarSiswa({ cetakPath = '/admin/formulir' }: AdminDaftarSiswaProps) {
   const navigate = useNavigate()
-  const [form, setForm] = useState({ ...emptyForm })
+  const user = useAuthStore((s) => s.user)
+  const referralTerkunci = user?.role === 'guru' || user?.role === 'guru_smp'
+  const isGuruSmp = user?.role === 'guru_smp'
+  const sekolahTerkunci = isGuruSmp && !!user?.asal_sekolah
+  const [form, setForm] = useState(() => buatFormKosong(user))
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [submitting, setSubmitting] = useState(false)
   const [result, setResult] = useState<{ idPendaftaran: string; namaLengkap: string } | null>(null)
@@ -123,7 +140,7 @@ export default function AdminDaftarSiswa() {
   }
 
   const handleReset = () => {
-    setForm({ ...emptyForm })
+    setForm(buatFormKosong(user))
     setErrors({})
     setResult(null)
   }
@@ -143,7 +160,9 @@ export default function AdminDaftarSiswa() {
         <div>
           <h1 className="text-xl font-bold text-slate-800">Daftarkan Siswa</h1>
           <p className="text-sm text-slate-500">
-            Daftarkan siswa atas nama panitia — email boleh dikosongkan jika siswa tidak punya email
+            {referralTerkunci
+              ? 'Referral otomatis tercatat atas nama Anda — email boleh dikosongkan jika siswa tidak punya email'
+              : 'Daftarkan siswa atas nama panitia — email boleh dikosongkan jika siswa tidak punya email'}
           </p>
         </div>
       </div>
@@ -230,6 +249,7 @@ export default function AdminDaftarSiswa() {
                 name="referralKategori"
                 value={form.referralKategori}
                 onChange={handleChange}
+                disabled={referralTerkunci}
                 options={DATA_KATEGORI_REFERRAL}
               />
               <InputField
@@ -237,7 +257,8 @@ export default function AdminDaftarSiswa() {
                 name="referralNama"
                 value={form.referralNama}
                 onChange={handleChange}
-                placeholder="Nama yang memandu pendaftaran"
+                disabled={referralTerkunci}
+                placeholder={referralTerkunci ? 'Otomatis dari akun Anda' : 'Nama yang memandu pendaftaran'}
               />
             </div>
           </div>
@@ -314,13 +335,23 @@ export default function AdminDaftarSiswa() {
               error={errors.agama}
               options={DATA_AGAMA.map((a) => ({ value: a, label: a }))}
             />
-            <InputField
-              label="Asal Sekolah"
-              name="asalSekolah"
-              value={form.asalSekolah}
-              onChange={handleChange}
-              placeholder="Nama SMP/MTs asal"
-            />
+            <div>
+              <InputField
+                label="Asal Sekolah"
+                name="asalSekolah"
+                value={form.asalSekolah}
+                onChange={handleChange}
+                placeholder="Nama SMP/MTs asal"
+                disabled={sekolahTerkunci}
+              />
+              {isGuruSmp && (
+                <p className={`mt-1 text-xs ${sekolahTerkunci ? 'text-slate-400' : 'text-amber-600'}`}>
+                  {sekolahTerkunci
+                    ? 'Otomatis dari akun guru Anda'
+                    : 'Akun belum memiliki asal sekolah — hubungi admin SMKS agar terisi otomatis'}
+                </p>
+              )}
+            </div>
           </div>
         </div>
       </Card>
@@ -510,7 +541,7 @@ export default function AdminDaftarSiswa() {
             </p>
             <div className="flex flex-col gap-2 mt-6">
               <Button
-                onClick={() => navigate(`/admin/formulir?id=${encodeURIComponent(result.idPendaftaran)}`)}
+                onClick={() => navigate(`${cetakPath}?id=${encodeURIComponent(result.idPendaftaran)}`)}
                 className="w-full"
               >
                 <Printer className="w-4 h-4" />

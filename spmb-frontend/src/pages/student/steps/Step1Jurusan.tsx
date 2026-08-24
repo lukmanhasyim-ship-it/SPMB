@@ -1,8 +1,9 @@
 import type { ChangeEvent } from 'react'
 import { useStudentStore } from '../../../store/studentStore'
-import { DATA_JURUSAN, DATA_KATEGORI_REFERRAL, DATA_PROSPEK_KARIR } from '../../../data/constants'
+import { DATA_JURUSAN, DATA_PROSPEK_KARIR } from '../../../data/constants'
 import StepLayout from '../components/StepLayout'
 import InputField from '../../../components/ui/InputField'
+import ReferralFields from '../components/ReferralFields'
 
 interface Step1Props {
   onComplete: () => void
@@ -97,30 +98,11 @@ export default function Step1Jurusan({ onComplete, onBack }: Step1Props) {
           </div>
         )}
 
-        <div className="border-t border-slate-100 pt-5">
-          <p className="text-sm font-semibold text-slate-700 mb-1">
-            Referral (Opsional)
-          </p>
-          <p className="text-xs text-slate-500 mb-3">
-            Tuliskan nama guru, siswa kelas XI/XII, atau alumni yang mendaftarkan atau memandu proses pendaftaran Anda
-          </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <InputField
-              label="Kategori"
-              name="referralKategori"
-              value={data.referralKategori}
-              onChange={handleChange}
-              options={DATA_KATEGORI_REFERRAL}
-            />
-            <InputField
-              label="Nama"
-              name="referralNama"
-              value={data.referralNama}
-              onChange={handleChange}
-              placeholder="Nama yang memandu pendaftaran"
-            />
-          </div>
-        </div>
+        <ReferralFields
+          kategori={data.referralKategori}
+          nama={data.referralNama}
+          onChange={(name, value) => updateData({ [name]: value })}
+        />
 
       </div>
     </StepLayout>

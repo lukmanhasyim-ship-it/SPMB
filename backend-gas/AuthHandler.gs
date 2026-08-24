@@ -40,11 +40,13 @@ function handleAuth(params) {
     user = { email: email, nama: nama || email, fotoUrl: fotoUrl || '' }
   } else {
     var adminData = findRowByKey('Admin', 'email', email)
+    if (!adminData) adminData = findRowByKey('Guru', 'email', email)
     user = {
       email: email,
       nama: (adminData && adminData.nama) || nama || 'Pengguna',
       fotoUrl: fotoUrl || '',
-      no_telp: (adminData && adminData.no_telp) || ''
+      no_telp: (adminData && adminData.no_telp) || '',
+      asal_sekolah: (role === 'guru_smp' && adminData && adminData.asal_sekolah) || ''
     }
   }
 
@@ -91,6 +93,8 @@ function isTokenError_(payload) {
   return !!(payload.error || payload.error_description)
 }
 
+var REGISTER_BUILD_TAG = 'v45-guru-sheet'
+
 function handleRegister(params) {
   initializeSheets()
 
@@ -135,7 +139,42 @@ function handleRegister(params) {
   var existing = findRowByKey('Siswa', 'email', email)
   if (existing) {
     lock.releaseLock()
-    return { status: 'error', message: 'Email sudah terdaftar' }
+    return { status: 'error', message: 'Email sudah terdaftar', buildTag: REGISTER_BUILD_TAG }
+  }
+
+  // Pendaftaran mandiri Guru SMP/MTs -> sheet Guru (whitelist role tunggal).
+  if (params.registerAs === 'guru_smp') {
+    if (findRowByKey('Admin', 'email', email) || findRowByKey('Guru', 'email', email)) {
+      lock.releaseLock()
+      return { status: 'error', message: 'Email sudah terdaftar', buildTag: REGISTER_BUILD_TAG }
+    }
+
+    addRow('Guru', {
+      email: email,
+      nama: nama,
+      role: 'guru_smp',
+      no_telp: (params.no_telp || '').trim(),
+      created_at: getWIBTime(),
+      asal_sekolah: (params.asal_sekolah || '').trim()
+    })
+
+    var tersimpan = findRowByKey('Guru', 'email', email)
+    if (!tersimpan) {
+      console.error('SPMB register guru GAGAL verifikasi baca-kembali (' + REGISTER_BUILD_TAG + '): ' + email)
+    } else {
+      console.log('SPMB register guru OK (' + REGISTER_BUILD_TAG + '): ' + email + ' -> sheet Guru baris ' + tersimpan._rowIndex)
+    }
+
+    lock.releaseLock()
+
+    var guruSession = createSession_(email, 'guru_smp')
+    return {
+      status: 'ok',
+      role: 'guru_smp',
+      user: { email: email, nama: nama, fotoUrl: '' },
+      sessionToken: guruSession,
+      buildTag: REGISTER_BUILD_TAG
+    }
   }
 
   var fotoUrl = params.fotoUrl || ''
@@ -183,7 +222,8 @@ function handleRegister(params) {
     role: 'siswa',
     user: { email: email, nama: nama, fotoUrl: fotoUrl },
     sessionToken: sessionToken,
-    idPendaftaran: idPendaftaran
+    idPendaftaran: idPendaftaran,
+    buildTag: REGISTER_BUILD_TAG
   }
 }
 

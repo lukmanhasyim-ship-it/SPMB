@@ -79,9 +79,16 @@ function findRowByKey(sheetName, keyColumn, keyValue) {
 
 function addRow(sheetName, data, textColumns) {
   var sheet = getSheet(sheetName)
-  var headers = sheet.getDataRange().getValues()[0]
 
-  if (!headers || headers.length === 0) {
+  // Deteksi header dengan mengabaikan sel kosong — sheet kosong/berisi ['']
+  // dianggap tanpa header agar data tidak pernah tertulis "ke dalam kekosongan".
+  var rawFirstRow = sheet.getDataRange().getValues()[0] || []
+  var headers = []
+  for (var h = 0; h < rawFirstRow.length; h++) {
+    if (String(rawFirstRow[h]).trim() !== '') headers.push(rawFirstRow[h])
+  }
+
+  if (headers.length === 0) {
     headers = Object.keys(data)
     sheet.appendRow(headers)
   }
@@ -177,8 +184,11 @@ function ensureHeaders(sheetName, headers) {
 
 function initializeSheets() {
   // Hanya jalankan ensureHeaders sekali untuk menghemat quota Sheets.
-  var schemaReady = PropertiesService.getScriptProperties().getProperty('SCHEMA_READY')
-  if (schemaReady === '1') {
+  // Kunci memakai versi schema: naikkan SCHEMA_VERSION agar ensureHeaders
+  // berjalan kembali setelah deploy yang menambah/mengubah struktur sheet.
+  var SCHEMA_VERSION = '3'
+  var scriptProps = PropertiesService.getScriptProperties()
+  if (scriptProps.getProperty('SCHEMA_READY_V' + SCHEMA_VERSION) === '1') {
     seedInitialData()
     return
   }
@@ -188,6 +198,7 @@ function initializeSheets() {
     'nama_lengkap', 'jenis_kelamin', 'nisn', 'nik', 'tempat_lahir',
     'tanggal_lahir', 'agama', 'asal_sekolah', 'dusun', 'rt_rw',
     'desa', 'kecamatan', 'kabupaten', 'kode_pos', 'koordinat_maps',
+    'dokumen_alamat_url',
     'tinggal_bersama', 'nama_ayah', 'kerja_ayah', 'nama_ibu', 'kerja_ibu',
     'telepon_ortu', 'foto_profil_url', 'berkas_pdf_url', 'prestasi',
     'alasan_pilih_jurusan', 'referral_nama', 'referral_kategori',
@@ -205,6 +216,10 @@ function initializeSheets() {
 
   ensureHeaders('Admin', [
     'email', 'nama', 'role', 'no_telp'
+  ])
+
+  ensureHeaders('Guru', [
+    'email', 'nama', 'role', 'no_telp', 'created_at', 'asal_sekolah'
   ])
 
   ensureHeaders('Informasi_Event', [
@@ -241,6 +256,7 @@ function initializeSheets() {
   ])
 
   PropertiesService.getScriptProperties().setProperty('SCHEMA_READY', '1')
+  scriptProps.setProperty('SCHEMA_READY_V' + SCHEMA_VERSION, '1')
 
   seedInitialData()
 }

@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react'
-import { Plus, Edit3, Trash2, Shield, X, Upload, FileSpreadsheet, CheckCircle2, AlertTriangle, Loader2, Download } from 'lucide-react'
+import { Plus, Edit3, Trash2, Shield, School, X, Upload, FileSpreadsheet, CheckCircle2, AlertTriangle, Loader2, Download } from 'lucide-react'
 import * as XLSX from 'xlsx'
 import Card from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
@@ -13,8 +13,19 @@ interface AdminItem {
   no_telp: string
 }
 
+interface GuruItem {
+  email: string
+  nama: string
+  role: string
+  no_telp: string
+  created_at?: string
+  asal_sekolah?: string
+}
+
 export default function AdminManajemen() {
   const [admins, setAdmins] = useState<AdminItem[]>([])
+  const [gurus, setGurus] = useState<GuruItem[]>([])
+  const [guruLoadError, setGuruLoadError] = useState(false)
   const [loading, setLoading] = useState(true)
   const [modalOpen, setModalOpen] = useState(false)
   const [editingEmail, setEditingEmail] = useState<string | null>(null)
@@ -37,8 +48,23 @@ export default function AdminManajemen() {
     }
   }
 
+  const fetchGurus = async () => {
+    try {
+      const res = await api.admin.guruList()
+      if (res.status === 'ok') {
+        setGurus(res.data as GuruItem[])
+        setGuruLoadError(false)
+      } else {
+        setGuruLoadError(true)
+      }
+    } catch {
+      setGuruLoadError(true)
+    }
+  }
+
   useEffect(() => {
     fetchAdmins()
+    fetchGurus()
   }, [])
 
   const openAdd = () => {
@@ -74,6 +100,16 @@ export default function AdminManajemen() {
       fetchAdmins()
     } catch {
       alert('Gagal menghapus pengguna')
+    }
+  }
+
+  const handleDeleteGuru = async (email: string) => {
+    if (!confirm(`Hapus pendaftaran guru ${email}? Akunnya tidak akan bisa login lagi.`)) return
+    try {
+      await api.admin.deleteGuru(email)
+      fetchGurus()
+    } catch {
+      alert('Gagal menghapus data guru')
     }
   }
 
@@ -139,6 +175,7 @@ export default function AdminManajemen() {
     const ws = XLSX.utils.aoa_to_sheet([
       ['email', 'nama', 'role', 'no_telp'],
       ['guru1@gmail.com', 'Guru Satu', 'guru', '08123456789'],
+      ['gurusmp1@gmail.com', 'Guru SMP Satu', 'guru_smp', '081212345678'],
       ['mpls1@gmail.com', 'Panitia MPLS', 'panitia_mpls', '08129876543'],
     ])
     ws['!cols'] = [
@@ -185,7 +222,80 @@ export default function AdminManajemen() {
                   <p className="text-xs text-slate-500">{admin.email}</p>
                   {admin.no_telp && (
                     <p className="text-xs text-slate-400">{admin.no_telp}</p>
-      )}
+                  )}
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-brand-green-light text-brand-green-dark">
+                  {admin.role === 'guru' ? 'Guru' : admin.role === 'guru_smp' ? 'Guru SMP/MTs' : admin.role === 'panitia_mpls' ? 'Panitia MPLS' : 'Admin'}
+                </span>
+                <button
+                  onClick={() => openEdit(admin)}
+                  className="p-1.5 text-slate-400 hover:text-brand-green transition-colors"
+                >
+                  <Edit3 className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => handleDelete(admin.email)}
+                  className="p-1.5 text-slate-400 hover:text-red-500 transition-colors"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          </Card>
+        ))}
+        {admins.length === 0 && (
+          <p className="text-sm text-slate-400 text-center py-8">Belum ada pengguna</p>
+        )}
+      </div>
+
+      <div>
+        <h2 className="text-sm font-bold text-slate-700 mb-3 flex items-center gap-2">
+          <School className="w-4 h-4 text-brand-green" />
+          Pendaftaran Mandiri Guru SMP/MTs
+          <span className="text-xs font-normal text-slate-400">({gurus.length})</span>
+        </h2>
+        <div className="space-y-3">
+          {guruLoadError && (
+            <p className="text-xs text-red-500 mb-2">Gagal memuat daftar pendaftar mandiri. Coba muat ulang halaman.</p>
+          )}
+          {gurus.map((guru) => (
+            <Card key={guru.email} className="p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-brand-green-light text-brand-green">
+                    <School className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-slate-800">{guru.nama}</p>
+                    <p className="text-xs text-slate-500">{guru.email}</p>
+                    {(guru.asal_sekolah || guru.no_telp || guru.created_at) && (
+                      <p className="text-xs text-slate-400">
+                        {[guru.asal_sekolah, guru.no_telp, guru.created_at].filter(Boolean).join(' • ')}
+                      </p>
+                    )}
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-brand-green-light text-brand-green-dark">
+                    Guru SMP/MTs
+                  </span>
+                  <button
+                    onClick={() => handleDeleteGuru(guru.email)}
+                    className="p-1.5 text-slate-400 hover:text-red-500 transition-colors"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            </Card>
+          ))}
+          {gurus.length === 0 && (
+            <p className="text-sm text-slate-400 text-center py-6">Belum ada pendaftar mandiri</p>
+          )}
+        </div>
+      </div>
 
       {importModalOpen && (
         <div className="fixed inset-0 bg-black/30 z-50 flex items-center justify-center p-4">
@@ -217,7 +327,7 @@ export default function AdminManajemen() {
                     <span className="px-1.5 py-0.5 bg-white rounded border border-slate-200">no_telp</span>
                   </div>
                   <p className="text-[10px] text-slate-400 mt-2">
-                    Kolom <span className="font-medium">role</span> opsional (default: guru, opsi lain: admin / panitia_mpls). Kolom <span className="font-medium">no_telp</span> juga opsional.
+                    Kolom <span className="font-medium">role</span> opsional (default: guru, opsi lain: admin / guru_smp / panitia_mpls). Kolom <span className="font-medium">no_telp</span> juga opsional.
                   </p>
                 </div>
 
@@ -293,32 +403,6 @@ export default function AdminManajemen() {
           </div>
         </div>
       )}
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-brand-green-light text-brand-green-dark">
-                  {admin.role === 'guru' ? 'Guru' : admin.role === 'panitia_mpls' ? 'Panitia MPLS' : 'Admin'}
-                </span>
-                <button
-                  onClick={() => openEdit(admin)}
-                  className="p-1.5 text-slate-400 hover:text-brand-green transition-colors"
-                >
-                  <Edit3 className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => handleDelete(admin.email)}
-                  className="p-1.5 text-slate-400 hover:text-red-500 transition-colors"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-          </Card>
-        ))}
-        {admins.length === 0 && (
-          <p className="text-sm text-slate-400 text-center py-8">Belum ada pengguna</p>
-        )}
-      </div>
 
       {modalOpen && (
         <div className="fixed inset-0 bg-black/30 z-50 flex items-center justify-center p-4">
@@ -361,6 +445,7 @@ export default function AdminManajemen() {
                 >
                   <option value="admin">Admin</option>
                   <option value="guru">Guru</option>
+                  <option value="guru_smp">Guru SMP/MTs</option>
                   <option value="panitia_mpls">Panitia MPLS</option>
                 </select>
               </div>

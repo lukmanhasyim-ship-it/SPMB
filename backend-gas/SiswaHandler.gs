@@ -1,12 +1,31 @@
+// Normalisasi nama sekolah untuk pencocokan (huruf kecil, spasi tunggal).
+function normalizeSekolah_(v) {
+  return String(v || '').toLowerCase().replace(/\s+/g, ' ').trim()
+}
+
 function handleGetSiswa(params, session) {
   initializeSheets()
 
   var email = (params.email || '').toLowerCase().trim()
-  var isStaff = session && (session.role === 'admin' || session.role === 'guru' || session.role === 'panitia_mpls')
+  var isStaff = session && (session.role === 'admin' || session.role === 'guru' || session.role === 'guru_smp' || session.role === 'panitia_mpls')
+
+  // Guru SMP/MTs hanya berhak melihat siswa dari asal sekolahnya sendiri.
+  var guruSmpSekolah = ''
+  if (session && session.role === 'guru_smp') {
+    var guruRow = findRowByKey('Guru', 'email', session.email)
+    guruSmpSekolah = normalizeSekolah_(guruRow && guruRow.asal_sekolah)
+  }
 
   if (email) {
     if (!isStaff && (!session || session.email !== email)) {
       return { status: 'error', message: 'Akses ditolak: Anda hanya dapat mengakses data Anda sendiri' }
+    }
+    if (session && session.role === 'guru_smp') {
+      if (!guruSmpSekolah) return { status: 'error', message: 'Akses ditolak: akun belum memiliki data asal sekolah' }
+      var targetSiswa = findRowByKey('Siswa', 'email', email)
+      if (!targetSiswa || normalizeSekolah_(targetSiswa.asal_sekolah) !== guruSmpSekolah) {
+        return { status: 'error', message: 'Akses ditolak' }
+      }
     }
     var siswa = findRowByKey('Siswa', 'email', email)
     if (!siswa) return { status: 'error', message: 'Data tidak ditemukan' }
@@ -17,9 +36,17 @@ function handleGetSiswa(params, session) {
     return { status: 'error', message: 'Akses ditolak' }
   }
 
+  if (session.role === 'guru_smp' && !guruSmpSekolah) {
+    return { status: 'ok', data: [] }
+  }
+
   var allSiswa = getAllRows('Siswa')
   var result = []
   for (var i = 0; i < allSiswa.length; i++) {
+    if (session.role === 'guru_smp' &&
+        normalizeSekolah_(allSiswa[i].asal_sekolah) !== guruSmpSekolah) {
+      continue
+    }
     result.push(cleanSiswaRow(allSiswa[i]))
   }
   return { status: 'ok', data: result }
@@ -58,7 +85,7 @@ function handleUpdateSiswa(params, session) {
     'pilihan_jurusan', 'pilihan_alternatif', 'nama_lengkap', 'jenis_kelamin',
     'nisn', 'nik', 'tempat_lahir', 'tanggal_lahir', 'agama', 'asal_sekolah',
     'dusun', 'rt_rw', 'desa', 'kecamatan', 'kabupaten', 'kode_pos',
-    'koordinat_maps', 'tinggal_bersama', 'nama_ayah', 'kerja_ayah',
+    'koordinat_maps', 'dokumen_alamat_url', 'tinggal_bersama', 'nama_ayah', 'kerja_ayah',
     'nama_ibu', 'kerja_ibu', 'telepon_ortu', 'prestasi',
     'alasan_pilih_jurusan', 'referral_nama', 'referral_kategori',
     'status_pendaftaran', 'foto_profil_url',
@@ -80,7 +107,7 @@ function handleUpdateSiswa(params, session) {
   return { status: 'ok', data: cleanSiswaRow(updated) }
 }
 
-function handleAdminRegisterSiswa(params) {
+function handleAdminRegisterSiswa(params, session) {
   initializeSheets()
 
   var lock = LockService.getScriptLock()
@@ -117,6 +144,15 @@ function handleAdminRegisterSiswa(params) {
     }
   }
 
+  // Guru SMP/MTs: asal sekolah siswa selalu mengikuti akun gurunya (bila ada).
+  if (session && session.role === 'guru_smp') {
+    var guruRowReg = findRowByKey('Guru', 'email', session.email)
+    var sekolahGuru = String((guruRowReg && guruRowReg.asal_sekolah) || '').trim()
+    if (sekolahGuru) {
+      params.asal_sekolah = sekolahGuru
+    }
+  }
+
   var configs = getAllRows('Sistem_Config')
   var tahunAjaran = getConfigValue(configs, 'TAHUN_AJARAN_AKTIF', '2026/2027')
 
@@ -131,11 +167,19 @@ function handleAdminRegisterSiswa(params) {
 
   var idPendaftaran = generateId(tahunAjaran, gelombangAktif)
 
+  if (session && (session.role === 'guru' || session.role === 'guru_smp')
+      && !(params.referral_nama || '').trim() && !(params.referral_kategori || '').trim()) {
+    var adminRow = findRowByKey('Admin', 'email', session.email)
+    if (!adminRow) adminRow = findRowByKey('Guru', 'email', session.email)
+    params.referral_nama = (adminRow && adminRow.nama ? String(adminRow.nama).trim() : session.email)
+    params.referral_kategori = session.role === 'guru_smp' ? 'Guru SMP/MTs' : 'Guru SMKS AL AZHAR SEMPU'
+  }
+
   var allowedFields = [
     'pilihan_jurusan', 'pilihan_alternatif', 'nama_lengkap', 'jenis_kelamin',
     'nisn', 'nik', 'tempat_lahir', 'tanggal_lahir', 'agama', 'asal_sekolah',
     'dusun', 'rt_rw', 'desa', 'kecamatan', 'kabupaten', 'kode_pos',
-    'koordinat_maps', 'tinggal_bersama', 'nama_ayah', 'kerja_ayah',
+    'koordinat_maps', 'dokumen_alamat_url', 'tinggal_bersama', 'nama_ayah', 'kerja_ayah',
     'nama_ibu', 'kerja_ibu', 'telepon_ortu', 'prestasi',
     'alasan_pilih_jurusan', 'referral_nama', 'referral_kategori'
   ]

@@ -78,10 +78,19 @@ export const api = {
       return request('auth', payload)
     },
 
-    register: (email: string, nama: string, fotoUrl?: string, idToken?: string) => {
+    register: (
+      email: string,
+      nama: string,
+      fotoUrl?: string,
+      idToken?: string,
+      opts?: { registerAs?: 'guru_smp'; noTelp?: string; asalSekolah?: string }
+    ) => {
       const payload: Record<string, unknown> = { email, nama }
       if (fotoUrl) payload.fotoUrl = fotoUrl
       if (idToken) payload.idToken = idToken
+      if (opts?.registerAs) payload.registerAs = opts.registerAs
+      if (opts?.noTelp) payload.no_telp = opts.noTelp
+      if (opts?.asalSekolah) payload.asal_sekolah = opts.asalSekolah
       return request('register', payload)
     },
   },
@@ -109,6 +118,9 @@ export const api = {
   referral: {
     getStats: () =>
       request('getReferralStats'),
+
+    options: () =>
+      request('getReferralOptions'),
   },
 
   gelombang: {
@@ -159,6 +171,12 @@ export const api = {
   admin: {
     list: () =>
       request('getAdminList'),
+
+    guruList: () =>
+      request('getGuruList'),
+
+    deleteGuru: (email: string) =>
+      request('deleteGuru', { email }),
 
     add: (email: string, nama: string, role: string, no_telp?: string) =>
       request('addAdmin', { email, nama, role, no_telp }),

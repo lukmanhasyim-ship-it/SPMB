@@ -34,8 +34,14 @@ interface AuthState {
   error: string | null
 
   restoreSession: () => void
-  login: (email: string, nama?: string, fotoUrl?: string, idToken?: string) => Promise<'siswa' | 'admin' | 'guru' | 'panitia_mpls' | 'new' | null>
-  register: (email: string, nama: string, fotoUrl?: string, idToken?: string) => Promise<void>
+  login: (email: string, nama?: string, fotoUrl?: string, idToken?: string) => Promise<'siswa' | 'admin' | 'guru' | 'guru_smp' | 'panitia_mpls' | 'new' | null>
+  register: (
+    email: string,
+    nama: string,
+    fotoUrl?: string,
+    idToken?: string,
+    opts?: { registerAs?: 'guru_smp'; noTelp?: string; asalSekolah?: string }
+  ) => Promise<'siswa' | 'guru_smp'>
   logout: () => void
   clearError: () => void
 }
@@ -64,10 +70,11 @@ export const useAuthStore = create<AuthState>((set) => ({
       if (result.status === 'ok') {
         const userData = result.user as { email: string; nama: string; fotoUrl?: string }
         const role = result.role as string
-        const normalizedRole: 'siswa' | 'admin' | 'guru' | 'panitia_mpls' | 'new' =
+        const normalizedRole: 'siswa' | 'admin' | 'guru' | 'guru_smp' | 'panitia_mpls' | 'new' =
           role === 'siswa' ? 'siswa'
           : role === 'new' ? 'new'
           : role === 'guru' ? 'guru'
+          : role === 'guru_smp' ? 'guru_smp'
           : role === 'panitia_mpls' ? 'panitia_mpls'
           : 'admin'
 
@@ -77,8 +84,14 @@ export const useAuthStore = create<AuthState>((set) => ({
         const user: User = {
           email: userData.email,
           nama: userData.nama || userData.email,
-          role: normalizedRole === 'siswa' ? 'siswa' : normalizedRole === 'guru' ? 'guru' : normalizedRole === 'panitia_mpls' ? 'panitia_mpls' : 'admin',
+          role: normalizedRole === 'siswa' ? 'siswa'
+            : normalizedRole === 'guru' ? 'guru'
+            : normalizedRole === 'guru_smp' ? 'guru_smp'
+            : normalizedRole === 'panitia_mpls' ? 'panitia_mpls'
+            : normalizedRole === 'new' ? 'admin'
+            : 'admin',
           fotoUrl: userData.fotoUrl || '',
+          asal_sekolah: (userData as { asal_sekolah?: string }).asal_sekolah || '',
         }
 
         const loggedIn = normalizedRole !== 'new'
@@ -102,24 +115,29 @@ export const useAuthStore = create<AuthState>((set) => ({
     }
   },
 
-  register: async (email: string, nama: string, fotoUrl?: string, idToken?: string) => {
+  register: async (email: string, nama: string, fotoUrl?: string, idToken?: string, opts?: { registerAs?: 'guru_smp'; noTelp?: string; asalSekolah?: string }) => {
     set({ loading: true, error: null })
     try {
-      const result = await api.auth.register(email, nama, fotoUrl, idToken)
+      const result = await api.auth.register(email, nama, fotoUrl, idToken, opts)
 
       if (result.status === 'ok') {
         const sessionToken = result.sessionToken as string | undefined
         if (sessionToken) setSessionToken(sessionToken)
 
+        const serverRole = typeof result.role === 'string' ? result.role : ''
+        const role = serverRole === 'guru_smp' ? 'guru_smp' : 'siswa'
         const user: User = {
           email,
           nama,
-          role: 'siswa',
+          role,
           fotoUrl: fotoUrl || '',
+          asal_sekolah: opts?.asalSekolah || '',
         }
         writeStoredUser(user)
         set({ user, isLoggedIn: true, loading: false })
+        return role
       }
+      return 'siswa'
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Registrasi gagal'
       set({ loading: false, error: message })

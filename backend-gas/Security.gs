@@ -34,10 +34,12 @@ function revokeSession_(token) {
   if (token) CacheService.getScriptCache().remove('sess:' + token)
 }
 
-// Menentukan role dari email (prioritas: Admin sheet > Siswa sheet).
+// Menentukan role dari email (prioritas: Admin sheet > Guru sheet > Siswa sheet).
 function resolveRole_(email) {
   var adminData = findRowByKey('Admin', 'email', email)
   if (adminData) return adminData.role || 'admin'
+  var guruData = findRowByKey('Guru', 'email', email)
+  if (guruData) return guruData.role || 'guru_smp'
   var existing = findRowByKey('Siswa', 'email', email)
   if (existing) return 'siswa'
   return 'new'

@@ -69,6 +69,8 @@ export default function LoginPage() {
           navigate('/student/dashboard')
         } else if (result === 'guru') {
           navigate('/guru/dashboard')
+        } else if (result === 'guru_smp') {
+          navigate('/guru/dashboard')
         } else if (result === 'panitia_mpls') {
           navigate('/mpls/dashboard')
         } else {

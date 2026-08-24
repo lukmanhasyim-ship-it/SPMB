@@ -1,17 +1,18 @@
 export type Jurusan = 'PPLG' | 'TJKT' | 'TO' | 'AKL' | 'Busana';
 export type Gelombang = 'Gelombang 1' | 'Gelombang 2' | 'Gelombang 3';
 export type StatusPendaftaran = 'Draft' | 'Terdaftar' | 'Selesai' | 'Terverifikasi';
-export type Role = 'siswa' | 'admin' | 'guru' | 'panitia_mpls';
+export type Role = 'siswa' | 'admin' | 'guru' | 'guru_smp' | 'panitia_mpls';
 export type TinggalBersama = 'Orang Tua' | 'Wali' | 'Pondok';
 export type Agama = 'Islam' | 'Kristen' | 'Katolik' | 'Hindu' | 'Buddha' | 'Konghucu';
 export type JenisKelamin = 'Laki-laki' | 'Perempuan';
-export type KategoriReferral = 'Guru SMKS AL AZHAR SEMPU' | 'Siswa Kelas X' | 'Siswa Kelas XI' | 'Siswa Kelas XII' | 'Alumni' | 'Lainnya';
+export type KategoriReferral = 'Guru SMKS AL AZHAR SEMPU' | 'Guru SMP/MTs' | 'Siswa Kelas X' | 'Siswa Kelas XI' | 'Siswa Kelas XII' | 'Alumni' | 'Lainnya';
 
 export interface User {
   email: string;
   nama: string;
   role: Role;
   fotoUrl?: string;
+  asal_sekolah?: string;
 }
 
 export interface DataSiswa {
@@ -35,6 +36,7 @@ export interface DataSiswa {
   kabupaten: string;
   kodePos: string;
   koordinatMaps: string;
+  dokumenAlamatUrl: string;
   tinggalBersama: TinggalBersama | '';
   namaAyah: string;
   kerjaAyah: string;

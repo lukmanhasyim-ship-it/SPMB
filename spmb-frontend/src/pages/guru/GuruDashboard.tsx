@@ -9,6 +9,7 @@ import ProgressBar from '../../components/ui/ProgressBar'
 import { api } from '../../services/api'
 
 const JURUSAN_PALETTE = ['#007643', '#38bdf8', '#f59e0b', '#14b8a6', '#8b5cf6', '#f472b6']
+const SEKOLAH_BAR_COLORS = ['bg-brand-green', 'bg-blue-500', 'bg-amber-500', 'bg-teal-500', 'bg-violet-500', 'bg-pink-500']
 
 function getSapaanWIB(): string {
   const h = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Jakarta' })).getHours()
@@ -20,10 +21,12 @@ function getSapaanWIB(): string {
 
 export default function GuruDashboard() {
   const { user } = useAuthStore()
+  const isGuruSmp = user?.role === 'guru_smp'
   const [totalSiswa, setTotalSiswa] = useState(0)
   const [statusCounts, setStatusCounts] = useState<Record<string, number>>({})
   const [jurusanCounts, setJurusanCounts] = useState<Record<string, number>>({})
   const [gelombangCounts, setGelombangCounts] = useState<Record<string, number>>({})
+  const [sekolahList, setSekolahList] = useState<Array<{ nama: string; count: number }>>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -37,6 +40,7 @@ export default function GuruDashboard() {
           const jurusan: Record<string, number> = {}
           const gelombang: Record<string, number> = {}
           const status: Record<string, number> = {}
+          const sekolah: Record<string, number> = {}
           list.forEach((s) => {
             if (s.pilihan_jurusan) {
               jurusan[s.pilihan_jurusan] = (jurusan[s.pilihan_jurusan] || 0) + 1
@@ -46,10 +50,17 @@ export default function GuruDashboard() {
             }
             const st = s.status_pendaftaran || 'Draft'
             status[st] = (status[st] || 0) + 1
+            const sekolahKey = (s.asal_sekolah || '').trim() || '(Tidak diisi)'
+            sekolah[sekolahKey] = (sekolah[sekolahKey] || 0) + 1
           })
           setJurusanCounts(jurusan)
           setGelombangCounts(gelombang)
           setStatusCounts(status)
+          setSekolahList(
+            Object.entries(sekolah)
+              .map(([nama, count]) => ({ nama, count }))
+              .sort((a, b) => b.count - a.count || a.nama.localeCompare(b.nama))
+          )
         }
       } catch {
         // Handle error
@@ -65,6 +76,68 @@ export default function GuruDashboard() {
     value,
     color: JURUSAN_PALETTE[i % JURUSAN_PALETTE.length],
   }))
+
+  if (isGuruSmp) {
+    return (
+      <div className="space-y-6">
+        <Card glass className="p-5 sm:p-6 relative overflow-hidden">
+          <div className="absolute -right-16 -top-16 w-56 h-56 rounded-full bg-brand-orange/15 blur-2xl pointer-events-none" />
+          <div className="relative flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <p className="text-xs font-semibold text-brand-green">{getSapaanWIB()}</p>
+              <h1 className="text-xl sm:text-2xl font-extrabold text-slate-800 mt-1">
+                {user?.nama}
+              </h1>
+              <p className="text-sm text-slate-500 mt-1">
+                {user?.asal_sekolah
+                  ? (
+                    <>
+                      Pendaftar dari{' '}
+                      <span className="font-semibold text-slate-700">{user.asal_sekolah}</span>
+                    </>
+                  )
+                  : 'Akun belum memiliki data asal sekolah — hubungi admin SMKS'}
+              </p>
+            </div>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-brand-orange/10 text-orange-600 text-xs font-semibold">
+              <School className="w-3.5 h-3.5" />
+              Panel Guru SMP/MTs
+            </span>
+          </div>
+        </Card>
+
+        {loading ? (
+          <Loader />
+        ) : (
+          <Card glass className="p-5">
+            <h3 className="text-sm font-bold text-slate-800 mb-1">Pendaftar per Asal Sekolah</h3>
+            <p className="text-xs text-slate-400 mb-4">
+              Distribusi pendaftar dari setiap sekolah asal — total {totalSiswa} pendaftar
+            </p>
+            {sekolahList.length > 0 ? (
+              <div className="space-y-4">
+                {sekolahList.map((s, i) => (
+                  <ProgressBar
+                    key={s.nama}
+                    label={s.nama}
+                    count={s.count}
+                    total={totalSiswa}
+                    color={SEKOLAH_BAR_COLORS[i % SEKOLAH_BAR_COLORS.length]}
+                  />
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-slate-400 text-center py-10">
+                {user?.asal_sekolah
+                  ? `Belum ada pendaftar dari ${user.asal_sekolah}`
+                  : 'Belum ada data'}
+              </p>
+            )}
+          </Card>
+        )}
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6">

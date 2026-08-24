@@ -23,6 +23,7 @@ export const DATA_TINGGAL_BERSAMA = [
 
 export const DATA_KATEGORI_REFERRAL = [
   { value: 'Guru SMKS AL AZHAR SEMPU', label: 'Guru SMKS AL AZHAR SEMPU' },
+  { value: 'Guru SMP/MTs', label: 'Guru SMP/MTs' },
   { value: 'Siswa Kelas X', label: 'Siswa Kelas X' },
   { value: 'Siswa Kelas XI', label: 'Siswa Kelas XI' },
   { value: 'Siswa Kelas XII', label: 'Siswa Kelas XII' },

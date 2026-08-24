@@ -83,6 +83,13 @@ kecuali `auth`, `register`, dan `setup`.
   ```json
   { "action": "register", "idToken": "ya29....", "email": "...", "nama": "..." }
   ```
+- **Pendaftaran mandiri Guru SMP/MTs** — kirim `registerAs: "guru_smp"` pada action `register`
+  (nilai lain diabaikan; hanya `guru_smp` yang bisa didaftarkan mandiri). Data disimpan ke sheet
+  **Guru** (bukan Admin), langsung aktif, wajib menyertakan `asal_sekolah`, dan
+  opsional menyertakan `no_telp`:
+  ```json
+  { "action": "register", "idToken": "ya29....", "email": "...", "nama": "...", "registerAs": "guru_smp", "no_telp": "08...", "asal_sekolah": "SMP Negeri 1 Sempu" }
+  ```
 
 ### Contoh request terautentikasi
 ```json
@@ -92,9 +99,34 @@ kecuali `auth`, `register`, dan `setup`.
 Catatan: `setup` hanya berfungsi **sekali** (saat `SHEET_ID` belum di-set).
 Untuk mengubah spreadsheet tujuan, ubah manual lewat Script Properties.
 
+### Role & Otorisasi
+
+Role yang dikenal server: `siswa`, `admin`, `guru`, `guru_smp`, `panitia_mpls`.
+Nilai role tak-dikenal akan **ditolak** saat tambah/update user lewat `addAdmin`/`updateAdmin`.
+
+- **`admin`** — akses penuh: kelola siswa, kelola user, gelombang, config, timeline, broadcast
+- **`guru`** / **`guru_smp`** — baca data siswa (`getSiswa`), daftarkan siswa baru
+  (`adminRegisterSiswa`), lihat statistik referral (`getReferralStats`).
+  **Khusus `guru_smp`:** `getSiswa` hanya mengembalikan siswa yang kolom
+  `asal_sekolah`-nya cocok (case-insensitive) dengan `asal_sekolah` akun guru pada
+  sheet **Guru** — berlaku juga untuk permintaan per-email. Jika akun guru belum
+  memiliki `asal_sekolah`, hasil selalu kosong. Tujuan: hindari persaingan antar
+  sekolah dan memudahkan guru memantau pendaftar dari sekolahnya sendiri.
+  Saat `guru_smp` mendaftarkan siswa (`adminRegisterSiswa`), `asal_sekolah` siswa
+  otomatis ditimpa dengan milik akun gurunya bila terisi; jika belum ada, input
+  manual dari formulir dipakai.
+- **`panitia_mpls`** — baca data siswa, broadcast, dan seluruh aksi MPLS
+- **`siswa`** — hanya data miliknya sendiri
+
+> Saat role `guru`/`guru_smp` memanggil `adminRegisterSiswa`, kolom referral yang
+> kosong diisi otomatis dari akun: kategori `Guru SMKS AL AZHAR SEMPU` (guru) /
+> `Guru SMP/MTs` (guru_smp), nama = nama akun pada sheet Admin. Input eksplisit
+> tidak ditimpa.
+
 
 ### Siswa
-- **action: `getSiswa`** — Ambil data siswa (dengan email) atau semua (tanpa email)
+- **action: `getSiswa`** — Ambil data siswa (dengan email) atau semua (tanpa email).
+  Role `guru_smp` otomatis dibatasi pada siswa satu asal sekolah (lihat bagian Role)
 - **action: `updateSiswa`** — Update data siswa
   ```json
   { "action": "updateSiswa", "email": "...", "nama_lengkap": "...", ... }
@@ -131,9 +163,14 @@ Untuk mengubah spreadsheet tujuan, ubah manual lewat Script Properties.
 
 ## Google Sheets Structure
 
-4 sheet akan dibuat otomatis:
+Sheet yang dibuat otomatis:
 - **Siswa** — Data pendaftaran siswa
+- **Admin** — Akun staf (admin/guru/guru_smp/panitia_mpls) yang dibuat oleh admin via panel
+- **Guru** — Pendaftaran mandiri Guru SMP/MTs dari halaman registrasi (email, nama, role, no_telp, created_at, asal_sekolah)
 - **Pengaturan_Gelombang** — Konfigurasi gelombang
 - **Sistem_Config** — Key-value config
 - **Informasi_Event** — Riwayat broadcast
 - **Kehadiran_MPLS** — Log absensi siswa baru (scan barcode bukti pendaftaran)
+
+> Login: role dicari berurutan di sheet **Admin → Guru → Siswa**, sehingga akun guru
+> hasil pendaftaran mandiri otomatis dikenali saat login.

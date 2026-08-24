@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react'
 import { useNavigate, useLocation, Link } from 'react-router-dom'
-import { UserPlus, Upload, Camera } from 'lucide-react'
+import { UserPlus, Upload, Camera, GraduationCap, School } from 'lucide-react'
 import { useAuthStore } from '../../store/authStore'
 import Card from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
@@ -24,6 +24,9 @@ export default function RegisterPage() {
   const [nama, setNama] = useState(googleData?.nama || '')
   const [email, setEmail] = useState(googleData?.email || '')
   const [fotoBase64, setFotoBase64] = useState(googleData?.fotoUrl || '')
+  const [peran, setPeran] = useState<'siswa' | 'guru_smp'>('siswa')
+  const [noTelp, setNoTelp] = useState('')
+  const [asalSekolah, setAsalSekolah] = useState('')
   const [localError, setLocalError] = useState('')
   const fotoRef = useRef<HTMLInputElement>(null)
   const fromGoogle = !!(googleData?.email)
@@ -61,16 +64,37 @@ export default function RegisterPage() {
       setLocalError('Gunakan alamat Gmail (@gmail.com) yang aktif')
       return
     }
+    if (peran === 'guru_smp' && !asalSekolah.trim()) {
+      setLocalError('Asal sekolah (SMP/MTs) wajib diisi')
+      return
+    }
     try {
-      await register(email.trim(), nama.trim(), fotoBase64 || undefined, googleToken)
+      const role = await register(
+        email.trim(),
+        nama.trim(),
+        peran === 'guru_smp' ? undefined : (fotoBase64 || undefined),
+        googleToken,
+        peran === 'guru_smp'
+          ? {
+              registerAs: 'guru_smp',
+              noTelp: noTelp.trim() || undefined,
+              asalSekolah: asalSekolah.trim(),
+            }
+          : undefined
+      )
       try {
         sessionStorage.removeItem('spmb.google-token')
       } catch {
         /* noop */
       }
-      navigate('/student/dashboard')
-    } catch {
-      setLocalError(error || 'Registrasi gagal')
+      navigate(role === 'guru_smp' ? '/guru/dashboard' : '/student/dashboard')
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : (error || '')
+      if (msg.includes('sudah terdaftar')) {
+        setLocalError(msg + '. Akun ini sudah terdaftar sebelumnya — hubungi admin untuk menghapus atau mengubah perannya.')
+      } else {
+        setLocalError(msg || 'Registrasi gagal')
+      }
     }
   }
 
@@ -91,7 +115,40 @@ export default function RegisterPage() {
         </div>
 
         <div className="space-y-4">
-          <div className="flex flex-col items-center gap-3">
+          <div>
+            <label className="block text-sm font-semibold text-slate-700 mb-2">Daftar sebagai</label>
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => setPeran('siswa')}
+                className={`flex flex-col items-center gap-1.5 rounded-xl border p-4 text-center transition-all outline-none
+                  ${peran === 'siswa'
+                    ? 'border-brand-green bg-brand-green/5 ring-2 ring-brand-green/30'
+                    : 'border-slate-200 bg-white hover:border-slate-300'
+                  }`}
+              >
+                <GraduationCap className={`w-6 h-6 ${peran === 'siswa' ? 'text-brand-green' : 'text-slate-400'}`} />
+                <span className="text-sm font-bold text-slate-800">Siswa Baru</span>
+                <span className="text-[11px] text-slate-500 leading-snug">Calon murid baru SMKS</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setPeran('guru_smp')}
+                className={`flex flex-col items-center gap-1.5 rounded-xl border p-4 text-center transition-all outline-none
+                  ${peran === 'guru_smp'
+                    ? 'border-brand-green bg-brand-green/5 ring-2 ring-brand-green/30'
+                    : 'border-slate-200 bg-white hover:border-slate-300'
+                  }`}
+              >
+                <School className={`w-6 h-6 ${peran === 'guru_smp' ? 'text-brand-green' : 'text-slate-400'}`} />
+                <span className="text-sm font-bold text-slate-800">Guru SMP/MTs</span>
+                <span className="text-[11px] text-slate-500 leading-snug">Bantu daftarkan siswa</span>
+              </button>
+            </div>
+          </div>
+
+          {peran === 'siswa' && (
+            <div className="flex flex-col items-center gap-3">
             <div
               className="w-24 h-24 rounded-full overflow-hidden border-2 border-slate-200 bg-slate-50 flex items-center justify-center cursor-pointer hover:border-brand-green transition-colors group"
               onClick={() => fotoRef.current?.click()}
@@ -118,6 +175,7 @@ export default function RegisterPage() {
             </button>
             <p className="text-[10px] text-slate-400">Maks 2MB, format JPG/PNG</p>
           </div>
+          )}
 
           <InputField
             label="Nama Lengkap"
@@ -154,6 +212,26 @@ export default function RegisterPage() {
             />
           </div>
 
+          {peran === 'guru_smp' && (
+            <>
+              <InputField
+                label="Asal Sekolah (SMP/MTs)"
+                name="asalSekolah"
+                value={asalSekolah}
+                onChange={(e) => setAsalSekolah(e.target.value)}
+                placeholder="cth: SMP Negeri 1 Sempu"
+                required
+              />
+              <InputField
+                label="No. HP/WhatsApp"
+                name="noTelp"
+                value={noTelp}
+                onChange={(e) => setNoTelp(e.target.value)}
+                placeholder="08xxxxxxxxxx (opsional)"
+              />
+            </>
+          )}
+
           {(localError || error) && (
             <p className="text-sm text-red-500 text-center">{localError || error}</p>
           )}
@@ -165,7 +243,7 @@ export default function RegisterPage() {
             className="text-base py-3"
           >
             <UserPlus className="w-5 h-5" />
-            Daftar & Mulai Pendaftaran
+            {peran === 'guru_smp' ? 'Daftar sebagai Guru SMP/MTs' : 'Daftar & Mulai Pendaftaran'}
           </Button>
         </div>
 
