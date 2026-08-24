@@ -17,12 +17,15 @@ Copy semua file `.gs` ke dalam project Apps Script:
 - `Code.gs` → `Code.gs`
 - `SheetManager.gs` → `SheetManager.gs`
 - `AuthHandler.gs` → `AuthHandler.gs`
+- `Security.gs` → `Security.gs`
 - `SiswaHandler.gs` → `SiswaHandler.gs`
-- `ConfigHandler.gs` → `ConfigHandler.gs`
 - `AdminHandler.gs` → `AdminHandler.gs`
+- `ConfigHandler.gs` → `ConfigHandler.gs`
+- `EngagementHandler.gs` → `EngagementHandler.gs`
+- `CalendarHandler.gs` → `CalendarHandler.gs`
+- `TimelineHandler.gs` → `TimelineHandler.gs`
 - `MplsHandler.gs` → `MplsHandler.gs`
 - `DriveHandler.gs` → `DriveHandler.gs`
-- `Security.gs` → `Security.gs`
 - `SeedData.gs` → `SeedData.gs`
 - `appsscript.json` → `appsscript.json` (di Project Settings > Show manifest file)
 
@@ -38,9 +41,9 @@ Di menu **Project Settings > Script Properties**, tambahkan:
 
 ### 3. Seed Data
 
-Jalankan fungsi `seedInitialData()` dari editor Apps Script untuk mengisi data awal:
-- 3 gelombang pendaftaran (Gelombang 1 = Aktif)
-- Konfigurasi sistem (tahun ajaran, daftar email admin)
+Skema 12 sheet dan data awal (3 gelombang pendaftaran + konfigurasi sistem) dibuat
+**otomatis** oleh `initializeSheets()` saat API pertama kali dipanggil — idempoten.
+Fungsi `seedInitialData()` dari editor hanya diperlukan bila ingin mengisi ulang data awal.
 
 ### 4. Deploy sebagai Web App
 
@@ -54,7 +57,7 @@ Jalankan fungsi `seedInitialData()` dari editor Apps Script untuk mengisi data a
 
 ## Konfigurasi Frontend
 
-1. Buka `D:\project\SPMB\spmb-frontend\.env`
+1. Buka `spmb-frontend/.env`
 2. Set `VITE_API_URL` dengan URL web app yang didapat:
 
 ```
@@ -78,7 +81,7 @@ kecuali `auth`, `register`, dan `setup`.
   ```json
   { "action": "auth", "idToken": "ya29...." }
   ```
-  → Mengembalikan `role`, `user`, dan `sessionToken`.
+  → Mengembalikan `role`, `user`, dan `sessionToken` (untuk `guru_smp`, `user` menyertakan `asal_sekolah`).
 - **action: `register`** — Registrasi siswa baru (wajib `idToken`, email harus sama dengan email di token)
   ```json
   { "action": "register", "idToken": "ya29....", "email": "...", "nama": "..." }
@@ -131,6 +134,15 @@ Nilai role tak-dikenal akan **ditolak** saat tambah/update user lewat `addAdmin`
   ```json
   { "action": "updateSiswa", "email": "...", "nama_lengkap": "...", ... }
   ```
+- **action: `adminRegisterSiswa`** — Staf mendaftarkan siswa baru. Untuk role `guru_smp`,
+  `asal_sekolah` dan referral otomatis dari akun gurunya (lihat bagian Role & Otorisasi)
+
+### Referral
+- **action: `getReferralOptions`** — Opsi dropdown referral pada formulir siswa:
+  `guruInternal` (daftar nama dari sheet `Admin`) dan `guruSmp`
+  (`{nama, asal_sekolah}` dari sheet `Guru`) — tanpa email/telepon.
+  Kategori *Guru SMP/MTs* difilter dulu per asal sekolah di sisi frontend
+- **action: `getReferralStats`** — Rekap jumlah pendaftar per referral
 
 ### Gelombang
 - **action: `getGelombang`** — Ambil semua gelombang
@@ -143,6 +155,10 @@ Nilai role tak-dikenal akan **ditolak** saat tambah/update user lewat `addAdmin`
 ### Broadcast
 - **action: `getEvents`** — Riwayat notifikasi
 - **action: `sendBroadcast`** — Kirim notifikasi baru
+
+### Admin & Manajemen Pengguna (khusus admin)
+- **action: `getAdminList` / `addAdmin` / `updateAdmin` / `deleteAdmin`** — Kelola akun staf pada sheet `Admin` (role: `admin`, `guru`, `guru_smp`, `panitia_mpls`)
+- **action: `getGuruList` / `deleteGuru`** — Lihat & hapus akun Guru SMP/MTs hasil registrasi mandiri pada sheet `Guru`
 
 ### MPLS (Panitia MPLS)
 - **action: `mplsLookupById`** — Cari siswa berdasarkan `id_pendaftaran`
@@ -163,14 +179,18 @@ Nilai role tak-dikenal akan **ditolak** saat tambah/update user lewat `addAdmin`
 
 ## Google Sheets Structure
 
-Sheet yang dibuat otomatis:
+12 sheet dibuat otomatis:
 - **Siswa** — Data pendaftaran siswa
 - **Admin** — Akun staf (admin/guru/guru_smp/panitia_mpls) yang dibuat oleh admin via panel
 - **Guru** — Pendaftaran mandiri Guru SMP/MTs dari halaman registrasi (email, nama, role, no_telp, created_at, asal_sekolah)
 - **Pengaturan_Gelombang** — Konfigurasi gelombang
 - **Sistem_Config** — Key-value config
 - **Informasi_Event** — Riwayat broadcast
+- **Event_Like** / **Event_Komentar** — Interaksi feed pengumuman
+- **Event_Pengingat** — Pengingat Google Calendar per pengguna
 - **Kehadiran_MPLS** — Log absensi siswa baru (scan barcode bukti pendaftaran)
+- **Izin_MPLS** — Catatan izin peserta MPLS
+- **Timeline_SPMB** — Tahapan kegiatan SPMB
 
 > Login: role dicari berurutan di sheet **Admin → Guru → Siswa**, sehingga akun guru
 > hasil pendaftaran mandiri otomatis dikenali saat login.

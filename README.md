@@ -8,9 +8,10 @@ SPMB adalah aplikasi web **Single Page Application (SPA)** untuk pendaftaran mur
 
 | Peran | Fitur |
 |---|---|
-| **Calon Murid** | Login Google OAuth; wizard pendaftaran 5 langkah (jurusan utama & alternatif, data pribadi + NISN opsional, alamat + koordinat peta, orang tua/wali, berkas & prestasi); upload pas foto & PDF gabungan; kartu pendaftaran digital ber-QR; timeline tahapan SPMB; feed pengumuman ala Instagram (suka, komentar, tambah agenda ke Google Calendar + pengingat email). |
-| **Admin** | Dashboard statistik & grafik; tabel & pencarian pendaftar; daftarkan siswa manual; import data via Excel (xlsx); kelola gelombang & tahun ajaran aktif; kelola timeline tahapan SPMB; broadcast event personal ke email; statistik referral; manajemen admin/guru/panitia (CRUD); verifikasi berkas. |
-| **Guru** | Memantau jumlah pendaftar, status pendaftaran, serta distribusi per jurusan dan gelombang. |
+| **Calon Murid** | Login Google OAuth; wizard pendaftaran 5 langkah (jurusan utama & alternatif, data pribadi + NISN opsional, alamat + koordinat peta, orang tua/wali, berkas & prestasi); pindai KK/KTP untuk pengisian alamat otomatis (OCR); dropdown referral dinamis (nama guru SMKS, atau guru SMP/MTs tersaring per asal sekolah); upload pas foto & PDF gabungan; kartu pendaftaran digital ber-QR; timeline tahapan SPMB; feed pengumuman ala Instagram (suka, komentar, tambah agenda ke Google Calendar + pengingat email). |
+| **Admin** | Dashboard statistik & grafik; tabel & pencarian pendaftar; daftarkan siswa manual; import data via Excel (xlsx); kelola gelombang & tahun ajaran aktif; kelola timeline tahapan SPMB; broadcast event personal ke email; statistik referral; manajemen pengguna (admin/guru/panitia CRUD) termasuk mengelola akun Guru SMP/MTs hasil registrasi mandiri; verifikasi berkas. |
+| **Guru SMKS** | Dashboard statistik pendaftar (total, status, distribusi jurusan & gelombang); daftarkan siswa dengan referral terkunci atas nama sendiri. |
+| **Guru SMP/MTs (`guru_smp`)** | Registrasi mandiri via halaman Registrasi (wajib Gmail + asal sekolah); dashboard khusus yang hanya menampilkan pendaftar dari sekolahnya sendiri (filter di sisi server, tanpa persaingan antar sekolah); daftarkan siswa dengan asal sekolah & referral terisi otomatis dari akun. |
 | **Panitia MPLS** | Scan QR kartu pendaftaran / lookup manual ID; absensi kehadiran harian; manajemen izin (sakit/keluarga/lainnya); dashboard & informasi MPLS. |
 | **Umum** | Satu gerbang login + deteksi peran otomatis; otorisasi peran di sisi server; kartu digital ber-QR; notifikasi personal. |
 
@@ -33,10 +34,12 @@ SPMB/
 │  │  ├─ store/                # Zustand (authStore, studentStore)
 │  │  ├─ types/                # tipe TypeScript
 │  │  └─ data/constants.ts     # jurusan, agama, proyeksi karir, kategori referral
-│  └─ .env.example             # template variabel lingkungan
+│  ├─ .env.example             # template variabel lingkungan
+│  ├─ firebase.json            # konfigurasi Firebase Hosting (public: dist)
+│  └─ .firebaserc              # project Firebase Hosting (spmbskalzar)
 ├─ backend-gas/                # Google Apps Script backend
 │  ├─ Code.gs                  # router action + guard role
-│  ├─ SheetManager.gs          # koneksi & skema Google Sheets (11 sheet otomatis)
+│  ├─ SheetManager.gs          # koneksi & skema Google Sheets (12 sheet otomatis)
 │  ├─ AuthHandler.gs           # login OAuth, registrasi, generate ID pendaftaran
 │  ├─ Security.gs              # session token, rate limit, otorisasi
 │  ├─ SiswaHandler.gs          # CRUD data siswa
@@ -84,7 +87,7 @@ SPMB/
    - **Who has access**: `Anyone`
    - Klik **Deploy**, lalu **salin URL** (`https://script.google.com/macros/s/.../exec`).
 
-> Skema 11 sheet dan data awal (3 gelombang pendaftaran + konfigurasi sistem) dibuat **otomatis** oleh `initializeSheets()` saat API pertama kali dipanggil. Aksi `setup` hanya berlaku **sekali** sebelum `SHEET_ID` di-set.
+> Skema 12 sheet dan data awal (3 gelombang pendaftaran + konfigurasi sistem) dibuat **otomatis** oleh `initializeSheets()` saat API pertama kali dipanggil. Aksi `setup` hanya berlaku **sekali** sebelum `SHEET_ID` di-set.
 
 ### C. Setup Frontend
 
@@ -115,7 +118,8 @@ Buka `http://localhost:5173` dan login dengan akun Google.
 ### D. Login Pertama
 
 1. **Calon murid baru** — email Google belum terdaftar → alur **registrasi siswa** (buat akun pendaftaran) → lanjut mengisi wizard 5 langkah.
-2. **Admin / Guru / Panitia MPLS** — email harus terdaftar pada sheet `Admin` dengan kolom `role` yang sesuai (`admin`, `guru`, `panitia_mpls`). Tambahkan secara manual di spreadsheet (atau lewat menu **Manajemen** di dashboard admin).
+2. **Admin / Guru / Panitia MPLS** — email harus terdaftar pada sheet `Admin` dengan kolom `role` yang sesuai (`admin`, `guru`, `guru_smp`, `panitia_mpls`). Tambahkan secara manual di spreadsheet (atau lewat menu **Manajemen** di dashboard admin).
+3. **Guru SMP/MTs** — buka halaman **Registrasi**, pilih peran *Guru SMP/MTs*, lengkapi nama & asal sekolah → akun langsung aktif dan tersimpan pada sheet `Guru`.
 
 ## Variabel Lingkungan
 
@@ -133,16 +137,15 @@ Buka `http://localhost:5173` dan login dengan akun Google.
 
 ### Frontend
 
-Build produksi menghasilkan folder `dist/`:
+Build produksi menghasilkan folder `dist/`, lalu diterbitkan ke **Firebase Hosting** (proyek `spmbskalzar`, konfigurasi di `firebase.json`):
 
 ```bash
 cd spmb-frontend
 npm run build
+npx firebase deploy --only hosting
 ```
 
-Upload hasil build ke hosting statis apa pun (Vercel, Netlify, GitHub Pages, dll.).
-
-> Pastikan **Authorized JavaScript origins** pada OAuth Client di Cloud Console diperbarui sesuai URL hosting produksi.
+> Pastikan **Authorized JavaScript origins** pada OAuth Client di Cloud Console memuat URL hosting produksi Anda (mis. `https://<project-id>.web.app`).
 
 ### Cek Kualitas Kode
 
@@ -156,13 +159,14 @@ npm run lint
 - **Validasi token Google di server** — `idToken` diverifikasi ke Google (cek `aud`, `email_verified`) sebelum login/registrasi diterima; login dengan email polos tidak diizinkan.
 - **Session token acak** — sesi TTL 6 jam di Cache, setiap request wajib menyertakan token.
 - **Otorisasi peran di server** — setiap action memiliki daftar role yang diizinkan (bukan sekadar guard UI).
+- **Isolasi data antar sekolah** — data siswa yang diterima role `guru_smp` difilter di server berdasarkan asal sekolah akun gurunya.
 - **Anti race condition** — `LockService` mengunci database saat registrasi/simpan untuk mencegah duplikasi ID & tabrakan baris.
 - **Rate limiting** — batas percobaan login/registrasi per email.
 - **Upload terkendali** — file dikonversi Base64 di browser dengan batas ukuran (pas foto ≤ 2 MB, PDF gabungan ≤ 5 MB).
 
 ## Struktur Data Google Sheets
 
-11 sheet dibuat otomatis oleh `SheetManager.gs`:
+12 sheet dibuat otomatis oleh `SheetManager.gs`:
 
 | Sheet | Kegunaan |
 |---|---|
@@ -170,6 +174,7 @@ npm run lint
 | `Pengaturan_Gelombang` | Konfigurasi gelombang pendaftaran |
 | `Sistem_Config` | Key-value konfigurasi global (tahun ajaran aktif, dll.) |
 | `Admin` | Daftar admin/guru/panitia beserta role |
+| `Guru` | Pendaftaran mandiri Guru SMP/MTs (email, nama, role, no_telp, created_at, asal_sekolah) |
 | `Informasi_Event` | Riwayat notifikasi/broadcast event |
 | `Event_Like` | Data like event |
 | `Event_Komentar` | Data komentar event |
