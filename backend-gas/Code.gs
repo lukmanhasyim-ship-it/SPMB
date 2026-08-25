@@ -111,5 +111,9 @@ function getWIBTime() {
 }
 
 function normalizePhone_(raw) {
-  return PhoneLib.normalizeIndoPhone(raw);
+  try {
+    return PhoneLib.normalizeIndoPhone(raw);
+  } catch (e) {
+    return String(raw || '').replace(/\D/g, '').replace(/^0/, '62');
+  }
 }

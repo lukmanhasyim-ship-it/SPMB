@@ -217,7 +217,9 @@ export const useStudentStore = create<StudentState>((set, get) => ({
     const { data } = get()
     if (data.email) {
       const apiData = mapDataToApi(get().data)
-      api.siswa.update(data.email, apiData).catch(() => {})
+      api.siswa.update(data.email, apiData).catch(() => {
+        get().error = 'Gagal menyimpan data. Silakan coba lagi.'
+      })
     }
   },
 
