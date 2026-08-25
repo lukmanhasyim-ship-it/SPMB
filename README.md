@@ -8,7 +8,7 @@ SPMB adalah aplikasi web **Single Page Application (SPA)** untuk pendaftaran mur
 
 | Peran | Fitur |
 |---|---|
-| **Calon Murid** | Login Google OAuth; wizard pendaftaran 5 langkah (jurusan utama & alternatif, data pribadi + NISN opsional, alamat + koordinat peta, orang tua/wali, berkas & prestasi); pindai KK/KTP untuk pengisian alamat otomatis (OCR); dropdown referral dinamis (nama guru SMKS, atau guru SMP/MTs tersaring per asal sekolah); upload pas foto & PDF gabungan; kartu pendaftaran digital ber-QR; timeline tahapan SPMB; feed pengumuman ala Instagram (suka, komentar, tambah agenda ke Google Calendar + pengingat email). |
+| **Calon Murid** | Login Google OAuth; wizard pendaftaran 5 langkah (jurusan utama & alternatif, data pribadi + NISN opsional, alamat + koordinat peta, orang tua/wali, berkas & prestasi) ditutup estimasi penghasilan orang tua/wali wajib pilih (dropdown rentang: `< Rp. 500.000,-` s.d `> Rp. 5.000.000,-`); pindai KK/KTP untuk pengisian alamat otomatis (OCR); dropdown referral dinamis (nama guru SMKS, atau guru SMP/MTs tersaring per asal sekolah); upload pas foto & PDF gabungan; kartu pendaftaran digital ber-QR; timeline tahapan SPMB; feed pengumuman ala Instagram (suka, komentar, tambah agenda ke Google Calendar + pengingat email). |
 | **Admin** | Dashboard statistik & grafik; tabel & pencarian pendaftar; daftarkan siswa manual; import data via Excel (xlsx); kelola gelombang & tahun ajaran aktif; kelola timeline tahapan SPMB; broadcast event personal ke email; statistik referral; manajemen pengguna (admin/guru/panitia CRUD) termasuk mengelola akun Guru SMP/MTs hasil registrasi mandiri; verifikasi berkas. |
 | **Guru SMKS** | Dashboard statistik pendaftar (total, status, distribusi jurusan & gelombang); daftarkan siswa dengan referral terkunci atas nama sendiri. |
 | **Guru SMP/MTs (`guru_smp`)** | Registrasi mandiri via halaman Registrasi (wajib Gmail + asal sekolah); dashboard khusus yang hanya menampilkan pendaftar dari sekolahnya sendiri (filter di sisi server, tanpa persaingan antar sekolah); daftarkan siswa dengan asal sekolah & referral terisi otomatis dari akun. |
@@ -19,7 +19,7 @@ SPMB adalah aplikasi web **Single Page Application (SPA)** untuk pendaftaran mur
 
 | Lapisan | Teknologi |
 |---|---|
-| **Frontend** | React 18, TypeScript, Vite, Tailwind CSS, Zustand (state management), React Router, `qrcode.react` (kartu QR), `html5-qrcode` (scan QR), `xlsx` (import Excel), `lucide-react` (ikon) |
+| **Frontend** | React 18, TypeScript, Vite, Tailwind CSS, Zustand (state management), React Router, `qrcode.react` (kartu QR), `html5-qrcode` (scan QR), `tesseract.js` (OCR KK/KTP), `xlsx` (import Excel), `lucide-react` (ikon), Vitest + Testing Library & Playwright (pengujian) |
 | **Backend** | Google Apps Script (runtime V8), Google Sheets (database), Google Drive (upload berkas), Google Calendar (event & pengingat), Google Identity Services (OAuth 2.0), `LockService` (anti race condition) |
 
 ## Struktur Proyek
@@ -132,8 +132,22 @@ Buka `http://localhost:5173` dan login dengan akun Google.
 
 ### Backend
 
-1. Lakukan perubahan pada project Apps Script lalu **Deploy > Manage deployments > Edit > New version**.
-2. Setiap perubahan `SHEET_ID` / `GOOGLE_CLIENT_ID` dilakukan via **Script Properties**.
+Cara utama memakai [clasp](https://github.com/google/clasp) — `.clasp.json` di `backend-gas/` sudah berisi `scriptId` project:
+
+```bash
+cd backend-gas
+npx clasp push                # unggah semua file .gs + appsscript.json
+npx clasp list-deployments    # cari deployment Web App yang aktif
+npx clasp update-deployment <deploymentId> --description "deskripsi perubahan"
+```
+
+> Gunakan `update-deployment` (bukan `deploy`) agar URL Web App produksi tidak berubah —
+> deployment yang sama dipindahkan ke versi kode terbaru.
+
+Alternatif manual: lakukan perubahan pada project Apps Script di editor
+[script.google.com](https://script.google.com), lalu **Deploy > Manage deployments > Edit > New version**.
+
+Setiap perubahan `SHEET_ID` / `GOOGLE_CLIENT_ID` dilakukan via **Script Properties**.
 
 ### Frontend
 
@@ -151,7 +165,10 @@ npx firebase deploy --only hosting
 
 ```bash
 cd spmb-frontend
-npm run lint
+npm run lint      # ESLint
+npm run test      # unit & komponen (Vitest + Testing Library)
+npm run build     # typecheck (tsc -b) + build produksi Vite
+npm run e2e       # end-to-end (Playwright)
 ```
 
 ## Keamanan
@@ -182,6 +199,11 @@ npm run lint
 | `Kehadiran_MPLS` | Log absensi siswa baru (scan QR) |
 | `Izin_MPLS` | Catatan izin peserta MPLS |
 | `Timeline_SPMB` | Tahapan-tahapan kegiatan SPMB |
+
+> **Migrasi skema otomatis** — kolom baru pada sheet `Siswa` (mis. `estimasi_penghasilan_ortu`,
+> rentang penghasilan orang tua/wali) ditambahkan langsung ke spreadsheet yang sudah berjalan oleh
+> `ensureHeaders()` saat API pertama kali dipanggil setelah `SCHEMA_VERSION` di `SheetManager.gs`
+> dinaikkan. Data lama yang belum mengisi kolom baru dapat dilengkapi lewat wizard mode *final*.
 
 ## Referensi
 

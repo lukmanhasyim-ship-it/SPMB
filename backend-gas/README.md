@@ -55,6 +55,24 @@ Fungsi `seedInitialData()` dari editor hanya diperlukan bila ingin mengisi ulang
 4. Klik **Deploy**
 5. **Copy URL** yang muncul (format: `https://script.google.com/macros/s/.../exec`)
 
+### Alternatif: Deploy via clasp
+
+Repositori ini sudah terhubung ke project Apps Script melalui `.clasp.json`
+(`scriptId` terisi). Untuk mengunggah perubahan kode tanpa copy-paste manual:
+
+```bash
+# prasyarat sekali: npx clasp login
+cd backend-gas
+npx clasp push                # unggah semua file .gs + appsscript.json
+npx clasp list-deployments    # cari deployment Web App yang aktif
+npx clasp update-deployment <deploymentId> --description "deskripsi perubahan"
+```
+
+> `update-deployment` memindahkan deployment **yang sama** ke versi kode terbaru,
+> sehingga URL Web App produksi tidak berubah dan frontend tidak perlu ganti
+> `VITE_API_URL`. Script properties (`SHEET_ID`, `GOOGLE_CLIENT_ID`) tetap diatur
+> lewat Project Settings seperti di atas.
+
 ## Konfigurasi Frontend
 
 1. Buka `spmb-frontend/.env`
@@ -137,6 +155,21 @@ Nilai role tak-dikenal akan **ditolak** saat tambah/update user lewat `addAdmin`
 - **action: `adminRegisterSiswa`** — Staf mendaftarkan siswa baru. Untuk role `guru_smp`,
   `asal_sekolah` dan referral otomatis dari akun gurunya (lihat bagian Role & Otorisasi)
 
+Field opsional yang diterima kedua aksi di atas mengikuti kolom sheet **Siswa**
+(data diri, alamat + koordinat, orang tua/wali, prestasi, referral, status), termasuk
+`estimasi_penghasilan_ortu` — dropdown rentang penghasilan orang tua/wali per bulan
+dengan nilai valid:
+
+| Nilai |
+|---|
+| `< Rp. 500.000,-` |
+| `Rp. 500.000,- s/d Rp. 1.000.000,-` |
+| `Rp. 1.000.000,- s/d Rp. 5.000.000` |
+| `> Rp. 5.000.000,-` |
+
+Nilai ini diisi wajib oleh wizard finalisasi siswa dan form pendaftaran manual
+admin/guru, lalu ikut tercetak pada Bagian D formulir pendaftaran.
+
 ### Referral
 - **action: `getReferralOptions`** — Opsi dropdown referral pada formulir siswa:
   `guruInternal` (daftar nama dari sheet `Admin`) dan `guruSmp`
@@ -180,7 +213,9 @@ Nilai role tak-dikenal akan **ditolak** saat tambah/update user lewat `addAdmin`
 ## Google Sheets Structure
 
 12 sheet dibuat otomatis:
-- **Siswa** — Data pendaftaran siswa
+- **Siswa** — Data pendaftaran siswa: identitas (nama, NISN/NIK, lahir, agama), alamat +
+  koordinat peta, orang tua/wali (nama, pekerjaan, telepon, `estimasi_penghasilan_ortu`),
+  prestasi, referral, serta gelombang / tahun ajaran / status pendaftaran
 - **Admin** — Akun staf (admin/guru/guru_smp/panitia_mpls) yang dibuat oleh admin via panel
 - **Guru** — Pendaftaran mandiri Guru SMP/MTs dari halaman registrasi (email, nama, role, no_telp, created_at, asal_sekolah)
 - **Pengaturan_Gelombang** — Konfigurasi gelombang
