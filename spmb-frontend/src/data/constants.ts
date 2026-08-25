@@ -21,6 +21,13 @@ export const DATA_TINGGAL_BERSAMA = [
   'Pondok',
 ]
 
+export const DATA_ESTIMASI_PENGHASILAN = [
+  '< Rp. 500.000,-',
+  'Rp. 500.000,- s/d Rp. 1.000.000,-',
+  'Rp. 1.000.000,- s/d Rp. 5.000.000',
+  '> Rp. 5.000.000,-',
+] as const
+
 export const DATA_KATEGORI_REFERRAL = [
   { value: 'Guru SMKS AL AZHAR SEMPU', label: 'Guru SMKS AL AZHAR SEMPU' },
   { value: 'Guru SMP/MTs', label: 'Guru SMP/MTs' },

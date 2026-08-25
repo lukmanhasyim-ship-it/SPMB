@@ -186,7 +186,7 @@ function initializeSheets() {
   // Hanya jalankan ensureHeaders sekali untuk menghemat quota Sheets.
   // Kunci memakai versi schema: naikkan SCHEMA_VERSION agar ensureHeaders
   // berjalan kembali setelah deploy yang menambah/mengubah struktur sheet.
-  var SCHEMA_VERSION = '3'
+  var SCHEMA_VERSION = '4'
   var scriptProps = PropertiesService.getScriptProperties()
   if (scriptProps.getProperty('SCHEMA_READY_V' + SCHEMA_VERSION) === '1') {
     seedInitialData()
@@ -200,7 +200,8 @@ function initializeSheets() {
     'desa', 'kecamatan', 'kabupaten', 'kode_pos', 'koordinat_maps',
     'dokumen_alamat_url',
     'tinggal_bersama', 'nama_ayah', 'kerja_ayah', 'nama_ibu', 'kerja_ibu',
-    'telepon_ortu', 'foto_profil_url', 'berkas_pdf_url', 'prestasi',
+    'telepon_ortu', 'estimasi_penghasilan_ortu',
+    'foto_profil_url', 'berkas_pdf_url', 'prestasi',
     'alasan_pilih_jurusan', 'referral_nama', 'referral_kategori',
     'gelombang', 'tahun_ajaran', 'status_pendaftaran',
     'waktu_daftar', 'created_at', 'updated_at'

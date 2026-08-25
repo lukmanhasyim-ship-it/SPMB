@@ -6,6 +6,7 @@ export type TinggalBersama = 'Orang Tua' | 'Wali' | 'Pondok';
 export type Agama = 'Islam' | 'Kristen' | 'Katolik' | 'Hindu' | 'Buddha' | 'Konghucu';
 export type JenisKelamin = 'Laki-laki' | 'Perempuan';
 export type KategoriReferral = 'Guru SMKS AL AZHAR SEMPU' | 'Guru SMP/MTs' | 'Siswa Kelas X' | 'Siswa Kelas XI' | 'Siswa Kelas XII' | 'Alumni' | 'Lainnya';
+export type EstimasiPenghasilan = '< Rp. 500.000,-' | 'Rp. 500.000,- s/d Rp. 1.000.000,-' | 'Rp. 1.000.000,- s/d Rp. 5.000.000' | '> Rp. 5.000.000,-';
 
 export interface User {
   email: string;
@@ -43,6 +44,7 @@ export interface DataSiswa {
   namaIbu: string;
   kerjaIbu: string;
   teleponOrtu: string;
+  estimasiPenghasilanOrtu: EstimasiPenghasilan | '';
   fotoProfilBase64: string;
   berkasPdfBase64: string;
   prestasiFotoBase64: string;

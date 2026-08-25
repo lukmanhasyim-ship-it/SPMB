@@ -86,7 +86,7 @@ function handleUpdateSiswa(params, session) {
     'nisn', 'nik', 'tempat_lahir', 'tanggal_lahir', 'agama', 'asal_sekolah',
     'dusun', 'rt_rw', 'desa', 'kecamatan', 'kabupaten', 'kode_pos',
     'koordinat_maps', 'dokumen_alamat_url', 'tinggal_bersama', 'nama_ayah', 'kerja_ayah',
-    'nama_ibu', 'kerja_ibu', 'telepon_ortu', 'prestasi',
+    'nama_ibu', 'kerja_ibu', 'telepon_ortu', 'estimasi_penghasilan_ortu', 'prestasi',
     'alasan_pilih_jurusan', 'referral_nama', 'referral_kategori',
     'status_pendaftaran', 'foto_profil_url',
     'berkas_pdf_url'
@@ -180,7 +180,7 @@ function handleAdminRegisterSiswa(params, session) {
     'nisn', 'nik', 'tempat_lahir', 'tanggal_lahir', 'agama', 'asal_sekolah',
     'dusun', 'rt_rw', 'desa', 'kecamatan', 'kabupaten', 'kode_pos',
     'koordinat_maps', 'dokumen_alamat_url', 'tinggal_bersama', 'nama_ayah', 'kerja_ayah',
-    'nama_ibu', 'kerja_ibu', 'telepon_ortu', 'prestasi',
+    'nama_ibu', 'kerja_ibu', 'telepon_ortu', 'estimasi_penghasilan_ortu', 'prestasi',
     'alasan_pilih_jurusan', 'referral_nama', 'referral_kategori'
   ]
 

@@ -1,10 +1,12 @@
 import type { ChangeEvent } from 'react'
 import { useRef, useState } from 'react'
-import { Upload, Award } from 'lucide-react'
+import { Upload, Award, Wallet } from 'lucide-react'
 import { useStudentStore } from '../../../store/studentStore'
+import { DATA_ESTIMASI_PENGHASILAN } from '../../../data/constants'
 import StepLayout from '../components/StepLayout'
 import Card from '../../../components/ui/Card'
 import Button from '../../../components/ui/Button'
+import InputField from '../../../components/ui/InputField'
 
 interface Step5Props {
   onComplete: () => void
@@ -45,6 +47,10 @@ export default function Step5Berkas({ onComplete, onBack }: Step5Props) {
   }
 
   const handleSelesai = async () => {
+    if (!data.estimasiPenghasilanOrtu) {
+      alert('Pilih estimasi penghasilan orang tua/wali terlebih dahulu')
+      return
+    }
     setLoading(true)
     completeStep(5)
     await finalisasi()
@@ -147,6 +153,26 @@ export default function Step5Berkas({ onComplete, onBack }: Step5Props) {
               keperluan administrasi dan validasi oleh panitia SPMB saat verifikasi berkas.
             </p>
           </div>
+        </Card>
+
+        <Card className="p-4">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-10 h-10 bg-emerald-50 rounded-full flex items-center justify-center">
+              <Wallet className="w-5 h-5 text-emerald-600" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-slate-800">Estimasi Penghasilan Orang Tua/Wali</p>
+              <p className="text-xs text-slate-500">Pilih rentang penghasilan per bulan</p>
+            </div>
+          </div>
+          <InputField
+            label="Estimasi Penghasilan Orang Tua/Wali"
+            name="estimasiPenghasilanOrtu"
+            value={data.estimasiPenghasilanOrtu}
+            onChange={handleChange}
+            required
+            options={DATA_ESTIMASI_PENGHASILAN.map((p) => ({ value: p, label: p }))}
+          />
         </Card>
 
         <div className="bg-amber-50 rounded-xl p-4 text-sm text-amber-800">

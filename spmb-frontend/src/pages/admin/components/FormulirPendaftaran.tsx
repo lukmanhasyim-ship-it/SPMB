@@ -134,6 +134,11 @@ export default function FormulirPendaftaran({ data }: FormulirPendaftaranProps) 
               <FieldItem label="Nama Ibu" value={data.nama_ibu} />
               <FieldItem label="Pekerjaan Ibu" value={data.kerja_ibu} />
               <FieldItem label="No. Telepon Orang Tua / Wali" value={data.telepon_ortu} span2 />
+              <FieldItem
+                label="Estimasi Penghasilan Orang Tua / Wali"
+                value={data.estimasi_penghasilan_ortu}
+                span2
+              />
             </div>
           </section>
 

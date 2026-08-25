@@ -8,7 +8,7 @@ import InputField from '../../components/ui/InputField'
 import { useAuthStore } from '../../store/authStore'
 import type { User } from '../../types'
 import { api } from '../../services/api'
-import { DATA_JURUSAN, DATA_AGAMA, DATA_TINGGAL_BERSAMA, DATA_KATEGORI_REFERRAL } from '../../data/constants'
+import { DATA_JURUSAN, DATA_AGAMA, DATA_TINGGAL_BERSAMA, DATA_KATEGORI_REFERRAL, DATA_ESTIMASI_PENGHASILAN } from '../../data/constants'
 
 const KATEGORI_GURU_INTERNAL = 'Guru SMKS AL AZHAR SEMPU'
 const KATEGORI_GURU_SMP = 'Guru SMP/MTs'
@@ -42,6 +42,7 @@ const buatFormKosong = (user: User | null) => {
     namaIbu: '',
     kerjaIbu: '',
     teleponOrtu: '',
+    estimasiPenghasilanOrtu: '',
     prestasi: '',
     referralKategori: isGuruInternal ? KATEGORI_GURU_INTERNAL : isGuruSmp ? KATEGORI_GURU_SMP : '',
     referralNama: isGuruInternal || isGuruSmp ? user?.nama || '' : '',
@@ -88,6 +89,7 @@ export default function AdminDaftarSiswa({ cetakPath = '/admin/formulir' }: Admi
     if (!form.namaAyah) errs.namaAyah = 'Nama ayah wajib diisi'
     if (!form.namaIbu) errs.namaIbu = 'Nama ibu wajib diisi'
     if (!form.teleponOrtu) errs.teleponOrtu = 'No. telepon wajib diisi'
+    if (!form.estimasiPenghasilanOrtu) errs.estimasiPenghasilanOrtu = 'Estimasi penghasilan wajib dipilih'
     setErrors(errs)
     return Object.keys(errs).length === 0
   }
@@ -122,6 +124,7 @@ export default function AdminDaftarSiswa({ cetakPath = '/admin/formulir' }: Admi
         nama_ibu: form.namaIbu,
         kerja_ibu: form.kerjaIbu,
         telepon_ortu: form.teleponOrtu,
+        estimasi_penghasilan_ortu: form.estimasiPenghasilanOrtu,
         prestasi: form.prestasi,
         referral_kategori: form.referralKategori,
         referral_nama: form.referralNama,
@@ -493,6 +496,15 @@ export default function AdminDaftarSiswa({ cetakPath = '/admin/formulir' }: Admi
             placeholder="08xxxxxxxxxx"
             required
             error={errors.teleponOrtu}
+          />
+          <InputField
+            label="Estimasi Penghasilan Orang Tua/Wali"
+            name="estimasiPenghasilanOrtu"
+            value={form.estimasiPenghasilanOrtu}
+            onChange={handleChange}
+            required
+            error={errors.estimasiPenghasilanOrtu}
+            options={DATA_ESTIMASI_PENGHASILAN.map((p) => ({ value: p, label: p }))}
           />
         </div>
       </Card>
