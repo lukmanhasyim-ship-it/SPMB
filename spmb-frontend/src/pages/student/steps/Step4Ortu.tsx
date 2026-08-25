@@ -92,7 +92,8 @@ export default function Step4Ortu({ onComplete, onBack }: Step4Props) {
           name="teleponOrtu"
           value={data.teleponOrtu}
           onChange={handleChange}
-          placeholder="08xxxxxxxxxx"
+          type="tel"
+          placeholder="628xxxxxxxxxx"
           required
         />
       </div>

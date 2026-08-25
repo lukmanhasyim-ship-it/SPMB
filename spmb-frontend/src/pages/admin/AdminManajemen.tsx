@@ -452,9 +452,10 @@ export default function AdminManajemen() {
               <div>
                 <label className="text-xs font-medium text-slate-600 mb-1 block">No. Telepon</label>
                 <input
-                  type="text"
+                  type="tel"
                   value={form.no_telp}
                   onChange={(e) => setForm({ ...form, no_telp: e.target.value })}
+                  placeholder="628xxxxxxxxxx"
                   className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green/30"
                 />
               </div>

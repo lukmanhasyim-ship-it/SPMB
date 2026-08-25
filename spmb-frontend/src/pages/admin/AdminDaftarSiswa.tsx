@@ -493,7 +493,8 @@ export default function AdminDaftarSiswa({ cetakPath = '/admin/formulir' }: Admi
             name="teleponOrtu"
             value={form.teleponOrtu}
             onChange={handleChange}
-            placeholder="08xxxxxxxxxx"
+            type="tel"
+            placeholder="628xxxxxxxxxx"
             required
             error={errors.teleponOrtu}
           />
