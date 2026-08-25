@@ -232,6 +232,15 @@ export default function FormPendaftaranAwal() {
             onChange={handleChange}
             placeholder="Nama SMP/MTs asal"
           />
+
+          <InputField
+            label="No. HP Siswa (WhatsApp)"
+            name="teleponSiswa"
+            value={data.teleponSiswa}
+            onChange={handleChange}
+            type="tel"
+            placeholder="628xxxxxxxxxx"
+          />
         </div>
       </Card>
 

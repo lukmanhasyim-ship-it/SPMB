@@ -44,6 +44,7 @@ export interface DataSiswa {
   namaIbu: string;
   kerjaIbu: string;
   teleponOrtu: string;
+  teleponSiswa: string;
   estimasiPenghasilanOrtu: EstimasiPenghasilan | '';
   fotoProfilBase64: string;
   berkasPdfBase64: string;

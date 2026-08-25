@@ -82,13 +82,14 @@ function handleUpdateSiswa(params, session) {
   }
 
   if (params.telepon_ortu) params.telepon_ortu = normalizePhone_(params.telepon_ortu)
+  if (params.telepon_siswa) params.telepon_siswa = normalizePhone_(params.telepon_siswa)
 
   var allowedFields = [
     'pilihan_jurusan', 'pilihan_alternatif', 'nama_lengkap', 'jenis_kelamin',
     'nisn', 'nik', 'tempat_lahir', 'tanggal_lahir', 'agama', 'asal_sekolah',
     'dusun', 'rt_rw', 'desa', 'kecamatan', 'kabupaten', 'kode_pos',
     'koordinat_maps', 'dokumen_alamat_url', 'tinggal_bersama', 'nama_ayah', 'kerja_ayah',
-    'nama_ibu', 'kerja_ibu', 'telepon_ortu', 'estimasi_penghasilan_ortu', 'prestasi',
+    'nama_ibu', 'kerja_ibu', 'telepon_ortu', 'telepon_siswa', 'estimasi_penghasilan_ortu', 'prestasi',
     'alasan_pilih_jurusan', 'referral_nama', 'referral_kategori',
     'status_pendaftaran', 'foto_profil_url',
     'berkas_pdf_url'
@@ -129,6 +130,7 @@ function handleAdminRegisterSiswa(params, session) {
   var nik = (params.nik || '').trim()
 
   if (params.telepon_ortu) params.telepon_ortu = normalizePhone_(params.telepon_ortu)
+  if (params.telepon_siswa) params.telepon_siswa = normalizePhone_(params.telepon_siswa)
 
   if (!nama) { lock.releaseLock(); return { status: 'error', message: 'Nama lengkap wajib diisi' } }
   if (!jurusan) { lock.releaseLock(); return { status: 'error', message: 'Jurusan utama wajib diisi' } }
@@ -184,7 +186,7 @@ function handleAdminRegisterSiswa(params, session) {
     'nisn', 'nik', 'tempat_lahir', 'tanggal_lahir', 'agama', 'asal_sekolah',
     'dusun', 'rt_rw', 'desa', 'kecamatan', 'kabupaten', 'kode_pos',
     'koordinat_maps', 'dokumen_alamat_url', 'tinggal_bersama', 'nama_ayah', 'kerja_ayah',
-    'nama_ibu', 'kerja_ibu', 'telepon_ortu', 'estimasi_penghasilan_ortu', 'prestasi',
+    'nama_ibu', 'kerja_ibu', 'telepon_ortu', 'telepon_siswa', 'estimasi_penghasilan_ortu', 'prestasi',
     'alasan_pilih_jurusan', 'referral_nama', 'referral_kategori'
   ]
 

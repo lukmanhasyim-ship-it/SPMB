@@ -42,6 +42,7 @@ interface SiswaRow {
   namaIbu: string
   kerjaIbu: string
   teleponOrtu: string
+  teleponSiswa: string
   estimasiPenghasilanOrtu: string
   prestasi: string
   alasanPilihJurusan: string
@@ -94,6 +95,7 @@ export default function AdminSiswa() {
           namaIbu: s.nama_ibu || '',
           kerjaIbu: s.kerja_ibu || '',
           teleponOrtu: s.telepon_ortu || '',
+          teleponSiswa: s.telepon_siswa || '',
           estimasiPenghasilanOrtu: s.estimasi_penghasilan_ortu || '',
           prestasi: s.prestasi || '',
           alasanPilihJurusan: s.alasan_pilih_jurusan || '',
@@ -158,6 +160,7 @@ export default function AdminSiswa() {
       'Nama Ibu': s.namaIbu,
       'Pekerjaan Ibu': s.kerjaIbu,
       'Telepon Orang Tua': s.teleponOrtu,
+      'No. HP Siswa': s.teleponSiswa,
       'Estimasi Penghasilan': s.estimasiPenghasilanOrtu,
       'Prestasi': s.prestasi,
       'Referral (Kategori)': s.referralKategori,

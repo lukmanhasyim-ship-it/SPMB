@@ -200,7 +200,7 @@ function initializeSheets() {
     'desa', 'kecamatan', 'kabupaten', 'kode_pos', 'koordinat_maps',
     'dokumen_alamat_url',
     'tinggal_bersama', 'nama_ayah', 'kerja_ayah', 'nama_ibu', 'kerja_ibu',
-    'telepon_ortu', 'estimasi_penghasilan_ortu',
+    'telepon_ortu', 'telepon_siswa', 'estimasi_penghasilan_ortu',
     'foto_profil_url', 'berkas_pdf_url', 'prestasi',
     'alasan_pilih_jurusan', 'referral_nama', 'referral_kategori',
     'gelombang', 'tahun_ajaran', 'status_pendaftaran',

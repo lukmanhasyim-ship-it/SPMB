@@ -116,6 +116,15 @@ export default function Step2Pribadi({ onComplete, onBack }: Step2Props) {
           placeholder="Nama SMP/MTs asal"
           required
         />
+
+        <InputField
+          label="No. HP Siswa (WhatsApp)"
+          name="teleponSiswa"
+          value={data.teleponSiswa}
+          onChange={handleChange}
+          type="tel"
+          placeholder="628xxxxxxxxxx"
+        />
       </div>
     </StepLayout>
   )

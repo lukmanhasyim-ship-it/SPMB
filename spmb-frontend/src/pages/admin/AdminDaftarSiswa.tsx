@@ -42,6 +42,7 @@ const buatFormKosong = (user: User | null) => {
     namaIbu: '',
     kerjaIbu: '',
     teleponOrtu: '',
+    teleponSiswa: '',
     estimasiPenghasilanOrtu: '',
     prestasi: '',
     referralKategori: isGuruInternal ? KATEGORI_GURU_INTERNAL : isGuruSmp ? KATEGORI_GURU_SMP : '',
@@ -124,6 +125,7 @@ export default function AdminDaftarSiswa({ cetakPath = '/admin/formulir' }: Admi
         nama_ibu: form.namaIbu,
         kerja_ibu: form.kerjaIbu,
         telepon_ortu: form.teleponOrtu,
+        telepon_siswa: form.teleponSiswa,
         estimasi_penghasilan_ortu: form.estimasiPenghasilanOrtu,
         prestasi: form.prestasi,
         referral_kategori: form.referralKategori,
@@ -356,6 +358,14 @@ export default function AdminDaftarSiswa({ cetakPath = '/admin/formulir' }: Admi
               )}
             </div>
           </div>
+          <InputField
+            label="No. HP Siswa (WhatsApp)"
+            name="teleponSiswa"
+            value={form.teleponSiswa}
+            onChange={handleChange}
+            type="tel"
+            placeholder="628xxxxxxxxxx"
+          />
         </div>
       </Card>
 
