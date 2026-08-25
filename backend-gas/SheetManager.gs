@@ -182,6 +182,17 @@ function ensureHeaders(sheetName, headers) {
   }
 }
 
+function forceAddTeleponSiswa() {
+  var sheet = getSheet('Siswa')
+  var existing = sheet.getDataRange().getValues()
+  if (existing.length === 0) return 'Sheet kosong'
+  var existingHeaders = existing[0]
+  var found = existingHeaders.indexOf('telepon_siswa')
+  if (found !== -1) return 'telepon_siswa sudah ada di kolom ' + (found + 1)
+  sheet.getRange(1, existingHeaders.length + 1).setValue('telepon_siswa')
+  return 'telepon_siswa ditambahkan di kolom ' + (existingHeaders.length + 1) + ' dari total ' + (existingHeaders.length + 1) + ' kolom. Header lama: ' + existingHeaders.join(', ')
+}
+
 function initializeSheets() {
   // Hanya jalankan ensureHeaders sekali untuk menghemat quota Sheets.
   // Kunci memakai versi schema: naikkan SCHEMA_VERSION agar ensureHeaders
