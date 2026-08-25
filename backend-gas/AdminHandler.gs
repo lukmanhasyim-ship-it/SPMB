@@ -52,7 +52,7 @@ function handleAdminAdd(params) {
   var email = (params.email || '').toLowerCase().trim()
   var nama = (params.nama || '').trim()
   var role = normalizeRole_(params.role)
-  var noTelp = params.no_telp || ''
+  var noTelp = normalizePhone_(params.no_telp)
 
   if (!email) return { status: 'error', message: 'Email wajib diisi' }
   if (!nama) return { status: 'error', message: 'Nama wajib diisi' }
@@ -82,7 +82,7 @@ function handleAdminUpdate(params) {
 
   var updateData = {}
   if (params.nama !== undefined) updateData.nama = params.nama
-  if (params.no_telp !== undefined) updateData.no_telp = params.no_telp
+  if (params.no_telp !== undefined) updateData.no_telp = normalizePhone_(params.no_telp)
   if (params.role !== undefined) {
     var newRole = normalizeRole_(params.role)
     if (!newRole) return { status: 'error', message: 'Role tidak valid (admin/guru/guru_smp/panitia_mpls)' }

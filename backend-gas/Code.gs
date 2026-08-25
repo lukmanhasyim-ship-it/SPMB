@@ -109,3 +109,7 @@ function jsonOutput(obj) {
 function getWIBTime() {
   return Utilities.formatDate(new Date(), "GMT+7", "yyyy-MM-dd HH:mm:ss");
 }
+
+function normalizePhone_(raw) {
+  return PhoneLib.normalizeIndoPhone(raw);
+}

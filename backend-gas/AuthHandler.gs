@@ -153,7 +153,7 @@ function handleRegister(params) {
       email: email,
       nama: nama,
       role: 'guru_smp',
-      no_telp: (params.no_telp || '').trim(),
+      no_telp: normalizePhone_(params.no_telp),
       created_at: getWIBTime(),
       asal_sekolah: (params.asal_sekolah || '').trim()
     })

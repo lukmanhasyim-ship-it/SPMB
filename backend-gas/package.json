@@ -2,13 +2,23 @@
   "name": "spmb-backend-gas",
   "private": true,
   "scripts": {
-    "push": "clasp push",
+    "bundle": "node build.js",
+    "push": "npm run bundle && clasp push",
     "pull": "clasp pull",
     "status": "clasp status",
     "open": "clasp open",
-    "deploy": "clasp push && clasp deploy",
+    "deploy": "npm run bundle && clasp push && clasp deploy",
     "version": "clasp version",
     "versions": "clasp versions",
     "redeploy": "clasp redeploy"
+  },
+  "dependencies": {
+    "google-libphonenumber": "^3.2.46"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.2"
+  },
+  "allowScripts": {
+    "esbuild@0.28.2": true
   }
 }

@@ -81,6 +81,8 @@ function handleUpdateSiswa(params, session) {
     updated_at: getWIBTime()
   }
 
+  if (params.telepon_ortu) params.telepon_ortu = normalizePhone_(params.telepon_ortu)
+
   var allowedFields = [
     'pilihan_jurusan', 'pilihan_alternatif', 'nama_lengkap', 'jenis_kelamin',
     'nisn', 'nik', 'tempat_lahir', 'tanggal_lahir', 'agama', 'asal_sekolah',
@@ -125,6 +127,8 @@ function handleAdminRegisterSiswa(params, session) {
   var nama = (params.nama_lengkap || '').trim()
   var jurusan = (params.pilihan_jurusan || '').trim()
   var nik = (params.nik || '').trim()
+
+  if (params.telepon_ortu) params.telepon_ortu = normalizePhone_(params.telepon_ortu)
 
   if (!nama) { lock.releaseLock(); return { status: 'error', message: 'Nama lengkap wajib diisi' } }
   if (!jurusan) { lock.releaseLock(); return { status: 'error', message: 'Jurusan utama wajib diisi' } }
