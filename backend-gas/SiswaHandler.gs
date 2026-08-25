@@ -3,6 +3,8 @@ function normalizeSekolah_(v) {
   return String(v || '').toLowerCase().replace(/\s+/g, ' ').trim()
 }
 
+var SISWA_TEXT_COLUMNS = ['telepon_ortu', 'telepon_siswa', 'nisn', 'nik', 'kode_pos']
+
 function handleGetSiswa(params, session) {
   initializeSheets()
 
@@ -102,7 +104,7 @@ function handleUpdateSiswa(params, session) {
     }
   }
 
-  updateRow('Siswa', 'email', email, updateData)
+  updateRow('Siswa', 'email', email, updateData, SISWA_TEXT_COLUMNS)
 
   lock.releaseLock()
 
@@ -208,7 +210,7 @@ function handleAdminRegisterSiswa(params, session) {
     }
   }
 
-  addRow('Siswa', data)
+  addRow('Siswa', data, SISWA_TEXT_COLUMNS)
 
   lock.releaseLock()
 
