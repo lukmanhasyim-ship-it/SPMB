@@ -308,6 +308,20 @@ function cleanSiswaRow(row) {
       cleaned[keys[i]] = row[keys[i]]
     }
   }
+
+  var timeFields = ['waktu_daftar', 'created_at', 'updated_at']
+  for (var j = 0; j < timeFields.length; j++) {
+    var v = cleaned[timeFields[j]]
+    if (v instanceof Date) {
+      cleaned[timeFields[j]] = Utilities.formatDate(v, 'GMT+7', 'yyyy-MM-dd HH:mm:ss')
+    } else if (v) {
+      var parsed = new Date(String(v))
+      if (!isNaN(parsed.getTime())) {
+        cleaned[timeFields[j]] = Utilities.formatDate(parsed, 'GMT+7', 'yyyy-MM-dd HH:mm:ss')
+      }
+    }
+  }
+
   return cleaned
 }
 
