@@ -83,6 +83,10 @@ function doPost(e) {
       return jsonOutput({ status: 'error', message: 'Unknown action: ' + action })
     }
 
+    // Pastikan sheet & schema siap sebelum handler jalan.
+    // initializeSheets() punya guard internal, aman dipanggil berulang.
+    initializeSheets()
+
     var session = null
     if (action !== 'auth' && action !== 'register') {
       var guard = requireAuth_(params, route.roles)
@@ -111,9 +115,19 @@ function getWIBTime() {
 }
 
 function normalizePhone_(raw) {
+  var normalized = ''
   try {
-    return PhoneLib.normalizeIndoPhone(raw);
+    normalized = PhoneLib.normalizeIndoPhone(raw) || ''
   } catch (e) {
-    return String(raw || '').replace(/\D/g, '').replace(/^0/, '62');
+    normalized = ''
   }
+
+  if (normalized) return normalized
+
+  // Fallback: keep digits and coerce Indonesian numbers to E.164-like without '+'
+  var digits = String(raw || '').replace(/\D/g, '')
+  if (!digits) return ''
+  if (digits.indexOf('62') === 0) return digits
+  if (digits.indexOf('0') === 0) return '62' + digits.slice(1)
+  return digits
 }
