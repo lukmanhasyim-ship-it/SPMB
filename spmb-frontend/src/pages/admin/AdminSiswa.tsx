@@ -5,6 +5,7 @@ import Card from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
 import Loader from '../../components/ui/Loader'
 import { api } from '../../services/api'
+import { DATA_JURUSAN } from '../../data/constants'
 import type { StatusPendaftaran } from '../../types'
 
 const statusColors: Record<string, string> = {
@@ -17,12 +18,39 @@ const statusColors: Record<string, string> = {
 interface SiswaRow {
   idPendaftaran: string
   email: string
-  namaLengkap: string
   pilihanJurusan: string
-  gelombang: string
-  statusPendaftaran: string
+  pilihanAlternatif: string
+  namaLengkap: string
+  jenisKelamin: string
+  nisn: string
+  nik: string
+  tempatLahir: string
+  tanggalLahir: string
+  agama: string
+  asalSekolah: string
+  dusun: string
+  rtRw: string
+  desa: string
+  kecamatan: string
+  kabupaten: string
+  kodePos: string
+  koordinatMaps: string
+  dokumenAlamatUrl: string
+  tinggalBersama: string
+  namaAyah: string
+  kerjaAyah: string
+  namaIbu: string
+  kerjaIbu: string
+  teleponOrtu: string
+  estimasiPenghasilanOrtu: string
+  prestasi: string
+  alasanPilihJurusan: string
   referralNama: string
   referralKategori: string
+  gelombang: string
+  tahunAjaran: string
+  statusPendaftaran: string
+  waktuDaftar: string
 }
 
 export default function AdminSiswa() {
@@ -42,12 +70,39 @@ export default function AdminSiswa() {
         const list = (res.data as Array<Record<string, string>>).map((s) => ({
           idPendaftaran: s.id_pendaftaran || '',
           email: s.email || '',
+          pilihanJurusan: s.pilihan_jurusan || '',
+          pilihanAlternatif: s.pilihan_alternatif || '',
           namaLengkap: s.nama_lengkap || '',
-          pilihanJurusan: s.pilihan_jurusan || '-',
-          gelombang: s.gelombang || '-',
-          statusPendaftaran: s.status_pendaftaran || 'Draft',
+          jenisKelamin: s.jenis_kelamin || '',
+          nisn: s.nisn || '',
+          nik: s.nik || '',
+          tempatLahir: s.tempat_lahir || '',
+          tanggalLahir: s.tanggal_lahir || '',
+          agama: s.agama || '',
+          asalSekolah: s.asal_sekolah || '',
+          dusun: s.dusun || '',
+          rtRw: s.rt_rw || '',
+          desa: s.desa || '',
+          kecamatan: s.kecamatan || '',
+          kabupaten: s.kabupaten || '',
+          kodePos: s.kode_pos || '',
+          koordinatMaps: s.koordinat_maps || '',
+          dokumenAlamatUrl: s.dokumen_alamat_url || '',
+          tinggalBersama: s.tinggal_bersama || '',
+          namaAyah: s.nama_ayah || '',
+          kerjaAyah: s.kerja_ayah || '',
+          namaIbu: s.nama_ibu || '',
+          kerjaIbu: s.kerja_ibu || '',
+          teleponOrtu: s.telepon_ortu || '',
+          estimasiPenghasilanOrtu: s.estimasi_penghasilan_ortu || '',
+          prestasi: s.prestasi || '',
+          alasanPilihJurusan: s.alasan_pilih_jurusan || '',
           referralNama: s.referral_nama || '',
           referralKategori: s.referral_kategori || '',
+          gelombang: s.gelombang || '',
+          tahunAjaran: s.tahun_ajaran || '',
+          statusPendaftaran: s.status_pendaftaran || 'Draft',
+          waktuDaftar: s.waktu_daftar || '',
         }))
         setSiswaList(list)
       }
@@ -75,24 +130,81 @@ export default function AdminSiswa() {
   }, [siswaList, search, filterStatus])
 
   const handleExport = () => {
-    const data = filtered.map((s, i) => ({
-      'No': i + 1,
+    const mapRow = (s: SiswaRow) => ({
       'ID Pendaftaran': s.idPendaftaran,
       'Nama Lengkap': s.namaLengkap,
       'Email': s.email,
-      'Jurusan': s.pilihanJurusan,
-      'Gelombang': s.gelombang,
-      'Status': s.statusPendaftaran,
+      'Jenis Kelamin': s.jenisKelamin,
+      'NISN': s.nisn,
+      'NIK': s.nik,
+      'Tempat Lahir': s.tempatLahir,
+      'Tanggal Lahir': s.tanggalLahir,
+      'Agama': s.agama,
+      'Asal Sekolah': s.asalSekolah,
+      'Pilihan Jurusan': s.pilihanJurusan,
+      'Pilihan Alternatif': s.pilihanAlternatif,
+      'Alasan Pilih Jurusan': s.alasanPilihJurusan,
+      'Dusun': s.dusun,
+      'RT/RW': s.rtRw,
+      'Desa': s.desa,
+      'Kecamatan': s.kecamatan,
+      'Kabupaten': s.kabupaten,
+      'Kode Pos': s.kodePos,
+      'Koordinat Maps': s.koordinatMaps,
+      'Link Google Maps': s.koordinatMaps ? `https://www.google.com/maps?q=${s.koordinatMaps}` : '',
+      'Tinggal Bersama': s.tinggalBersama,
+      'Nama Ayah': s.namaAyah,
+      'Pekerjaan Ayah': s.kerjaAyah,
+      'Nama Ibu': s.namaIbu,
+      'Pekerjaan Ibu': s.kerjaIbu,
+      'Telepon Orang Tua': s.teleponOrtu,
+      'Estimasi Penghasilan': s.estimasiPenghasilanOrtu,
+      'Prestasi': s.prestasi,
       'Referral (Kategori)': s.referralKategori,
       'Referral (Nama)': s.referralNama,
-    }))
-    const ws = XLSX.utils.json_to_sheet(data)
-    const wb = XLSX.utils.book_new()
-    XLSX.utils.book_append_sheet(wb, ws, 'Data Siswa')
+      'Gelombang': s.gelombang,
+      'Tahun Ajaran': s.tahunAjaran,
+      'Status': s.statusPendaftaran,
+      'Waktu Daftar': s.waktuDaftar,
+    })
+
     const colWidths = [
-      { wch: 5 }, { wch: 18 }, { wch: 28 }, { wch: 30 }, { wch: 20 }, { wch: 12 }, { wch: 14 }, { wch: 16 }, { wch: 20 },
+      { wch: 18 }, { wch: 25 }, { wch: 30 }, { wch: 14 }, { wch: 14 }, { wch: 18 },
+      { wch: 16 }, { wch: 14 }, { wch: 12 }, { wch: 22 }, { wch: 14 }, { wch: 14 },
+      { wch: 35 }, { wch: 20 }, { wch: 10 }, { wch: 18 }, { wch: 18 }, { wch: 18 },
+      { wch: 10 }, { wch: 22 }, { wch: 30 }, { wch: 14 }, { wch: 20 }, { wch: 18 },
+      { wch: 20 }, { wch: 18 }, { wch: 18 }, { wch: 22 }, { wch: 30 }, { wch: 16 },
+      { wch: 20 }, { wch: 14 }, { wch: 14 }, { wch: 14 }, { wch: 20 },
     ]
-    ws['!cols'] = colWidths
+
+    const jurusanOrder = DATA_JURUSAN.map((j) => j.value) as string[]
+    const grouped = new Map<string, SiswaRow[]>()
+    for (const s of filtered) {
+      const key = s.pilihanJurusan && jurusanOrder.includes(s.pilihanJurusan) ? s.pilihanJurusan : 'Belum Ditentukan'
+      const arr = grouped.get(key) || []
+      arr.push(s)
+      grouped.set(key, arr)
+    }
+
+    const wb = XLSX.utils.book_new()
+
+    for (const jurusan of jurusanOrder) {
+      const rows = grouped.get(jurusan)
+      if (!rows || rows.length === 0) continue
+      const data = rows.map((s, i) => ({ 'No': i + 1, ...mapRow(s) }))
+      const ws = XLSX.utils.json_to_sheet(data)
+      ws['!cols'] = [{ wch: 5 }, ...colWidths]
+      XLSX.utils.book_append_sheet(wb, ws, jurusan)
+    }
+
+    const emptyRows = grouped.get('Belum Ditentukan')
+    if (emptyRows && emptyRows.length > 0) {
+      const data = emptyRows.map((s, i) => ({ 'No': i + 1, ...mapRow(s) }))
+      const ws = XLSX.utils.json_to_sheet(data)
+      ws['!cols'] = [{ wch: 5 }, ...colWidths]
+      XLSX.utils.book_append_sheet(wb, ws, 'Belum Ditentukan')
+    }
+
     XLSX.writeFile(wb, `data-siswa-${Date.now()}.xlsx`)
   }
 
