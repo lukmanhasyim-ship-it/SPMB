@@ -65,7 +65,7 @@ function mapApiToData(apiData: Record<string, unknown>): DataSiswa {
     nisn: String(apiData.nisn || ''),
     nik: String(apiData.nik || ''),
     tempatLahir: String(apiData.tempat_lahir || ''),
-    tanggalLahir: formatWIBDateInput(apiData.tanggal_lahir),
+    tanggalLahir: formatWIBDateInput(String(apiData.tanggal_lahir || '')),
     agama: (String(apiData.agama || '') as DataSiswa['agama']),
     asalSekolah: String(apiData.asal_sekolah || ''),
     dusun: String(apiData.dusun || ''),
