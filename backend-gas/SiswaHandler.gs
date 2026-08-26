@@ -8,29 +8,41 @@ var SISWA_TEXT_COLUMNS = ['telepon_ortu', 'telepon_siswa', 'nisn', 'nik', 'kode_
 function setTeleponSiswa_(idPendaftaran, telepon) {
   if (!idPendaftaran) return
   var sheet = getSheet('Telepon_Siswa')
+
+  // Pastikan sheet punya headers sebelum tulis
+  ensureHeaders('Telepon_Siswa', ['id_pendaftaran', 'telepon'])
+
   var data = sheet.getDataRange().getValues()
   if (data.length === 0) return
+
   var headers = data[0]
   var idIdx = headers.indexOf('id_pendaftaran')
   if (idIdx === -1) return
+
   for (var i = 1; i < data.length; i++) {
     if (String(data[i][idIdx]).trim() === String(idPendaftaran).trim()) {
       sheet.getRange(i + 1, 2).setNumberFormat('@').setValue(String(telepon || ''))
       return
     }
   }
+
   sheet.appendRow([idPendaftaran, String(telepon || '')])
 }
 
 function getTeleponSiswa_(idPendaftaran) {
   if (!idPendaftaran) return ''
   var sheet = getSheet('Telepon_Siswa')
+
+  ensureHeaders('Telepon_Siswa', ['id_pendaftaran', 'telepon'])
+
   var data = sheet.getDataRange().getValues()
   if (data.length < 2) return ''
+
   var headers = data[0]
   var idIdx = headers.indexOf('id_pendaftaran')
   var teleponIdx = headers.indexOf('telepon')
   if (idIdx === -1 || teleponIdx === -1) return ''
+
   for (var i = 1; i < data.length; i++) {
     if (String(data[i][idIdx]).trim() === String(idPendaftaran).trim()) {
       return String(data[i][teleponIdx] || '')
