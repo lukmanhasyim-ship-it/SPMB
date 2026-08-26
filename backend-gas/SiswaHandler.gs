@@ -5,6 +5,40 @@ function normalizeSekolah_(v) {
 
 var SISWA_TEXT_COLUMNS = ['telepon_ortu', 'telepon_siswa', 'nisn', 'nik', 'kode_pos']
 
+function setTeleponSiswa_(idPendaftaran, telepon) {
+  if (!idPendaftaran) return
+  var sheet = getSheet('Telepon_Siswa')
+  var data = sheet.getDataRange().getValues()
+  if (data.length === 0) return
+  var headers = data[0]
+  var idIdx = headers.indexOf('id_pendaftaran')
+  if (idIdx === -1) return
+  for (var i = 1; i < data.length; i++) {
+    if (String(data[i][idIdx]).trim() === String(idPendaftaran).trim()) {
+      sheet.getRange(i + 1, 2).setNumberFormat('@').setValue(String(telepon || ''))
+      return
+    }
+  }
+  sheet.appendRow([idPendaftaran, String(telepon || '')])
+}
+
+function getTeleponSiswa_(idPendaftaran) {
+  if (!idPendaftaran) return ''
+  var sheet = getSheet('Telepon_Siswa')
+  var data = sheet.getDataRange().getValues()
+  if (data.length < 2) return ''
+  var headers = data[0]
+  var idIdx = headers.indexOf('id_pendaftaran')
+  var teleponIdx = headers.indexOf('telepon')
+  if (idIdx === -1 || teleponIdx === -1) return ''
+  for (var i = 1; i < data.length; i++) {
+    if (String(data[i][idIdx]).trim() === String(idPendaftaran).trim()) {
+      return String(data[i][teleponIdx] || '')
+    }
+  }
+  return ''
+}
+
 function handleGetSiswa(params, session) {
   initializeSheets()
 
@@ -31,6 +65,7 @@ function handleGetSiswa(params, session) {
     }
     var siswa = findRowByKey('Siswa', 'email', email)
     if (!siswa) return { status: 'error', message: 'Data tidak ditemukan' }
+    siswa.telepon_siswa = getTeleponSiswa_(siswa.id_pendaftaran)
     return { status: 'ok', data: cleanSiswaRow(siswa) }
   }
 
@@ -49,6 +84,7 @@ function handleGetSiswa(params, session) {
         normalizeSekolah_(allSiswa[i].asal_sekolah) !== guruSmpSekolah) {
       continue
     }
+    allSiswa[i].telepon_siswa = getTeleponSiswa_(allSiswa[i].id_pendaftaran)
     result.push(cleanSiswaRow(allSiswa[i]))
   }
   return { status: 'ok', data: result }
@@ -105,10 +141,12 @@ function handleUpdateSiswa(params, session) {
   }
 
   updateRow('Siswa', 'email', email, updateData, SISWA_TEXT_COLUMNS)
+  setTeleponSiswa_(existing.id_pendaftaran, params.telepon_siswa || '')
 
   lock.releaseLock()
 
   var updated = findRowByKey('Siswa', 'email', email)
+  updated.telepon_siswa = getTeleponSiswa_(updated.id_pendaftaran)
   return { status: 'ok', data: cleanSiswaRow(updated) }
 }
 
@@ -211,6 +249,7 @@ function handleAdminRegisterSiswa(params, session) {
   }
 
   addRow('Siswa', data, SISWA_TEXT_COLUMNS)
+  setTeleponSiswa_(idPendaftaran, params.telepon_siswa || '')
 
   lock.releaseLock()
 
@@ -264,6 +303,7 @@ function handleDeleteSiswa(params) {
     relatedDeleted += deleteRowsByKey('Event_Komentar', 'email', rowEmail)
     relatedDeleted += deleteRowsByKey('Event_Pengingat', 'email', rowEmail)
   }
+  relatedDeleted += deleteRowsByKey('Telepon_Siswa', 'id_pendaftaran', String(siswa.id_pendaftaran))
 
   lock.releaseLock()
 
@@ -294,7 +334,7 @@ function handleDeleteAllSiswa(params) {
   }
 
   var counts = {}
-  var sheets = ['Siswa', 'Kehadiran_MPLS', 'Izin_MPLS', 'Event_Like', 'Event_Komentar', 'Event_Pengingat']
+  var sheets = ['Siswa', 'Telepon_Siswa', 'Kehadiran_MPLS', 'Izin_MPLS', 'Event_Like', 'Event_Komentar', 'Event_Pengingat']
   for (var i = 0; i < sheets.length; i++) {
     counts[sheets[i]] = clearAllRows_(sheets[i])
   }

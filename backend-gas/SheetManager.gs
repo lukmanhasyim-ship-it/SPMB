@@ -182,22 +182,84 @@ function ensureHeaders(sheetName, headers) {
   }
 }
 
-function forceAddTeleponSiswa() {
+function debugSiswa(email) {
   var sheet = getSheet('Siswa')
-  var existing = sheet.getDataRange().getValues()
-  if (existing.length === 0) return 'Sheet kosong'
-  var existingHeaders = existing[0]
-  var found = existingHeaders.indexOf('telepon_siswa')
-  if (found !== -1) return 'telepon_siswa sudah ada di kolom ' + (found + 1)
-  sheet.getRange(1, existingHeaders.length + 1).setValue('telepon_siswa')
-  return 'telepon_siswa ditambahkan di kolom ' + (existingHeaders.length + 1) + ' dari total ' + (existingHeaders.length + 1) + ' kolom. Header lama: ' + existingHeaders.join(', ')
+  var data = sheet.getDataRange().getValues()
+
+  Logger.log('=== DEBUG SISWA ===')
+  Logger.log('Total baris: ' + data.length)
+  if (data.length === 0) { Logger.log('Sheet kosong!'); return }
+
+  // 1. Cetak semua header
+  var headers = data[0]
+  Logger.log('--- HEADER (' + headers.length + ' kolom) ---')
+  for (var h = 0; h < headers.length; h++) {
+    Logger.log('  Kolom ' + (h + 1) + ': [' + headers[h] + ']')
+  }
+
+  // 2. Cari telepon_siswa di header
+  var tsIdx = headers.indexOf('telepon_siswa')
+  Logger.log('--- PENCARIAN telepon_siswa ---')
+  Logger.log('  indexOf result: ' + tsIdx)
+  if (tsIdx === -1) {
+    Logger.log('  *** telepon_siswa TIDAK DITEMUKAN di header! ***')
+  } else {
+    Logger.log('  telepon_siswa ditemukan di kolom ' + (tsIdx + 1))
+  }
+
+  // 3. Cari baris siswa berdasarkan email
+  if (!email) { Logger.log('Email tidak diberikan, selesai.'); return }
+  email = String(email).toLowerCase().trim()
+  Logger.log('--- MENCARI EMAIL: ' + email + ' ---')
+
+  var emailIdx = headers.indexOf('email')
+  if (emailIdx === -1) {
+    Logger.log('  *** Kolom email TIDAK DITEMUKAN! ***')
+    return
+  }
+
+  var rowIndex = -1
+  for (var i = 1; i < data.length; i++) {
+    if (String(data[i][emailIdx]).toLowerCase().trim() === email) {
+      rowIndex = i + 1
+      Logger.log('  Ditemukan di baris ' + rowIndex)
+      // Cetak semua nilai baris ini
+      Logger.log('--- DATA BARIS ' + rowIndex + ' ---')
+      for (var c = 0; c < headers.length; c++) {
+        Logger.log('  [' + headers[c] + '] = ' + JSON.stringify(data[i][c]))
+      }
+      break
+    }
+  }
+
+  if (rowIndex === -1) {
+    Logger.log('  Email ' + email + ' TIDAK DITEMUKAN di sheet!')
+    return
+  }
+
+  // 4. Coba tulis test value
+  Logger.log('--- TULIS TEST VALUE ---')
+  if (tsIdx !== -1) {
+    var testVal = 'TEST_' + new Date().getTime()
+    sheet.getRange(rowIndex, tsIdx + 1).setNumberFormat('@').setValue(testVal)
+    var verify = sheet.getRange(rowIndex, tsIdx + 1).getValue()
+    Logger.log('  Tulis: ' + testVal)
+    Logger.log('  Baca kembali: ' + JSON.stringify(verify))
+    Logger.log('  Verifikasi: ' + (String(verify) === testVal ? 'BERHASIL' : 'GAGAL'))
+    // Bersihkan test value
+    sheet.getRange(rowIndex, tsIdx + 1).setValue('')
+  } else {
+    Logger.log('  SKIP tulis - telepon_siswa tidak ada di header')
+  }
+
+  Logger.log('=== SELESAI ===')
 }
 
 function initializeSheets() {
   // Hanya jalankan ensureHeaders sekali untuk menghemat quota Sheets.
   // Kunci memakai versi schema: naikkan SCHEMA_VERSION agar ensureHeaders
   // berjalan kembali setelah deploy yang menambah/mengubah struktur sheet.
-  var SCHEMA_VERSION = '7'
+  var SCHEMA_VERSION = '8'
   var scriptProps = PropertiesService.getScriptProperties()
   if (scriptProps.getProperty('SCHEMA_READY_V' + SCHEMA_VERSION) === '1') {
     seedInitialData()
@@ -266,6 +328,8 @@ function initializeSheets() {
     'id_timeline', 'urutan', 'nama_tahapan', 'deskripsi',
     'tanggal_mulai', 'tanggal_selesai', 'status', 'created_at', 'updated_at'
   ])
+
+  ensureHeaders('Telepon_Siswa', ['id_pendaftaran', 'telepon'])
 
   PropertiesService.getScriptProperties().setProperty('SCHEMA_READY', '1')
   scriptProps.setProperty('SCHEMA_READY_V' + SCHEMA_VERSION, '1')
