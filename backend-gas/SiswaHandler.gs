@@ -153,7 +153,10 @@ function handleUpdateSiswa(params, session) {
   }
 
   updateRow('Siswa', 'email', email, updateData, SISWA_TEXT_COLUMNS)
-  setTeleponSiswa_(existing.id_pendaftaran, params.telepon_siswa || '')
+
+  if (params.telepon_siswa) {
+    setTeleponSiswa_(existing.id_pendaftaran, params.telepon_siswa)
+  }
 
   lock.releaseLock()
 
@@ -261,7 +264,9 @@ function handleAdminRegisterSiswa(params, session) {
   }
 
   addRow('Siswa', data, SISWA_TEXT_COLUMNS)
-  setTeleponSiswa_(idPendaftaran, params.telepon_siswa || '')
+  if (params.telepon_siswa) {
+    setTeleponSiswa_(idPendaftaran, params.telepon_siswa)
+  }
 
   lock.releaseLock()
 

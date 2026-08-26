@@ -259,7 +259,7 @@ function initializeSheets() {
   // Hanya jalankan ensureHeaders sekali untuk menghemat quota Sheets.
   // Kunci memakai versi schema: naikkan SCHEMA_VERSION agar ensureHeaders
   // berjalan kembali setelah deploy yang menambah/mengubah struktur sheet.
-  var SCHEMA_VERSION = '8'
+  var SCHEMA_VERSION = '9'
   var scriptProps = PropertiesService.getScriptProperties()
   if (scriptProps.getProperty('SCHEMA_READY_V' + SCHEMA_VERSION) === '1') {
     seedInitialData()
