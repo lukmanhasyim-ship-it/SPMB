@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import type { DataSiswa, StepInfo } from '../types'
 import { api } from '../services/api'
+import { formatWIBDateInput } from '../utils/dateUtils'
 
 const STEPS: StepInfo[] = [
   { nomor: 1, label: 'Jurusan', selesai: false },
@@ -64,7 +65,7 @@ function mapApiToData(apiData: Record<string, unknown>): DataSiswa {
     nisn: String(apiData.nisn || ''),
     nik: String(apiData.nik || ''),
     tempatLahir: String(apiData.tempat_lahir || ''),
-    tanggalLahir: String(apiData.tanggal_lahir || ''),
+    tanggalLahir: formatWIBDateInput(apiData.tanggal_lahir),
     agama: (String(apiData.agama || '') as DataSiswa['agama']),
     asalSekolah: String(apiData.asal_sekolah || ''),
     dusun: String(apiData.dusun || ''),
@@ -172,7 +173,7 @@ export const useStudentStore = create<StudentState>((set, get) => ({
         if (mapped.berkasPdfBase64 || mapped.prestasiFotoBase64 || mapped.prestasi) completedSteps.push(5)
 
         set({
-          data: mapped,
+          data: { ...get().data, ...mapped },
           steps: STEPS.map((s) => ({
             ...s,
             selesai: completedSteps.includes(s.nomor),
