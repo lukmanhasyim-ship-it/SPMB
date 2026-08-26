@@ -213,7 +213,7 @@ body {
 @media print {
   @page {
     size: A4;
-    margin: 10mm;
+    margin: 8mm;
   }
 
   body {
@@ -243,5 +243,9 @@ body {
   #area-cetak {
     box-shadow: none !important;
     border-color: #e2e8f0 !important;
+  }
+
+  #area-cetak section {
+    break-inside: avoid;
   }
 }

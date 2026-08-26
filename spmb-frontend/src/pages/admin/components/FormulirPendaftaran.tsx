@@ -16,7 +16,7 @@ function FieldItem({ label, value, span2 = false }: { label: string; value?: str
   return (
     <div className={span2 ? 'sm:col-span-2' : ''}>
       <span className="block text-[10px] uppercase tracking-wider text-slate-500 mb-0.5">{label}</span>
-      <div className="border-b-2 border-slate-800 text-[13px] font-semibold text-slate-900 py-1 min-h-[28px] leading-6">
+      <div className="border-b-2 border-slate-800 text-[13px] font-semibold text-slate-900 py-1 min-h-[28px] leading-6 print:min-h-[19px] print:py-0 print:leading-5 print:text-[11px]">
         {value || ''}
       </div>
     </div>
@@ -28,7 +28,7 @@ function BoxField({ label, value, minHeight = '64px' }: { label: string; value?:
     <div>
       <span className="block text-[10px] uppercase tracking-wider text-slate-500 mb-0.5">{label}</span>
       <div
-        className="border-2 border-slate-800 text-[13px] font-semibold text-slate-900 px-2 py-1 leading-6"
+        className="border-2 border-slate-800 text-[13px] font-semibold text-slate-900 px-2 py-1 leading-6 print:!min-h-[38px] print:py-0.5 print:text-[11px]"
         style={{ minHeight }}
       >
         {value || ''}
@@ -39,7 +39,7 @@ function BoxField({ label, value, minHeight = '64px' }: { label: string; value?:
 
 function SectionTitle({ children }: { children: ReactNode }) {
   return (
-    <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-900 border-b border-slate-800 pb-1 mb-3">
+    <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-900 border-b border-slate-800 pb-1 mb-3 print:mb-1">
       {children}
     </h3>
   )
@@ -54,10 +54,10 @@ export default function FormulirPendaftaran({ data }: FormulirPendaftaranProps) 
       className="bg-white border border-slate-200 shadow-xl print:shadow-none print:border-0 rounded-lg print:rounded-none max-w-4xl mx-auto"
     >
       <div className="border-b-4 border-slate-800">
-        <img src="/kop.png" alt="Kop Surat" className="w-full" />
+          <img src="/kop.png" alt="Kop Surat" className="w-full print:max-h-[26mm] print:w-auto print:mx-auto" />
       </div>
 
-      <div className="px-6 pt-4 flex items-start justify-between gap-6">
+      <div className="px-6 pt-4 print:px-4 print:pt-2 flex items-start justify-between gap-6">
         <div className="flex-1 text-center">
           <h1 className="text-sm font-bold uppercase tracking-widest text-slate-900">
             Formulir Pendaftaran
@@ -88,11 +88,11 @@ export default function FormulirPendaftaran({ data }: FormulirPendaftaranProps) 
         </div>
       </div>
 
-      <div className="px-6 py-5">
+      <div className="px-6 py-5 print:px-4 print:py-2">
         <div className="border border-slate-400 divide-y divide-slate-300">
-          <section className="p-4">
+          <section className="p-4 print:p-1.5">
             <SectionTitle>A. Pilihan Jurusan</SectionTitle>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 print:gap-y-1">
               <FieldItem label="Jurusan Utama" value={jurusanLabel(data.pilihan_jurusan)} span2 />
               <FieldItem label="Jurusan Alternatif" value={jurusanLabel(data.pilihan_alternatif)} />
               <FieldItem label="Asal Sekolah" value={data.asal_sekolah} />
@@ -100,9 +100,9 @@ export default function FormulirPendaftaran({ data }: FormulirPendaftaranProps) 
             </div>
           </section>
 
-          <section className="p-4">
+          <section className="p-4 print:p-1.5">
             <SectionTitle>B. Data Pribadi</SectionTitle>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 print:gap-y-1">
               <FieldItem label="Nama Lengkap (Sesuai Ijazah/Akte)" value={data.nama_lengkap} span2 />
               <FieldItem label="Jenis Kelamin" value={data.jenis_kelamin} />
               <FieldItem label="NISN" value={data.nisn} />
@@ -114,9 +114,9 @@ export default function FormulirPendaftaran({ data }: FormulirPendaftaranProps) 
             </div>
           </section>
 
-          <section className="p-4">
+          <section className="p-4 print:p-1.5">
             <SectionTitle>C. Alamat Tempat Tinggal</SectionTitle>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 print:gap-y-1">
               <FieldItem label="Alamat (Dusun / Jalan)" value={data.dusun} />
               <FieldItem label="RT / RW" value={data.rt_rw} />
               <FieldItem label="Desa / Kelurahan" value={data.desa} />
@@ -127,9 +127,9 @@ export default function FormulirPendaftaran({ data }: FormulirPendaftaranProps) 
             </div>
           </section>
 
-          <section className="p-4">
+          <section className="p-4 print:p-1.5">
             <SectionTitle>D. Data Orang Tua / Wali</SectionTitle>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 print:gap-y-1">
               <FieldItem label="Nama Ayah" value={data.nama_ayah} />
               <FieldItem label="Pekerjaan Ayah" value={data.kerja_ayah} />
               <FieldItem label="Nama Ibu" value={data.nama_ibu} />
@@ -143,34 +143,34 @@ export default function FormulirPendaftaran({ data }: FormulirPendaftaranProps) 
             </div>
           </section>
 
-          <section className="p-4">
+          <section className="p-4 print:p-1.5">
             <SectionTitle>E. Prestasi (Opsional)</SectionTitle>
             <BoxField label="Prestasi yang Pernah Diraih" value={data.prestasi} minHeight="56px" />
           </section>
 
-          <section className="p-4">
+          <section className="p-4 print:p-1.5">
             <SectionTitle>F. Referral</SectionTitle>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 print:gap-y-1">
               <FieldItem label="Kategori Referral" value={data.referral_kategori} />
               <FieldItem label="Nama Referral" value={data.referral_nama} />
             </div>
           </section>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-10 mt-8 text-[11px] text-slate-700">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-10 mt-8 print:mt-2 text-[11px] text-slate-700">
           <div>
             <p>
               Sempu, {formatWIBShort(new Date().toISOString())}
             </p>
             <p className="mt-0.5">Orang Tua / Wali Calon Peserta Didik</p>
-            <div className="h-16" />
+            <div className="h-16 print:h-10" />
             <p className="font-semibold text-slate-900">
               {data.nama_ayah || data.nama_ibu ? `( ${data.nama_ayah || data.nama_ibu} )` : '( ______________ )'}
             </p>
           </div>
           <div className="sm:text-right">
-            <p className="mt-7">Calon Peserta Didik</p>
-            <div className="h-14" />
+            <p className="mt-7 print:mt-1">Calon Peserta Didik</p>
+            <div className="h-14 print:h-9" />
             <p className="font-semibold text-slate-900">
               {data.nama_lengkap ? `( ${data.nama_lengkap} )` : '( ______________ )'}
             </p>
