@@ -27,7 +27,11 @@ Copy semua file `.gs` ke dalam project Apps Script:
 - `MplsHandler.gs` → `MplsHandler.gs`
 - `DriveHandler.gs` → `DriveHandler.gs`
 - `SeedData.gs` → `SeedData.gs`
+- `PhoneLib.gs` → `PhoneLib.gs` *(file **generated** — hasil bundle esbuild; regenerate dengan `npm install && npm run bundle`, jangan edit manual)*
 - `appsscript.json` → `appsscript.json` (di Project Settings > Show manifest file)
+
+> Tanpa copy-paste manual: jalankan `npm install` lalu `npm run push` (bundle + `clasp push`)
+> di folder ini — syaratnya sudah `npx clasp login` dan `.clasp.json` berisi `scriptId`.
 
 ### 2. Set Script Properties
 
@@ -41,7 +45,7 @@ Di menu **Project Settings > Script Properties**, tambahkan:
 
 ### 3. Seed Data
 
-Skema 12 sheet dan data awal (3 gelombang pendaftaran + konfigurasi sistem) dibuat
+Skema 13 sheet dan data awal (3 gelombang pendaftaran + konfigurasi sistem) dibuat
 **otomatis** oleh `initializeSheets()` saat API pertama kali dipanggil — idempoten.
 Fungsi `seedInitialData()` dari editor hanya diperlukan bila ingin mengisi ulang data awal.
 
@@ -61,17 +65,19 @@ Repositori ini sudah terhubung ke project Apps Script melalui `.clasp.json`
 (`scriptId` terisi). Untuk mengunggah perubahan kode tanpa copy-paste manual:
 
 ```bash
-# prasyarat sekali: npx clasp login
+# prasyarat sekali: npx clasp login && npm install
 cd backend-gas
-npx clasp push                # unggah semua file .gs + appsscript.json
-npx clasp list-deployments    # cari deployment Web App yang aktif
-npx clasp update-deployment <deploymentId> --description "deskripsi perubahan"
+npm run push                  # bundle PhoneLib.gs + unggah semua file .gs + appsscript.json
+npx clasp deployments         # lihat ID deployment aktif + nomor versinya
+npx clasp redeploy <deploymentId> --description "deskripsi perubahan"
 ```
 
-> `update-deployment` memindahkan deployment **yang sama** ke versi kode terbaru,
-> sehingga URL Web App produksi tidak berubah dan frontend tidak perlu ganti
-> `VITE_API_URL`. Script properties (`SHEET_ID`, `GOOGLE_CLIENT_ID`) tetap diatur
-> lewat Project Settings seperti di atas.
+> ⚠️ Hindari `npx clasp deploy` untuk rilis rutin — perintah itu membuat **deployment baru
+> dengan URL berbeda** sehingga `VITE_API_URL` frontend tetap menunjuk versi lama dan
+> perubahan tidak pernah aktif. `redeploy` (pada versi clasp lama bernama
+> `update-deployment`) memindahkan deployment **yang sama** ke versi kode terbaru, sehingga
+> URL Web App produksi tidak berubah dan frontend tidak perlu ganti `VITE_API_URL`.
+> Script properties (`SHEET_ID`, `GOOGLE_CLIENT_ID`) tetap diatur lewat Project Settings.
 
 ## Konfigurasi Frontend
 
@@ -170,6 +176,20 @@ dengan nilai valid:
 Nilai ini diisi wajib oleh wizard finalisasi siswa dan form pendaftaran manual
 admin/guru, lalu ikut tercetak pada Bagian D formulir pendaftaran.
 
+#### Nomor Telepon & Sheet `Telepon_Siswa`
+
+`telepon_siswa`, `telepon_ortu` (siswa) dan `no_telp` (Guru SMP/MTs) dinormalisasi otomatis di
+server ke format internasional Indonesia (`0812…`/`+62812…`/`812…` → `62812…`) menggunakan
+paket `google-libphonenumber` (bundle: `PhoneLib.gs`), dengan fallback regex bila library gagal
+dimuat.
+
+Nomor HP siswa (`telepon_siswa`) disimpan pada sheet terpisah **`Telepon_Siswa`**
+(kolom `id_pendaftaran`, `telepon`) agar konsisten tersimpan sebagai teks. API tetap
+transparan: `getSiswa` menggabungkan nilainya ke respons (per-email maupun daftar), sementara
+`updateSiswa`/`adminRegisterSiswa` menuliskannya kembali. Update dengan nilai kosong **tidak**
+menimpa nilai lama (mencegah race condition antar request wizard), dan barisnya ikut terhapus
+saat siswa dihapus.
+
 ### Referral
 - **action: `getReferralOptions`** — Opsi dropdown referral pada formulir siswa:
   `guruInternal` (daftar nama dari sheet `Admin`) dan `guruSmp`
@@ -212,10 +232,13 @@ admin/guru, lalu ikut tercetak pada Bagian D formulir pendaftaran.
 
 ## Google Sheets Structure
 
-12 sheet dibuat otomatis:
+13 sheet dibuat otomatis:
 - **Siswa** — Data pendaftaran siswa: identitas (nama, NISN/NIK, lahir, agama), alamat +
-  koordinat peta, orang tua/wali (nama, pekerjaan, telepon, `estimasi_penghasilan_ortu`),
-  prestasi, referral, serta gelombang / tahun ajaran / status pendaftaran
+  koordinat peta, orang tua/wali (nama, pekerjaan, telepon ternormalisasi `628xx`,
+  `estimasi_penghasilan_ortu`), prestasi, referral, serta gelombang / tahun ajaran /
+  status pendaftaran; timestamp (`waktu_daftar`, `created_at`, `updated_at`) berformat WIB
+- **Telepon_Siswa** — Pemetaan `id_pendaftaran` → nomor HP siswa (teks murni); digabung
+  otomatis oleh `getSiswa` dan ditulis oleh `updateSiswa`/`adminRegisterSiswa`
 - **Admin** — Akun staf (admin/guru/guru_smp/panitia_mpls) yang dibuat oleh admin via panel
 - **Guru** — Pendaftaran mandiri Guru SMP/MTs dari halaman registrasi (email, nama, role, no_telp, created_at, asal_sekolah)
 - **Pengaturan_Gelombang** — Konfigurasi gelombang

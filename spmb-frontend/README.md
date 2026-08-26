@@ -1,50 +1,66 @@
-# React + TypeScript + Vite
+# SPMB Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Single Page Application (SPA) React untuk [SPMB — Sistem Penerimaan Murid Baru](../README.md) **SMKS Al Azhar Sempu**.
 
-Currently, two official plugins are available:
+## Tech Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- React 18 + TypeScript + Vite
+- Tailwind CSS
+- Zustand — state management (`authStore`, `studentStore`)
+- React Router — routing per peran (siswa, admin, guru, guru SMP/MTs, panitia MPLS)
+- `qrcode.react` — kartu pendaftaran digital ber-QR
+- `html5-qrcode` — pemindaian QR absensi MPLS
+- `tesseract.js` — OCR pindaian KK/KTP untuk pengisian alamat otomatis
+- `xlsx` — import & export Excel data pendaftar
+- Vitest + Testing Library (unit/komponen), Playwright (e2e)
 
-## Expanding the ESLint configuration
+## Menjalankan
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
-
-- Configure the top-level `parserOptions` property like this:
-
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+```bash
+npm install
+cp .env.example .env    # lalu isi VITE_API_URL & VITE_GOOGLE_CLIENT_ID
+npm run dev             # buka http://localhost:5173
 ```
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+Langkah setup lengkap (backend Apps Script, OAuth Client, deployment) ada di
+[README utama](../README.md).
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
+> ⚠️ `VITE_API_URL` harus menunjuk **deployment Web App yang versinya terbaru**.
+> Cek dengan `npx clasp deployments` di folder `../backend-gas/` — jika ID deployment
+> pada URL belum naik versi setelah push kode, jalankan
+> `npx clasp redeploy <deploymentId>` agar URL lama memakai kode terbaru.
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
+## Skrip
+
+| Perintah | Fungsi |
+|---|---|
+| `npm run dev` | Dev server Vite (HMR) |
+| `npm run build` | Typecheck (`tsc -b`) + build produksi ke `dist/` |
+| `npm run lint` | ESLint |
+| `npm run test` | Unit & komponen (Vitest + Testing Library) |
+| `npm run e2e` | End-to-end (Playwright) |
+
+## Deploy Produksi
+
+Build diterbitkan ke **Firebase Hosting** (proyek `spmbskalzar`, konfigurasi di `firebase.json`):
+
+```bash
+npm run build
+npx firebase deploy --only hosting
+```
+
+Pastikan *Authorized JavaScript origins* pada OAuth Client di Google Cloud Console memuat
+URL hosting produksi (mis. `https://<project-id>.web.app`) dan `http://localhost:5173`.
+
+## Struktur Singkat
+
+```
+src/
+├─ pages/            # login, student (wizard 5 langkah), admin, guru, mpls
+├─ components/       # UI kit (Button, Card, InputField, StatCard, DonutChart, Toast, …)
+├─ services/api.ts   # lapisan pemanggil API GAS (action + session token)
+├─ store/            # Zustand: authStore (sesi), studentStore (data & wizard siswa)
+├─ types/            # tipe TypeScript (DataSiswa, dll.)
+├─ utils/            # dateUtils (konversi waktu WIB), dll.
+└─ data/constants.ts # jurusan, agama, proyeksi karir, kategori referral
 ```

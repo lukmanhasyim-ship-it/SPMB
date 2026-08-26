@@ -8,19 +8,19 @@ SPMB adalah aplikasi web **Single Page Application (SPA)** untuk pendaftaran mur
 
 | Peran | Fitur |
 |---|---|
-| **Calon Murid** | Login Google OAuth; wizard pendaftaran 5 langkah (jurusan utama & alternatif, data pribadi + NISN opsional, alamat + koordinat peta, orang tua/wali, berkas & prestasi) ditutup estimasi penghasilan orang tua/wali wajib pilih (dropdown rentang: `< Rp. 500.000,-` s.d `> Rp. 5.000.000,-`); pindai KK/KTP untuk pengisian alamat otomatis (OCR); dropdown referral dinamis (nama guru SMKS, atau guru SMP/MTs tersaring per asal sekolah); upload pas foto & PDF gabungan; kartu pendaftaran digital ber-QR; timeline tahapan SPMB; feed pengumuman ala Instagram (suka, komentar, tambah agenda ke Google Calendar + pengingat email). |
-| **Admin** | Dashboard statistik & grafik; tabel & pencarian pendaftar; daftarkan siswa manual; import data via Excel (xlsx); kelola gelombang & tahun ajaran aktif; kelola timeline tahapan SPMB; broadcast event personal ke email; statistik referral; manajemen pengguna (admin/guru/panitia CRUD) termasuk mengelola akun Guru SMP/MTs hasil registrasi mandiri; verifikasi berkas. |
+| **Calon Murid** | Login Google OAuth; wizard pendaftaran 5 langkah (jurusan utama & alternatif, data pribadi + NISN opsional, alamat + koordinat peta, orang tua/wali, berkas & prestasi) ditutup estimasi penghasilan orang tua/wali wajib pilih (dropdown rentang: `< Rp. 500.000,-` s.d `> Rp. 5.000.000,-`); nomor HP siswa & orang tua/wali dinormalisasi otomatis ke format internasional Indonesia (`628xx`); pindai KK/KTP untuk pengisian alamat otomatis (OCR); dropdown referral dinamis (nama guru SMKS, atau guru SMP/MTs tersaring per asal sekolah); upload pas foto & PDF gabungan; kartu pendaftaran digital ber-QR; timeline tahapan SPMB; feed pengumuman ala Instagram (suka, komentar, tambah agenda ke Google Calendar + pengingat email). |
+| **Admin** | Dashboard statistik & grafik; tabel & pencarian pendaftar; daftarkan siswa manual; import data via Excel (xlsx); export Excel rekap pendaftar (satu sheet per jurusan + *Belum Ditentukan*, termasuk link Google Maps dari koordinat alamat); kelola gelombang & tahun ajaran aktif; kelola timeline tahapan SPMB; broadcast event personal ke email; statistik referral; manajemen pengguna (admin/guru/panitia CRUD) termasuk mengelola akun Guru SMP/MTs hasil registrasi mandiri; verifikasi berkas. |
 | **Guru SMKS** | Dashboard statistik pendaftar (total, status, distribusi jurusan & gelombang); daftarkan siswa dengan referral terkunci atas nama sendiri. |
 | **Guru SMP/MTs (`guru_smp`)** | Registrasi mandiri via halaman Registrasi (wajib Gmail + asal sekolah); dashboard khusus yang hanya menampilkan pendaftar dari sekolahnya sendiri (filter di sisi server, tanpa persaingan antar sekolah); daftarkan siswa dengan asal sekolah & referral terisi otomatis dari akun. |
 | **Panitia MPLS** | Scan QR kartu pendaftaran / lookup manual ID; absensi kehadiran harian; manajemen izin (sakit/keluarga/lainnya); dashboard & informasi MPLS. |
-| **Umum** | Satu gerbang login + deteksi peran otomatis; otorisasi peran di sisi server; kartu digital ber-QR; notifikasi personal. |
+| **Umum** | Satu gerbang login + deteksi peran otomatis; otorisasi peran di sisi server; normalisasi nomor telepon ke format E.164 Indonesia di sisi server; kartu digital ber-QR; notifikasi personal. |
 
 ## Tech Stack
 
 | Lapisan | Teknologi |
 |---|---|
 | **Frontend** | React 18, TypeScript, Vite, Tailwind CSS, Zustand (state management), React Router, `qrcode.react` (kartu QR), `html5-qrcode` (scan QR), `tesseract.js` (OCR KK/KTP), `xlsx` (import Excel), `lucide-react` (ikon), Vitest + Testing Library & Playwright (pengujian) |
-| **Backend** | Google Apps Script (runtime V8), Google Sheets (database), Google Drive (upload berkas), Google Calendar (event & pengingat), Google Identity Services (OAuth 2.0), `LockService` (anti race condition) |
+| **Backend** | Google Apps Script (runtime V8), Google Sheets (database), Google Drive (upload berkas), Google Calendar (event & pengingat), Google Identity Services (OAuth 2.0), `LockService` (anti race condition), `google-libphonenumber` + esbuild (bundle normalisasi nomor HP) |
 
 ## Struktur Proyek
 
@@ -39,7 +39,7 @@ SPMB/
 │  └─ .firebaserc              # project Firebase Hosting (spmbskalzar)
 ├─ backend-gas/                # Google Apps Script backend
 │  ├─ Code.gs                  # router action + guard role
-│  ├─ SheetManager.gs          # koneksi & skema Google Sheets (12 sheet otomatis)
+│  ├─ SheetManager.gs          # koneksi & skema Google Sheets (13 sheet otomatis)
 │  ├─ AuthHandler.gs           # login OAuth, registrasi, generate ID pendaftaran
 │  ├─ Security.gs              # session token, rate limit, otorisasi
 │  ├─ SiswaHandler.gs          # CRUD data siswa
@@ -51,6 +51,9 @@ SPMB/
 │  ├─ MplsHandler.gs           # absensi & izin MPLS
 │  ├─ DriveHandler.gs          # upload berkas ke Google Drive
 │  ├─ SeedData.gs              # data awal (3 gelombang, konfigurasi sistem)
+│  ├─ PhoneLib.gs              # bundle google-libphonenumber (generated via esbuild)
+│  ├─ src/phone.js + build.js  # sumber & konfigurasi esbuild untuk PhoneLib.gs
+│  ├─ package.json             # skrip npm (bundle, push, redeploy)
 │  └─ appsscript.json          # manifest (scope & web app)
 ├─ logo.svg
 └─ RPD.md                      # dokumen rancangan teknis
@@ -73,6 +76,11 @@ SPMB/
 
 1. **Buat project Apps Script** di https://script.google.com, beri nama mis. `SPMB-Backend`.
 2. **Salin seluruh file `.gs`** dari folder `backend-gas/` ke project, serta `appsscript.json` ke **Project Settings > Show manifest file**.
+
+   > `PhoneLib.gs` adalah **bundle generated** (esbuild + `google-libphonenumber`) untuk
+   > normalisasi nomor HP. Jangan diedit manual — regenerasi dengan
+   > `npm install && npm run bundle` di folder `backend-gas/`.
+
 3. **Set Script Properties** di **Project Settings > Script Properties**:
 
    | Key | Value |
@@ -137,12 +145,17 @@ Cara utama memakai [clasp](https://github.com/google/clasp) — `.clasp.json` di
 ```bash
 cd backend-gas
 npx clasp push                # unggah semua file .gs + appsscript.json
-npx clasp list-deployments    # cari deployment Web App yang aktif
-npx clasp update-deployment <deploymentId> --description "deskripsi perubahan"
+npx clasp deployments         # lihat ID deployment aktif + nomor versinya
+npx clasp redeploy <deploymentId> --description "deskripsi perubahan"
 ```
 
-> Gunakan `update-deployment` (bukan `deploy`) agar URL Web App produksi tidak berubah —
-> deployment yang sama dipindahkan ke versi kode terbaru.
+> ⚠️ **Jangan gunakan `npx clasp deploy` untuk rilis rutin.** Perintah itu membuat
+> **deployment baru dengan URL berbeda**, sedangkan `VITE_API_URL` frontend tetap menunjuk
+> URL lama — akibatnya perubahan backend tidak pernah aktif di aplikasi walau sudah di-push
+> (gejala klasik: "fitur baru tidak jalan" padahal kodenya benar). Gunakan `redeploy`
+> (pada versi clasp lama bernama `update-deployment`) yang memindahkan **deployment yang
+> sama** ke versi kode terbaru sehingga URL Web App produksi tidak berubah. Setelah
+> redeploy, pastikan nomor versi pada ID deployment yang dipakai `VITE_API_URL` ikut naik.
 
 Alternatif manual: lakukan perubahan pada project Apps Script di editor
 [script.google.com](https://script.google.com), lalu **Deploy > Manage deployments > Edit > New version**.
@@ -183,11 +196,12 @@ npm run e2e       # end-to-end (Playwright)
 
 ## Struktur Data Google Sheets
 
-12 sheet dibuat otomatis oleh `SheetManager.gs`:
+13 sheet dibuat otomatis oleh `SheetManager.gs`:
 
 | Sheet | Kegunaan |
 |---|---|
-| `Siswa` | Data registrasi calon murid |
+| `Siswa` | Data registrasi calon murid (telepon ternormalisasi `628xx`, timestamp WIB) |
+| `Telepon_Siswa` | Pemetaan `id_pendaftaran` → nomor HP siswa; disimpan terpisah agar selalu teks, digabung otomatis oleh API pada `getSiswa`/`updateSiswa` |
 | `Pengaturan_Gelombang` | Konfigurasi gelombang pendaftaran |
 | `Sistem_Config` | Key-value konfigurasi global (tahun ajaran aktif, dll.) |
 | `Admin` | Daftar admin/guru/panitia beserta role |
@@ -200,10 +214,11 @@ npm run e2e       # end-to-end (Playwright)
 | `Izin_MPLS` | Catatan izin peserta MPLS |
 | `Timeline_SPMB` | Tahapan-tahapan kegiatan SPMB |
 
-> **Migrasi skema otomatis** — kolom baru pada sheet `Siswa` (mis. `estimasi_penghasilan_ortu`,
-> rentang penghasilan orang tua/wali) ditambahkan langsung ke spreadsheet yang sudah berjalan oleh
+> **Migrasi skema otomatis** — kolom/sheet baru (mis. kolom `estimasi_penghasilan_ortu`,
+> hingga sheet `Telepon_Siswa`) ditambahkan langsung ke spreadsheet yang sudah berjalan oleh
 > `ensureHeaders()` saat API pertama kali dipanggil setelah `SCHEMA_VERSION` di `SheetManager.gs`
-> dinaikkan. Data lama yang belum mengisi kolom baru dapat dilengkapi lewat wizard mode *final*.
+> dinaikkan (saat ini `'9'`). Data lama yang belum mengisi kolom baru dapat dilengkapi lewat
+> wizard mode *final*.
 
 ## Referensi
 
