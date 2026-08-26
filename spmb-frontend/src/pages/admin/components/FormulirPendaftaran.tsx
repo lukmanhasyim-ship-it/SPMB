@@ -110,6 +110,7 @@ export default function FormulirPendaftaran({ data }: FormulirPendaftaranProps) 
               <FieldItem label="Tempat Lahir" value={data.tempat_lahir} />
               <FieldItem label="Tanggal Lahir" value={tglLahir} />
               <FieldItem label="Agama" value={data.agama} />
+              <FieldItem label="No. HP Siswa (WhatsApp)" value={data.telepon_siswa} span2 />
             </div>
           </section>
 
@@ -145,6 +146,14 @@ export default function FormulirPendaftaran({ data }: FormulirPendaftaranProps) 
           <section className="p-4">
             <SectionTitle>E. Prestasi (Opsional)</SectionTitle>
             <BoxField label="Prestasi yang Pernah Diraih" value={data.prestasi} minHeight="56px" />
+          </section>
+
+          <section className="p-4">
+            <SectionTitle>F. Referral</SectionTitle>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3">
+              <FieldItem label="Kategori Referral" value={data.referral_kategori} />
+              <FieldItem label="Nama Referral" value={data.referral_nama} />
+            </div>
           </section>
         </div>
 
