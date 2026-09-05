@@ -1,10 +1,11 @@
 import { useEffect, useState, useMemo, useRef } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { Search, FileText, ArrowLeft, Printer, CreditCard } from 'lucide-react'
+import { Search, FileText, ArrowLeft, Printer, CreditCard, Download } from 'lucide-react'
 import Card from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
 import Loader from '../../components/ui/Loader'
 import { api } from '../../services/api'
+import { renderFormJpeg, printJpeg, downloadJpeg } from '../../utils/formImage'
 import FormulirPendaftaran from './components/FormulirPendaftaran'
 import KartuPendaftaranAdmin from './components/KartuPendaftaranAdmin'
 
@@ -28,6 +29,7 @@ export default function AdminFormulir() {
   const [page, setPage] = useState(1)
   const [searchParams] = useSearchParams()
   const autoSelected = useRef(false)
+  const [busy, setBusy] = useState<'print' | 'download' | null>(null)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -100,7 +102,30 @@ export default function AdminFormulir() {
     return pages
   }, [totalPages, safePage])
 
-  const handlePrint = () => {
+  const handleCetak = async () => {
+    if (busy) return
+    setBusy('print')
+    try {
+      const dataUrl = await renderFormJpeg()
+      printJpeg(dataUrl)
+    } finally {
+      setBusy(null)
+    }
+  }
+
+  const handleDownloadJpg = async () => {
+    if (busy) return
+    setBusy('download')
+    try {
+      const dataUrl = await renderFormJpeg()
+      const id = selected?.id_pendaftaran || 'formulir'
+      downloadJpeg(dataUrl, `Formulir-${id}.jpg`)
+    } finally {
+      setBusy(null)
+    }
+  }
+
+  const handlePrintKartu = () => {
     window.print()
   }
 
@@ -116,7 +141,7 @@ export default function AdminFormulir() {
             Kembali
           </button>
           <h1 className="text-lg font-bold text-slate-800">Bukti Pendaftaran</h1>
-          <Button variant="primary" onClick={handlePrint} className="flex items-center gap-1.5">
+          <Button variant="primary" onClick={handlePrintKartu} className="flex items-center gap-1.5">
             <Printer className="w-4 h-4" />
             Cetak / Download Bukti
           </Button>
@@ -138,10 +163,28 @@ export default function AdminFormulir() {
             Kembali
           </button>
           <h1 className="text-lg font-bold text-slate-800">Formulir Pendaftaran</h1>
-          <Button variant="primary" onClick={handlePrint} className="flex items-center gap-1.5">
-            <Printer className="w-4 h-4" />
-            Cetak / Download PDF
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="primary"
+              onClick={handleDownloadJpg}
+              loading={busy === 'download'}
+              disabled={busy !== null}
+              className="flex items-center gap-1.5"
+            >
+              <Download className="w-4 h-4" />
+              Download JPG
+            </Button>
+            <Button
+              variant="secondary"
+              onClick={handleCetak}
+              loading={busy === 'print'}
+              disabled={busy !== null}
+              className="flex items-center gap-1.5"
+            >
+              <Printer className="w-4 h-4" />
+              Cetak
+            </Button>
+          </div>
         </div>
         <FormulirPendaftaran data={selected} />
       </div>
