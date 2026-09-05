@@ -52,15 +52,18 @@ describe('FormulirPendaftaran', () => {
       return style.backgroundImage.includes('/bg-formulir.png')
     })
 
-    expect(formPages.length).toBe(1)
+    expect(formPages.length).toBeGreaterThanOrEqual(2)
     expect(formPages[0].style.backgroundSize).toBe('210mm 330mm')
     expect(formPages[0].style.backgroundPosition).toBe('-30mm -3mm')
     expect(formPages[0].style.width).toBe('177mm')
     expect(formPages[0].style.height).toBe('324mm')
     expect(container.querySelector('.form-content')).not.toBeNull()
     expect(container.querySelector('#area-cetak')).not.toBeNull()
-    expect(container.querySelector('.print-form-template')).toBeNull()
-    expect(container.querySelector('#area-cetak-print')).toBeNull()
-    expect(container.querySelector('style')).toBeNull()
+    expect(container.querySelector('.print-form-template')).not.toBeNull()
+    expect(container.querySelector('#area-cetak-print')).not.toBeNull()
+
+    const printStyle = container.querySelector('style')?.textContent || ''
+    expect(printStyle).toContain('size: 210mm 330mm')
+    expect(printStyle).toContain('margin: 3mm 3mm 3mm 30mm')
   })
 })

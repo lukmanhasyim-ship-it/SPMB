@@ -46,15 +46,74 @@ const sheetStyle: React.CSSProperties = {
   width: '210mm',
   height: '330mm',
   boxSizing: 'border-box',
-  padding: '3mm 3mm 3mm 30mm',
+  padding: 0,
   margin: 0,
-  backgroundColor: '#ffffff',
+  backgroundColor: 'transparent',
+  border: 'none',
 }
 
 const previewShellStyle: React.CSSProperties = {
-  boxShadow: '0 8px 40px rgba(15, 23, 42, 0.16)',
-  width: 'fit-content',
+  width: '210mm',
+  boxShadow: 'none',
+  backgroundColor: 'transparent',
 }
+
+const printCss = `
+  @page {
+    size: 210mm 330mm;
+    margin: 3mm 3mm 3mm 30mm;
+  }
+
+  .screen-form-shell {
+    display: block;
+  }
+
+  .print-form-template {
+    display: none;
+  }
+
+  @media print {
+    html, body {
+      margin: 0 !important;
+      padding: 0 !important;
+      background: #ffffff !important;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+
+    .screen-form-shell {
+      display: none !important;
+    }
+
+    .print-form-template {
+      display: block !important;
+    }
+
+    #area-cetak,
+    #area-cetak-print {
+      width: 210mm !important;
+      height: 330mm !important;
+      max-width: 210mm !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      box-shadow: none !important;
+      background: transparent !important;
+      border: none !important;
+    }
+
+    .form-page {
+      width: 177mm !important;
+      max-width: 177mm !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      box-sizing: border-box !important;
+      background-size: 210mm 330mm !important;
+      background-position: -30mm -3mm !important;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+  }
+`
 
 const formPageStyle: React.CSSProperties = {
   width: '177mm',
@@ -315,16 +374,30 @@ export default function FormulirPendaftaran({ data }: FormulirPendaftaranProps) 
   }
 
   return (
-    <div className="mx-auto w-fit p-3">
-      <div style={previewShellStyle}>
-        <div id="area-cetak" style={sheetStyle}>
+    <>
+      <style>{printCss}</style>
+
+      <div className="screen-form-shell mx-auto w-fit p-3">
+        <div style={previewShellStyle}>
+          <div id="area-cetak" style={sheetStyle}>
+            <div className="form-page relative" style={formPageStyle}>
+              <div ref={contentRef} style={contentStyle}>
+                <FormBody data={data} />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="print-form-template mx-auto w-fit" aria-hidden="true">
+        <div id="area-cetak-print" style={sheetStyle}>
           <div className="form-page relative" style={formPageStyle}>
-            <div ref={contentRef} style={contentStyle}>
+            <div style={contentStyle}>
               <FormBody data={data} />
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   )
 }
