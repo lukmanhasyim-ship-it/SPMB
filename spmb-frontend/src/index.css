@@ -212,8 +212,8 @@ body {
 
 @media print {
   @page {
-    size: A4;
-    margin: 8mm;
+    size: 210mm 330mm;
+    margin: 5mm;
   }
 
   body {
@@ -242,7 +242,6 @@ body {
 
   #area-cetak {
     box-shadow: none !important;
-    border-color: #e2e8f0 !important;
   }
 
   #area-cetak section {

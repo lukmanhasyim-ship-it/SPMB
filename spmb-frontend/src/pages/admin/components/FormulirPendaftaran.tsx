@@ -12,26 +12,23 @@ function jurusanLabel(value: string): string {
   return jurusan ? jurusan.label : value
 }
 
-function FieldItem({ label, value, span2 = false }: { label: string; value?: string; span2?: boolean }) {
-  return (
-    <div className={span2 ? 'sm:col-span-2' : ''}>
-      <span className="block text-[10px] uppercase tracking-wider text-slate-500 mb-0.5">{label}</span>
-      <div className="border-b-2 border-slate-800 text-[13px] font-semibold text-slate-900 py-1 min-h-[28px] leading-6 print:min-h-[19px] print:py-0 print:leading-5 print:text-[11px]">
-        {value || ''}
-      </div>
-    </div>
-  )
+function safeValue(value?: string): string {
+  return value && value.trim() ? value : '-'
 }
 
-function BoxField({ label, value, minHeight = '64px' }: { label: string; value?: string; minHeight?: string }) {
+function FieldLabel({ children }: { children: ReactNode }) {
+  return <span className="block text-[9px] font-black uppercase tracking-[0.12em] leading-[1.25] text-[#1a6f53]">{children}</span>
+}
+
+function FieldValue({ children, className = '' }: { children: ReactNode; className?: string }) {
+  return <div className={`min-h-[18px] border-b border-dashed border-[#94c7b2] pb-0.5 text-[11px] font-semibold leading-[1.3] text-slate-900 ${className}`}>{children}</div>
+}
+
+function PageHeader() {
   return (
-    <div>
-      <span className="block text-[10px] uppercase tracking-wider text-slate-500 mb-0.5">{label}</span>
-      <div
-        className="border-2 border-slate-800 text-[13px] font-semibold text-slate-900 px-2 py-1 leading-6 print:!min-h-[38px] print:py-0.5 print:text-[11px]"
-        style={{ minHeight }}
-      >
-        {value || ''}
+    <div className="w-full border-b-[3px] border-[#1e7d57] bg-white/60 pb-1.5 mx-0 px-0">
+      <div className="w-full px-0 pt-0">
+        <img src="/kop.png" alt="Kop surat" className="block h-auto w-full max-w-none object-contain m-0 p-0" />
       </div>
     </div>
   )
@@ -39,144 +36,283 @@ function BoxField({ label, value, minHeight = '64px' }: { label: string; value?:
 
 function SectionTitle({ children }: { children: ReactNode }) {
   return (
-    <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-900 border-b border-slate-800 pb-1 mb-3 print:mb-1">
+    <h3 className="mb-1.5 mt-2 inline-block rounded-[3px] bg-[#1b8d66] px-2 py-0.5 text-[10px] font-black uppercase leading-[1.2] tracking-[0.15em] text-white">
       {children}
     </h3>
   )
 }
 
+const pageStyle: React.CSSProperties = {
+  width: '210mm',
+  height: '330mm',
+  backgroundImage: "url('/bg-formulir.png')",
+  backgroundRepeat: 'no-repeat',
+  backgroundPosition: 'center bottom',
+  backgroundSize: '210mm 330mm',
+  backgroundAttachment: 'scroll',
+  pageBreakInside: 'avoid',
+  breakInside: 'avoid',
+  margin: 0,
+  padding: 0,
+  boxSizing: 'border-box',
+}
+
+const printCss = `
+  @page {
+    size: 210mm 330mm;
+    margin: 3mm 3mm 3mm 30mm;
+  }
+
+  @media print {
+    html, body {
+      margin: 0 !important;
+      padding: 0 !important;
+      background: #f5f5f2 !important;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+
+    #area-cetak {
+      width: 210mm !important;
+      max-width: 210mm !important;
+      min-height: 330mm !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      box-sizing: border-box;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+
+    .form-page {
+      width: 210mm !important;
+      min-height: 330mm !important;
+      max-width: 210mm !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      box-sizing: border-box;
+      background-size: 210mm 330mm !important;
+      background-position: center bottom !important;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+      background-color: transparent !important;
+    }
+  }
+`
+
 export default function FormulirPendaftaran({ data }: FormulirPendaftaranProps) {
-  const tglLahir = data.tanggal_lahir ? formatWIBShort(data.tanggal_lahir) : ''
+  const tglLahir = data.tanggal_lahir ? formatWIBShort(data.tanggal_lahir) : '-'
+  const today = formatWIBShort(new Date().toISOString())
 
   return (
-    <div
-      id="area-cetak"
-      className="bg-white border border-slate-200 shadow-xl print:shadow-none print:border-0 rounded-lg print:rounded-none max-w-4xl mx-auto"
-    >
-      <div className="border-b-4 border-slate-800">
-          <img src="/kop.png" alt="Kop Surat" className="w-full print:max-h-[26mm] print:w-auto print:mx-auto" />
-      </div>
+    <>
+      <style>{printCss}</style>
+      <div id="area-cetak" className="mx-auto w-[210mm] max-w-[210mm] px-0 py-0 print:p-0 print:max-w-none">
+        <div className="relative overflow-visible print:rounded-none">
+          <div className="form-page relative" style={pageStyle}>
+            <PageHeader />
 
-      <div className="px-6 pt-4 print:px-4 print:pt-2 flex items-start justify-between gap-6">
-        <div className="flex-1 text-center">
-          <h1 className="text-sm font-bold uppercase tracking-widest text-slate-900">
-            Formulir Pendaftaran
-          </h1>
-          <p className="text-xs font-medium uppercase tracking-wider text-slate-700 mt-0.5">
-            Peserta Didik Baru Tahun Ajaran {data.tahun_ajaran || '-'}
-          </p>
-          <div className="flex items-center justify-center gap-6 mt-2 text-[11px] text-slate-600">
-            <p>
-              No. Pendaftaran:{' '}
-              <span className="font-bold text-slate-900">{data.id_pendaftaran || '-'}</span>
-            </p>
-            <p>
-              Gelombang: <span className="font-bold text-slate-900">{data.gelombang || '-'}</span>
-            </p>
+            <div className="px-7 pb-3 pt-1 text-center print:px-5">
+              <h1 className="text-[18px] font-black uppercase tracking-[0.12em] text-[#0f172a]">FORMULIR PENDAFTARAN</h1>
+              <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-700">
+                Peserta Didik Baru Tahun Ajaran {safeValue(data.tahun_ajaran)}
+              </p>
+              <p className="mt-0.5 text-[10px] font-medium text-slate-700">
+                ID Pendaftaran: <span className="font-bold text-slate-900">{safeValue(data.id_pendaftaran)}</span>{' '}
+                | Gelombang: <span className="font-bold text-slate-900">{safeValue(data.gelombang)}</span>
+              </p>
+            </div>
+
+            <div className="px-7 pb-4 print:px-5">
+              <div className="w-full leading-[1.35]">
+                <div className="space-y-2">
+                  <section>
+                    <SectionTitle>A. Pilihan Jurusan</SectionTitle>
+                    <div className="grid grid-cols-1 gap-x-5 gap-y-1.5 md:grid-cols-[1fr_150px] md:items-start">
+                      <div>
+                        <div className="grid grid-cols-1 gap-x-6 gap-y-1.5 md:grid-cols-2">
+                          <div className="md:col-span-2">
+                            <FieldLabel>Program Keahlian Utama</FieldLabel>
+                            <FieldValue>{safeValue(jurusanLabel(data.pilihan_jurusan))}</FieldValue>
+                          </div>
+                          <div>
+                            <FieldLabel>Program Keahlian Alternatif</FieldLabel>
+                            <FieldValue>{safeValue(jurusanLabel(data.pilihan_alternatif))}</FieldValue>
+                          </div>
+                          <div>
+                            <FieldLabel>Asal Sekolah</FieldLabel>
+                            <FieldValue>{safeValue(data.asal_sekolah)}</FieldValue>
+                          </div>
+                          <div className="md:col-span-2">
+                            <FieldLabel>Alasan Memilih Jurusan Alternatif</FieldLabel>
+                            <FieldValue className="min-h-[26px]">{safeValue(data.alasan_pilih_jurusan)}</FieldValue>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="mt-0 flex items-start justify-center self-start pt-1 md:pt-4">
+                        <div className="flex h-[140px] w-[105px] items-center justify-center border-[2px] border-[#9bb9a7] bg-[#f8faf9] text-center shadow-inner overflow-hidden print:h-[140px] print:w-[105px]">
+                          {data.foto_profil_url ? (
+                            <img src={data.foto_profil_url} alt="Pas foto" className="h-full w-full object-cover" />
+                          ) : (
+                            <div className="text-[11px] font-bold uppercase leading-5 tracking-[0.12em] text-slate-400">
+                              FOTO
+                              <br />
+                              3x4
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </section>
+
+                  <section>
+                    <SectionTitle>B. Data Siswa</SectionTitle>
+                    <div className="grid grid-cols-1 gap-x-6 gap-y-1.5 md:grid-cols-2">
+                      <div className="md:col-span-2">
+                        <FieldLabel>Nama Lengkap (Sesuai Ijazah/Akte)</FieldLabel>
+                        <FieldValue>{safeValue(data.nama_lengkap)}</FieldValue>
+                      </div>
+                      <div>
+                        <FieldLabel>Jenis Kelamin</FieldLabel>
+                        <FieldValue>{safeValue(data.jenis_kelamin)}</FieldValue>
+                      </div>
+                      <div>
+                        <FieldLabel>NISN</FieldLabel>
+                        <FieldValue>{safeValue(data.nisn)}</FieldValue>
+                      </div>
+                      <div>
+                        <FieldLabel>NIK</FieldLabel>
+                        <FieldValue>{safeValue(data.nik)}</FieldValue>
+                      </div>
+                      <div>
+                        <FieldLabel>Agama</FieldLabel>
+                        <FieldValue>{safeValue(data.agama)}</FieldValue>
+                      </div>
+                      <div>
+                        <FieldLabel>No. HP Siswa (WhatsApp)</FieldLabel>
+                        <FieldValue>{safeValue(data.telepon_siswa)}</FieldValue>
+                      </div>
+                      <div>
+                        <FieldLabel>Tempat Lahir</FieldLabel>
+                        <FieldValue>{safeValue(data.tempat_lahir)}</FieldValue>
+                      </div>
+                      <div>
+                        <FieldLabel>Tanggal Lahir</FieldLabel>
+                        <FieldValue>{tglLahir}</FieldValue>
+                      </div>
+                    </div>
+                  </section>
+
+                  <section>
+                    <SectionTitle>C. Alamat Tempat Tinggal</SectionTitle>
+                    <div className="grid grid-cols-1 gap-x-6 gap-y-1.5 md:grid-cols-2">
+                      <div>
+                        <FieldLabel>Alamat (Dusun / Jalan)</FieldLabel>
+                        <FieldValue>{safeValue(data.dusun)}</FieldValue>
+                      </div>
+                      <div>
+                        <FieldLabel>RT / RW</FieldLabel>
+                        <FieldValue>{safeValue(data.rt_rw)}</FieldValue>
+                      </div>
+                      <div>
+                        <FieldLabel>Desa / Kelurahan</FieldLabel>
+                        <FieldValue>{safeValue(data.desa)}</FieldValue>
+                      </div>
+                      <div>
+                        <FieldLabel>Kecamatan</FieldLabel>
+                        <FieldValue>{safeValue(data.kecamatan)}</FieldValue>
+                      </div>
+                      <div>
+                        <FieldLabel>Kabupaten / Kota</FieldLabel>
+                        <FieldValue>{safeValue(data.kabupaten)}</FieldValue>
+                      </div>
+                      <div>
+                        <FieldLabel>Kode Pos</FieldLabel>
+                        <FieldValue>{safeValue(data.kode_pos)}</FieldValue>
+                      </div>
+                      <div className="md:col-span-2">
+                        <FieldLabel>Tinggal Bersama</FieldLabel>
+                        <FieldValue>{safeValue(data.tinggal_bersama)}</FieldValue>
+                      </div>
+                    </div>
+                  </section>
+
+                  <section>
+                    <SectionTitle>D. Orang Tua / Wali</SectionTitle>
+                    <div className="grid grid-cols-1 gap-x-6 gap-y-1.5 md:grid-cols-2">
+                      <div>
+                        <FieldLabel>Nama Ayah</FieldLabel>
+                        <FieldValue>{safeValue(data.nama_ayah)}</FieldValue>
+                      </div>
+                      <div>
+                        <FieldLabel>Pekerjaan Ayah</FieldLabel>
+                        <FieldValue>{safeValue(data.kerja_ayah)}</FieldValue>
+                      </div>
+                      <div>
+                        <FieldLabel>Nama Ibu</FieldLabel>
+                        <FieldValue>{safeValue(data.nama_ibu)}</FieldValue>
+                      </div>
+                      <div>
+                        <FieldLabel>Pekerjaan Ibu</FieldLabel>
+                        <FieldValue>{safeValue(data.kerja_ibu)}</FieldValue>
+                      </div>
+                      <div className="md:col-span-2">
+                        <FieldLabel>No. Telepon Orang Tua / Wali</FieldLabel>
+                        <FieldValue>{safeValue(data.telepon_ortu)}</FieldValue>
+                      </div>
+                      <div className="md:col-span-2">
+                        <FieldLabel>Estimasi Penghasilan Orang Tua / Wali</FieldLabel>
+                        <FieldValue>{safeValue(data.estimasi_penghasilan_ortu)}</FieldValue>
+                      </div>
+                    </div>
+                  </section>
+
+                  <section>
+                    <SectionTitle>E. Prestasi</SectionTitle>
+                    <div className="w-full rounded-[4px] border border-[#9bb9a7] bg-[#f8faf9] px-3 py-1.5 text-[11px] font-semibold text-slate-900">
+                      {safeValue(data.prestasi)}
+                    </div>
+                  </section>
+
+                  <section>
+                    <SectionTitle>F. Referral</SectionTitle>
+                    <div className="grid grid-cols-1 gap-x-6 gap-y-1.5 md:grid-cols-2">
+                      <div>
+                        <FieldLabel>Kategori Referral</FieldLabel>
+                        <FieldValue>{safeValue(data.referral_kategori)}</FieldValue>
+                      </div>
+                      <div>
+                        <FieldLabel>Nama Referral</FieldLabel>
+                        <FieldValue>{safeValue(data.referral_nama)}</FieldValue>
+                      </div>
+                    </div>
+                  </section>
+
+                  <div className="mt-4 grid grid-cols-2 gap-5 text-[10px] font-medium text-slate-700">
+                    <div>
+                      <p>Sempu, {today}</p>
+                      <p className="mt-3">Orang Tua / Wali Calon Peserta Didik</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="mt-5">Calon Peserta Didik</p>
+                    </div>
+                  </div>
+
+                  <div className="mt-5 grid grid-cols-2 text-[10px] font-semibold text-slate-900">
+                    <div className="h-10 border-b border-slate-900/80" />
+                    <div className="h-10 border-b border-slate-900/80 ml-auto w-[80%]" />
+                  </div>
+
+                  <div className="mt-1 grid grid-cols-2 gap-5 text-[10px] font-bold text-slate-900">
+                    <div className="text-left">({safeValue(data.nama_ayah || data.nama_ibu)})</div>
+                    <div className="text-right">({safeValue(data.nama_lengkap)})</div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-        <div className="w-24 h-32 shrink-0 border-2 border-slate-800 flex items-center justify-center bg-white">
-          {data.foto_profil_url ? (
-            <img src={data.foto_profil_url} alt="Pas Foto" className="w-full h-full object-cover" />
-          ) : (
-            <span className="text-[9px] text-slate-400 text-center px-1 leading-tight">
-              Pas Foto
-              <br />
-              3x4
-            </span>
-          )}
-        </div>
       </div>
-
-      <div className="px-6 py-5 print:px-4 print:py-2">
-        <div className="border border-slate-400 divide-y divide-slate-300">
-          <section className="p-4 print:p-1.5">
-            <SectionTitle>A. Pilihan Jurusan</SectionTitle>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 print:gap-y-1">
-              <FieldItem label="Jurusan Utama" value={jurusanLabel(data.pilihan_jurusan)} span2 />
-              <FieldItem label="Jurusan Alternatif" value={jurusanLabel(data.pilihan_alternatif)} />
-              <FieldItem label="Asal Sekolah" value={data.asal_sekolah} />
-              <BoxField label="Alasan Memilih Jurusan Alternatif" value={data.alasan_pilih_jurusan} />
-            </div>
-          </section>
-
-          <section className="p-4 print:p-1.5">
-            <SectionTitle>B. Data Pribadi</SectionTitle>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 print:gap-y-1">
-              <FieldItem label="Nama Lengkap (Sesuai Ijazah/Akte)" value={data.nama_lengkap} span2 />
-              <FieldItem label="Jenis Kelamin" value={data.jenis_kelamin} />
-              <FieldItem label="NISN" value={data.nisn} />
-              <FieldItem label="NIK" value={data.nik} />
-              <FieldItem label="Tempat Lahir" value={data.tempat_lahir} />
-              <FieldItem label="Tanggal Lahir" value={tglLahir} />
-              <FieldItem label="Agama" value={data.agama} />
-              <FieldItem label="No. HP Siswa (WhatsApp)" value={data.telepon_siswa} span2 />
-            </div>
-          </section>
-
-          <section className="p-4 print:p-1.5">
-            <SectionTitle>C. Alamat Tempat Tinggal</SectionTitle>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 print:gap-y-1">
-              <FieldItem label="Alamat (Dusun / Jalan)" value={data.dusun} />
-              <FieldItem label="RT / RW" value={data.rt_rw} />
-              <FieldItem label="Desa / Kelurahan" value={data.desa} />
-              <FieldItem label="Kecamatan" value={data.kecamatan} />
-              <FieldItem label="Kabupaten / Kota" value={data.kabupaten} />
-              <FieldItem label="Kode Pos" value={data.kode_pos} />
-              <FieldItem label="Tinggal Bersama" value={data.tinggal_bersama} />
-            </div>
-          </section>
-
-          <section className="p-4 print:p-1.5">
-            <SectionTitle>D. Data Orang Tua / Wali</SectionTitle>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 print:gap-y-1">
-              <FieldItem label="Nama Ayah" value={data.nama_ayah} />
-              <FieldItem label="Pekerjaan Ayah" value={data.kerja_ayah} />
-              <FieldItem label="Nama Ibu" value={data.nama_ibu} />
-              <FieldItem label="Pekerjaan Ibu" value={data.kerja_ibu} />
-              <FieldItem label="No. Telepon Orang Tua / Wali" value={data.telepon_ortu} span2 />
-              <FieldItem
-                label="Estimasi Penghasilan Orang Tua / Wali"
-                value={data.estimasi_penghasilan_ortu}
-                span2
-              />
-            </div>
-          </section>
-
-          <section className="p-4 print:p-1.5">
-            <SectionTitle>E. Prestasi (Opsional)</SectionTitle>
-            <BoxField label="Prestasi yang Pernah Diraih" value={data.prestasi} minHeight="56px" />
-          </section>
-
-          <section className="p-4 print:p-1.5">
-            <SectionTitle>F. Referral</SectionTitle>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 print:gap-y-1">
-              <FieldItem label="Kategori Referral" value={data.referral_kategori} />
-              <FieldItem label="Nama Referral" value={data.referral_nama} />
-            </div>
-          </section>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-10 mt-8 print:mt-2 text-[11px] text-slate-700">
-          <div>
-            <p>
-              Sempu, {formatWIBShort(new Date().toISOString())}
-            </p>
-            <p className="mt-0.5">Orang Tua / Wali Calon Peserta Didik</p>
-            <div className="h-16 print:h-10" />
-            <p className="font-semibold text-slate-900">
-              {data.nama_ayah || data.nama_ibu ? `( ${data.nama_ayah || data.nama_ibu} )` : '( ______________ )'}
-            </p>
-          </div>
-          <div className="sm:text-right">
-            <p className="mt-7 print:mt-1">Calon Peserta Didik</p>
-            <div className="h-14 print:h-9" />
-            <p className="font-semibold text-slate-900">
-              {data.nama_lengkap ? `( ${data.nama_lengkap} )` : '( ______________ )'}
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
+    </>
   )
 }
