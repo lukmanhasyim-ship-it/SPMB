@@ -61,7 +61,7 @@ const previewShellStyle: React.CSSProperties = {
 const printCss = `
   @page {
     size: 210mm 330mm;
-    margin: 3mm 3mm 3mm 30mm;
+    margin: 0;
   }
 
   .screen-form-shell {
@@ -102,13 +102,14 @@ const printCss = `
     }
 
     .form-page {
-      width: 177mm !important;
-      max-width: 177mm !important;
+      width: 210mm !important;
+      max-width: 210mm !important;
+      height: 330mm !important;
       margin: 0 !important;
       padding: 0 !important;
       box-sizing: border-box !important;
       background-size: 210mm 330mm !important;
-      background-position: -30mm -3mm !important;
+      background-position: 0 0 !important;
       -webkit-print-color-adjust: exact !important;
       print-color-adjust: exact !important;
     }
@@ -116,15 +117,21 @@ const printCss = `
 `
 
 const formPageStyle: React.CSSProperties = {
-  width: '177mm',
-  height: '324mm',
+  width: '210mm',
+  height: '330mm',
   boxSizing: 'border-box',
   margin: 0,
   padding: 0,
   backgroundImage: "url('/bg-formulir.png')",
   backgroundRepeat: 'no-repeat',
-  backgroundPosition: '-30mm -3mm',
+  backgroundPosition: '0 0',
   backgroundSize: '210mm 330mm',
+}
+
+const contentMarginStyle: React.CSSProperties = {
+  width: '100%',
+  boxSizing: 'border-box',
+  padding: '3mm 3mm 3mm 30mm',
 }
 
 const FIT_TARGET_PX = 1200
@@ -325,8 +332,8 @@ function FormBody({ data }: { data: Record<string, string> }) {
             </div>
 
             <div className="mt-5 grid grid-cols-2 text-[10px] font-semibold text-slate-900">
-              <div className="h-10 border-b border-slate-900/80" />
-              <div className="h-10 border-b border-slate-900/80 ml-auto w-[80%]" />
+              <div className="h-10" />
+              <div className="h-10" />
             </div>
 
             <div className="mt-1 grid grid-cols-2 gap-5 text-[10px] font-bold text-slate-900">
@@ -381,19 +388,23 @@ export default function FormulirPendaftaran({ data }: FormulirPendaftaranProps) 
         <div style={previewShellStyle}>
           <div id="area-cetak" style={sheetStyle}>
             <div className="form-page relative" style={formPageStyle}>
-              <div ref={contentRef} style={contentStyle}>
-                <FormBody data={data} />
+              <div style={contentMarginStyle}>
+                <div ref={contentRef} style={contentStyle}>
+                  <FormBody data={data} />
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="print-form-template mx-auto w-fit" aria-hidden="true">
+      <div className="print-form-template" aria-hidden="true">
         <div id="area-cetak-print" style={sheetStyle}>
           <div className="form-page relative" style={formPageStyle}>
-            <div style={contentStyle}>
-              <FormBody data={data} />
+            <div style={contentMarginStyle}>
+              <div style={contentStyle}>
+                <FormBody data={data} />
+              </div>
             </div>
           </div>
         </div>
