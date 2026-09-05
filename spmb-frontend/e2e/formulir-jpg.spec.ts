@@ -128,7 +128,7 @@ test('cetak memakai iframe gambar JPG ukuran F4 tanpa margin', async ({ page }) 
   await renderForm(page)
 
   await page.getByRole('button', { name: /Cetak/i }).click()
-  await page.waitForTimeout(800)
+  await page.waitForSelector('#formulir-print-frame', { state: 'attached', timeout: 30_000 })
 
   const frameInfo = await page.evaluate(() => {
     const iframe = document.getElementById('formulir-print-frame') as HTMLIFrameElement | null

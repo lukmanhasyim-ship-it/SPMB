@@ -4,6 +4,7 @@ import { Search, FileText, ArrowLeft, Printer, CreditCard, Download } from 'luci
 import Card from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
 import Loader from '../../components/ui/Loader'
+import Toast from '../../components/ui/Toast'
 import { api } from '../../services/api'
 import { renderFormJpeg, printJpeg, downloadJpeg } from '../../utils/formImage'
 import FormulirPendaftaran from './components/FormulirPendaftaran'
@@ -30,6 +31,14 @@ export default function AdminFormulir() {
   const [searchParams] = useSearchParams()
   const autoSelected = useRef(false)
   const [busy, setBusy] = useState<'print' | 'download' | null>(null)
+  const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
+  const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const showToast = (type: 'success' | 'error', message: string) => {
+    setToast({ type, message })
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current)
+    toastTimerRef.current = setTimeout(() => setToast(null), 4000)
+  }
 
   useEffect(() => {
     const fetchData = async () => {
@@ -108,6 +117,8 @@ export default function AdminFormulir() {
     try {
       const dataUrl = await renderFormJpeg()
       printJpeg(dataUrl)
+    } catch (err) {
+      showToast('error', err instanceof Error ? err.message : 'Gagal mencetak formulir')
     } finally {
       setBusy(null)
     }
@@ -120,6 +131,9 @@ export default function AdminFormulir() {
       const dataUrl = await renderFormJpeg()
       const id = selected?.id_pendaftaran || 'formulir'
       downloadJpeg(dataUrl, `Formulir-${id}.jpg`)
+      showToast('success', 'Gambar formulir berhasil diunduh')
+    } catch (err) {
+      showToast('error', err instanceof Error ? err.message : 'Gagal mengunduh formulir')
     } finally {
       setBusy(null)
     }
@@ -132,6 +146,7 @@ export default function AdminFormulir() {
   if (selectedKartu) {
     return (
       <div className="page-fade-in space-y-4">
+        {toast && <Toast type={toast.type} message={toast.message} onClose={() => setToast(null)} />}
         <div className="flex items-center justify-between print:hidden">
           <button
             onClick={() => setSelectedKartu(null)}
@@ -154,6 +169,7 @@ export default function AdminFormulir() {
   if (selected) {
     return (
       <div className="page-fade-in space-y-4">
+        {toast && <Toast type={toast.type} message={toast.message} onClose={() => setToast(null)} />}
         <div className="flex items-center justify-between print:hidden">
           <button
             onClick={() => setSelected(null)}
@@ -193,6 +209,7 @@ export default function AdminFormulir() {
 
   return (
     <div className="page-fade-in space-y-6">
+      {toast && <Toast type={toast.type} message={toast.message} onClose={() => setToast(null)} />}
       <div>
         <h1 className="text-xl font-bold text-slate-800">Generate Formulir Pendaftaran</h1>
         <p className="text-sm text-slate-500">

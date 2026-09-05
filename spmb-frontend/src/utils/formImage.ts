@@ -1,3 +1,4 @@
+import html2canvas from 'html2canvas'
 import { toJpeg } from 'html-to-image'
 
 const F4_WIDTH_MM = 210
@@ -9,8 +10,12 @@ const JPEG_QUALITY = 0.92
 
 const AREA_ID = 'area-cetak'
 
-function waitSettle(ms = 80): Promise<void> {
+function waitSettle(ms = 90): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+function errorMessage(err: unknown): string {
+  return err instanceof Error ? err.message : String(err)
 }
 
 function getArea(): HTMLElement {
@@ -19,23 +24,73 @@ function getArea(): HTMLElement {
   return node
 }
 
-export async function renderFormJpeg(node?: HTMLElement): Promise<string> {
-  const area = node ?? getArea()
-  const fonts = (document as Document & { fonts?: FontFaceSet }).fonts
-  if (fonts?.ready) await fonts.ready
-  await waitSettle()
+async function waitForImages(root: HTMLElement): Promise<void> {
+  const images = Array.from(root.querySelectorAll('img')) as HTMLImageElement[]
+  await Promise.all(
+    images.map(
+      (img) =>
+        new Promise<void>((resolve) => {
+          if (img.complete) {
+            resolve()
+            return
+          }
+          const done = () => resolve()
+          img.addEventListener('load', done, { once: true })
+          img.addEventListener('error', done, { once: true })
+          setTimeout(done, 5000)
+        }),
+    ),
+  )
+}
 
+async function renderWithSnapshot(area: HTMLElement): Promise<string> {
   const cssWidth = area.offsetWidth
-  if (cssWidth <= 0) throw new Error('Lebar area cetak tidak valid')
-  const pixelRatio = F4_PIXEL_WIDTH / cssWidth
-
   return toJpeg(area, {
-    pixelRatio,
+    pixelRatio: F4_PIXEL_WIDTH / cssWidth,
     quality: JPEG_QUALITY,
     backgroundColor: '#ffffff',
     skipFonts: true,
-    cacheBust: true,
   })
+}
+
+async function renderWithCanvas(area: HTMLElement): Promise<string> {
+  const cssWidth = area.offsetWidth
+  const cssHeight = area.offsetHeight
+  const canvas = await html2canvas(area, {
+    width: cssWidth,
+    height: cssHeight,
+    scale: F4_PIXEL_WIDTH / cssWidth,
+    backgroundColor: '#ffffff',
+    logging: false,
+  })
+  return canvas.toDataURL('image/jpeg', JPEG_QUALITY)
+}
+
+export async function renderFormJpeg(node?: HTMLElement): Promise<string> {
+  const area = node ?? getArea()
+
+  const fonts = (document as Document & { fonts?: FontFaceSet }).fonts
+  if (fonts?.ready) {
+    try {
+      await fonts.ready
+    } catch {
+      // font readiness gagal tidak menghalangi proses
+    }
+  }
+  await waitForImages(area)
+  await waitSettle()
+
+  try {
+    return await renderWithSnapshot(area)
+  } catch (primaryError) {
+    try {
+      return await renderWithCanvas(area)
+    } catch (fallbackError) {
+      throw new Error(
+        `Gagal mengonversi formulir ke gambar (${errorMessage(primaryError)} / cadangan: ${errorMessage(fallbackError)})`,
+      )
+    }
+  }
 }
 
 export function downloadJpeg(dataUrl: string, filename: string): void {
@@ -107,7 +162,7 @@ export function printJpeg(dataUrl: string): void {
   }
 
   win.addEventListener('afterprint', cleanup)
-  window.setTimeout(cleanup, 60000)
+  window.setTimeout(cleanup, 30000)
   win.focus()
-  setTimeout(() => win.print(), 150)
+  setTimeout(() => win.print(), 200)
 }
