@@ -93,7 +93,7 @@ export async function renderFormJpeg(node?: HTMLElement): Promise<string> {
   }
 }
 
-export function downloadJpeg(dataUrl: string, filename: string): void {
+export async function downloadJpeg(dataUrl: string, filename: string): Promise<void> {
   const link = document.createElement('a')
   link.href = dataUrl
   link.download = filename
@@ -102,7 +102,7 @@ export function downloadJpeg(dataUrl: string, filename: string): void {
   link.remove()
 }
 
-export function printJpeg(dataUrl: string): void {
+export function printJpeg(dataUrl: string): Promise<void> {
   const existing = document.getElementById('formulir-print-frame') as HTMLIFrameElement | null
   if (existing) existing.remove()
 
@@ -120,7 +120,7 @@ export function printJpeg(dataUrl: string): void {
   const doc = iframe.contentDocument
   if (!doc) {
     iframe.remove()
-    throw new Error('Gagal membuat dokumen cetak')
+    return Promise.reject(new Error('Gagal membuat dokumen cetak'))
   }
 
   doc.open()
@@ -153,16 +153,41 @@ export function printJpeg(dataUrl: string): void {
   const win = iframe.contentWindow
   if (!win) {
     iframe.remove()
-    throw new Error('Gagal membuka jendela cetak')
+    return Promise.reject(new Error('Gagal membuka jendela cetak'))
   }
 
-  const cleanup = () => {
-    win.removeEventListener('afterprint', cleanup)
-    if (document.body.contains(iframe)) iframe.remove()
-  }
+  return new Promise<void>((resolve, reject) => {
+    const image = doc.querySelector('img')
+    let settled = false
+    const cleanup = () => {
+      win.removeEventListener('afterprint', handleAfterPrint)
+      window.clearTimeout(timeout)
+      if (document.body.contains(iframe)) iframe.remove()
+    }
+    const finish = (error?: Error) => {
+      if (settled) return
+      settled = true
+      cleanup()
+      if (error) reject(error)
+      else resolve()
+    }
+    const handleAfterPrint = () => finish()
+    const timeout = window.setTimeout(() => finish(new Error('Waktu tunggu dokumen cetak habis')), 30000)
 
-  win.addEventListener('afterprint', cleanup)
-  window.setTimeout(cleanup, 30000)
-  win.focus()
-  setTimeout(() => win.print(), 200)
+    win.addEventListener('afterprint', handleAfterPrint, { once: true })
+    if (!image) {
+      finish(new Error('Gambar formulir tidak ditemukan'))
+      return
+    }
+
+    image.addEventListener('error', () => finish(new Error('Gagal memuat gambar formulir untuk dicetak')), { once: true })
+    image.addEventListener(
+      'load',
+      () => {
+        win.focus()
+        win.print()
+      },
+      { once: true },
+    )
+  })
 }

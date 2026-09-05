@@ -116,7 +116,7 @@ export default function AdminFormulir() {
     setBusy('print')
     try {
       const dataUrl = await renderFormJpeg()
-      printJpeg(dataUrl)
+      await printJpeg(dataUrl)
     } catch (err) {
       showToast('error', err instanceof Error ? err.message : 'Gagal mencetak formulir')
     } finally {
@@ -130,7 +130,7 @@ export default function AdminFormulir() {
     try {
       const dataUrl = await renderFormJpeg()
       const id = selected?.id_pendaftaran || 'formulir'
-      downloadJpeg(dataUrl, `Formulir-${id}.jpg`)
+      await downloadJpeg(dataUrl, `Formulir-${id}.jpg`)
       showToast('success', 'Gambar formulir berhasil diunduh')
     } catch (err) {
       showToast('error', err instanceof Error ? err.message : 'Gagal mengunduh formulir')

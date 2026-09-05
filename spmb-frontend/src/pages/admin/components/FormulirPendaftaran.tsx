@@ -36,7 +36,7 @@ function PageHeader() {
 
 function SectionTitle({ children }: { children: ReactNode }) {
   return (
-    <h3 className="mb-1.5 mt-2 inline-block rounded-[3px] bg-[#1b8d66] px-2 py-0.5 text-[10px] font-black uppercase leading-[1.2] tracking-[0.15em] text-white">
+    <h3 className="mb-2 mt-0 inline-flex h-[18px] items-center rounded-[3px] bg-[#1b8d66] px-2 text-[10px] font-black uppercase leading-none tracking-[0.15em] text-white">
       {children}
     </h3>
   )
@@ -157,12 +157,12 @@ function FormBody({ data }: { data: Record<string, string> }) {
 
       <div className="px-7 pb-4">
         <div className="w-full leading-[1.35]">
-          <div className="space-y-2">
+          <div className="space-y-3">
             <section>
               <SectionTitle>A. Pilihan Jurusan</SectionTitle>
-              <div className="grid grid-cols-[1fr_150px] items-start gap-x-5 gap-y-1.5">
+              <div className="grid grid-cols-[1fr_150px] items-start gap-x-5 gap-y-2">
                 <div>
-                  <div className="grid grid-cols-2 gap-x-6 gap-y-1.5">
+                  <div className="grid grid-cols-2 gap-x-6 gap-y-2">
                     <div className="col-span-2">
                       <FieldLabel>Program Keahlian Utama</FieldLabel>
                       <FieldValue>{safeValue(jurusanLabel(data.pilihan_jurusan))}</FieldValue>
@@ -200,7 +200,7 @@ function FormBody({ data }: { data: Record<string, string> }) {
 
             <section>
               <SectionTitle>B. Data Siswa</SectionTitle>
-              <div className="grid grid-cols-2 gap-x-6 gap-y-1.5">
+              <div className="grid grid-cols-2 gap-x-6 gap-y-2">
                 <div className="col-span-2">
                   <FieldLabel>Nama Lengkap (Sesuai Ijazah/Akte)</FieldLabel>
                   <FieldValue>{safeValue(data.nama_lengkap)}</FieldValue>
@@ -238,7 +238,7 @@ function FormBody({ data }: { data: Record<string, string> }) {
 
             <section>
               <SectionTitle>C. Alamat Tempat Tinggal</SectionTitle>
-              <div className="grid grid-cols-2 gap-x-6 gap-y-1.5">
+              <div className="grid grid-cols-2 gap-x-6 gap-y-2">
                 <div>
                   <FieldLabel>Alamat (Dusun / Jalan)</FieldLabel>
                   <FieldValue>{safeValue(data.dusun)}</FieldValue>
@@ -272,7 +272,7 @@ function FormBody({ data }: { data: Record<string, string> }) {
 
             <section>
               <SectionTitle>D. Orang Tua / Wali</SectionTitle>
-              <div className="grid grid-cols-2 gap-x-6 gap-y-1.5">
+              <div className="grid grid-cols-2 gap-x-6 gap-y-2">
                 <div>
                   <FieldLabel>Nama Ayah</FieldLabel>
                   <FieldValue>{safeValue(data.nama_ayah)}</FieldValue>
@@ -309,7 +309,7 @@ function FormBody({ data }: { data: Record<string, string> }) {
 
             <section>
               <SectionTitle>F. Referral</SectionTitle>
-              <div className="grid grid-cols-2 gap-x-6 gap-y-1.5">
+              <div className="grid grid-cols-2 gap-x-6 gap-y-2">
                 <div>
                   <FieldLabel>Kategori Referral</FieldLabel>
                   <FieldValue>{safeValue(data.referral_kategori)}</FieldValue>
@@ -376,8 +376,7 @@ export default function FormulirPendaftaran({ data }: FormulirPendaftaranProps) 
   }, [data])
 
   const contentStyle: React.CSSProperties = {
-    transform: scale < 1 ? `scale(${scale})` : undefined,
-    transformOrigin: 'top left',
+    zoom: scale < 1 ? scale : undefined,
   }
 
   return (
