@@ -3,7 +3,7 @@ function normalizeSekolah_(v) {
   return String(v || '').toLowerCase().replace(/\s+/g, ' ').trim()
 }
 
-var SISWA_TEXT_COLUMNS = ['telepon_ortu', 'telepon_siswa', 'nisn', 'nik', 'kode_pos']
+var SISWA_TEXT_COLUMNS = ['telepon_ortu', 'telepon_siswa', 'nisn', 'nik', 'kode_pos', 'nama_pondok']
 
 function setTeleponSiswa_(idPendaftaran, telepon) {
   if (!idPendaftaran) return
@@ -138,7 +138,7 @@ function handleUpdateSiswa(params, session) {
     'pilihan_jurusan', 'pilihan_alternatif', 'nama_lengkap', 'jenis_kelamin',
     'nisn', 'nik', 'tempat_lahir', 'tanggal_lahir', 'agama', 'asal_sekolah',
     'dusun', 'rt_rw', 'desa', 'kecamatan', 'kabupaten', 'kode_pos',
-    'koordinat_maps', 'dokumen_alamat_url', 'tinggal_bersama', 'nama_ayah', 'kerja_ayah',
+    'koordinat_maps', 'dokumen_alamat_url', 'tinggal_bersama', 'nama_pondok', 'nama_ayah', 'kerja_ayah',
     'nama_ibu', 'kerja_ibu', 'telepon_ortu', 'telepon_siswa', 'estimasi_penghasilan_ortu', 'prestasi',
     'alasan_pilih_jurusan', 'referral_nama', 'referral_kategori',
     'status_pendaftaran', 'foto_profil_url',
@@ -246,7 +246,7 @@ function handleAdminRegisterSiswa(params, session) {
     'pilihan_jurusan', 'pilihan_alternatif', 'nama_lengkap', 'jenis_kelamin',
     'nisn', 'nik', 'tempat_lahir', 'tanggal_lahir', 'agama', 'asal_sekolah',
     'dusun', 'rt_rw', 'desa', 'kecamatan', 'kabupaten', 'kode_pos',
-    'koordinat_maps', 'dokumen_alamat_url', 'tinggal_bersama', 'nama_ayah', 'kerja_ayah',
+    'koordinat_maps', 'dokumen_alamat_url', 'tinggal_bersama', 'nama_pondok', 'nama_ayah', 'kerja_ayah',
     'nama_ibu', 'kerja_ibu', 'telepon_ortu', 'telepon_siswa', 'estimasi_penghasilan_ortu', 'prestasi',
     'alasan_pilih_jurusan', 'referral_nama', 'referral_kategori'
   ]

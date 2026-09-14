@@ -38,6 +38,7 @@ interface SiswaRow {
   koordinatMaps: string
   dokumenAlamatUrl: string
   tinggalBersama: string
+  namaPondok: string
   namaAyah: string
   kerjaAyah: string
   namaIbu: string
@@ -94,6 +95,7 @@ export default function AdminSiswa() {
           koordinatMaps: s.koordinat_maps || '',
           dokumenAlamatUrl: s.dokumen_alamat_url || '',
           tinggalBersama: s.tinggal_bersama || '',
+          namaPondok: s.nama_pondok || '',
           namaAyah: s.nama_ayah || '',
           kerjaAyah: s.kerja_ayah || '',
           namaIbu: s.nama_ibu || '',
@@ -158,6 +160,7 @@ export default function AdminSiswa() {
       'Koordinat Maps': s.koordinatMaps,
       'Link Google Maps': s.koordinatMaps ? `https://www.google.com/maps?q=${s.koordinatMaps}` : '',
       'Tinggal Bersama': s.tinggalBersama,
+      'Nama Pondok Pesantren': s.namaPondok,
       'Nama Ayah': s.namaAyah,
       'Pekerjaan Ayah': s.kerjaAyah,
       'Nama Ibu': s.namaIbu,
@@ -267,6 +270,7 @@ export default function AdminSiswa() {
       kodePos: siswa.kodePos,
       koordinatMaps: siswa.koordinatMaps,
       tinggalBersama: siswa.tinggalBersama,
+      namaPondok: siswa.namaPondok,
       namaAyah: siswa.namaAyah,
       kerjaAyah: siswa.kerjaAyah,
       namaIbu: siswa.namaIbu,
@@ -307,6 +311,7 @@ export default function AdminSiswa() {
     if (!editForm.kecamatan) errs.kecamatan = 'Kecamatan wajib diisi'
     if (!editForm.kabupaten) errs.kabupaten = 'Kabupaten/Kota wajib diisi'
     if (!editForm.tinggalBersama) errs.tinggalBersama = 'Pilih tinggal bersama'
+    if (editForm.tinggalBersama === 'Pondok' && !editForm.namaPondok) errs.namaPondok = 'Nama pondok pesantren wajib diisi'
     if (!editForm.namaAyah) errs.namaAyah = 'Nama ayah wajib diisi'
     if (!editForm.namaIbu) errs.namaIbu = 'Nama ibu wajib diisi'
     if (!editForm.teleponOrtu) errs.teleponOrtu = 'No. telepon wajib diisi'
@@ -339,6 +344,7 @@ export default function AdminSiswa() {
         kode_pos: editForm.kodePos,
         koordinat_maps: editForm.koordinatMaps,
         tinggal_bersama: editForm.tinggalBersama,
+        nama_pondok: editForm.namaPondok,
         nama_ayah: editForm.namaAyah,
         kerja_ayah: editForm.kerjaAyah,
         nama_ibu: editForm.namaIbu,
@@ -769,6 +775,16 @@ export default function AdminSiswa() {
                     error={editErrors.tinggalBersama}
                     options={DATA_TINGGAL_BERSAMA.map((t) => ({ value: t, label: t }))}
                   />
+                  {editForm.tinggalBersama === 'Pondok' && (
+                    <InputField
+                      label="Nama Pondok Pesantren"
+                      name="namaPondok"
+                      value={editForm.namaPondok}
+                      onChange={handleEditChange}
+                      required
+                      error={editErrors.namaPondok}
+                    />
+                  )}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <InputField
                       label="Nama Ayah"

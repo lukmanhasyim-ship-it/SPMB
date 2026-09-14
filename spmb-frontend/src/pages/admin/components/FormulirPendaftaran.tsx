@@ -263,6 +263,12 @@ function FormBody({ data }: { data: Record<string, string> }) {
                   <FieldLabel>Tinggal Bersama</FieldLabel>
                   <FieldValue>{safeValue(data.tinggal_bersama)}</FieldValue>
                 </div>
+                {data.nama_pondok ? (
+                  <div className="col-span-2">
+                    <FieldLabel>Nama Pondok Pesantren</FieldLabel>
+                    <FieldValue>{safeValue(data.nama_pondok)}</FieldValue>
+                  </div>
+                ) : null}
               </div>
             </section>
 

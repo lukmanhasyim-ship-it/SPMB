@@ -65,4 +65,43 @@ describe('FormulirPendaftaran', () => {
     expect(printStyle).toContain('size: 210mm 330mm')
     expect(printStyle).toContain('margin: 0')
   })
+
+  it('renders Nama Pondok Pesantren when data.nama_pondok is provided', () => {
+    const data = {
+      tahun_ajaran: '2026/2027',
+      id_pendaftaran: 'SPMB-2728-X-B36200F',
+      gelombang: 'Inden',
+      nama_lengkap: 'My Dolan My Blakraan',
+      nama_ayah: 'Dd',
+      nama_ibu: 'Us',
+      jenis_kelamin: 'Laki-laki',
+      agama: 'Islam',
+      pilihan_jurusan: 'rpl',
+      asal_sekolah: 'SMP 1 Sempu',
+      alasan_pilih_jurusan: 'Suka menghitung',
+      nisn: '1234567890',
+      nik: '3510203012940001',
+      tempat_lahir: 'Banyuwangi',
+      tanggal_lahir: '2010-07-19',
+      dusun: 'Dapadan',
+      rt_rw: '002/002',
+      desa: 'Karangsari',
+      kecamatan: 'Sempu',
+      kabupaten: 'Banyuwangi',
+      kode_pos: '68468',
+      tinggal_bersama: 'Pondok',
+      nama_pondok: 'Pondok Pesantren Al-Hikmah',
+      telepon_siswa: '6281234567788',
+      telepon_ortu: '6282330295812',
+      estimasi_penghasilan_ortu: 'Rp. 500.000, - sd Rp. 1.000.000,-',
+      prestasi: 'juara 1 lomba melamun tingkat nasional',
+      referral_kategori: 'Guru SMK AL AZHAR SEMPU',
+      referral_nama: 'Imam Saroni',
+    }
+
+    render(<FormulirPendaftaran data={data} />)
+
+    expect(screen.getAllByText(/Nama Pondok Pesantren/i).length).toBeGreaterThan(0)
+    expect(screen.getAllByText(/Pondok Pesantren Al-Hikmah/i).length).toBeGreaterThan(0)
+  })
 })

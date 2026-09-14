@@ -22,6 +22,10 @@ export default function Step4Ortu({ onComplete, onBack }: Step4Props) {
       alert('Lengkapi data orang tua')
       return
     }
+    if (data.tinggalBersama === 'Pondok' && !data.namaPondok.trim()) {
+      alert('Lengkapi nama pondok pesantren')
+      return
+    }
     completeStep(4)
     onComplete()
   }
@@ -44,6 +48,17 @@ export default function Step4Ortu({ onComplete, onBack }: Step4Props) {
           required
           options={DATA_TINGGAL_BERSAMA.map((t) => ({ value: t, label: t }))}
         />
+
+        {data.tinggalBersama === 'Pondok' && (
+          <InputField
+            label="Nama Pondok Pesantren"
+            name="namaPondok"
+            value={data.namaPondok}
+            onChange={handleChange}
+            placeholder="Nama pondok pesantren tempat tinggal"
+            required
+          />
+        )}
 
         <div className="border-t border-gray-100 pt-4">
           <h4 className="text-sm font-semibold text-gray-700 mb-3">Data Ayah</h4>

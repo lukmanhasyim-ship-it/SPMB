@@ -39,6 +39,7 @@ export interface DataSiswa {
   koordinatMaps: string;
   dokumenAlamatUrl: string;
   tinggalBersama: TinggalBersama | '';
+  namaPondok: string;
   namaAyah: string;
   kerjaAyah: string;
   namaIbu: string;

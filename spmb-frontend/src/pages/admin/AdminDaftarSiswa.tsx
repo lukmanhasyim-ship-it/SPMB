@@ -38,6 +38,7 @@ const buatFormKosong = (user: User | null) => {
     kodePos: '',
     koordinatMaps: '',
     tinggalBersama: '',
+    namaPondok: '',
     namaAyah: '',
     kerjaAyah: '',
     namaIbu: '',
@@ -88,6 +89,7 @@ export default function AdminDaftarSiswa({ cetakPath = '/admin/formulir' }: Admi
     if (!form.kecamatan) errs.kecamatan = 'Kecamatan wajib diisi'
     if (!form.kabupaten) errs.kabupaten = 'Kabupaten/Kota wajib diisi'
     if (!form.tinggalBersama) errs.tinggalBersama = 'Pilih tinggal bersama'
+    if (form.tinggalBersama === 'Pondok' && !form.namaPondok) errs.namaPondok = 'Nama pondok pesantren wajib diisi'
     if (!form.namaAyah) errs.namaAyah = 'Nama ayah wajib diisi'
     if (!form.namaIbu) errs.namaIbu = 'Nama ibu wajib diisi'
     if (!form.teleponOrtu) errs.teleponOrtu = 'No. telepon wajib diisi'
@@ -120,6 +122,7 @@ export default function AdminDaftarSiswa({ cetakPath = '/admin/formulir' }: Admi
         kode_pos: form.kodePos,
         koordinat_maps: form.koordinatMaps,
         tinggal_bersama: form.tinggalBersama,
+        nama_pondok: form.namaPondok,
         nama_ayah: form.namaAyah,
         kerja_ayah: form.kerjaAyah,
         nama_ibu: form.namaIbu,
@@ -449,6 +452,17 @@ export default function AdminDaftarSiswa({ cetakPath = '/admin/formulir' }: Admi
             error={errors.tinggalBersama}
             options={DATA_TINGGAL_BERSAMA.map((t) => ({ value: t, label: t }))}
           />
+          {form.tinggalBersama === 'Pondok' && (
+            <InputField
+              label="Nama Pondok Pesantren"
+              name="namaPondok"
+              value={form.namaPondok}
+              onChange={handleChange}
+              placeholder="Nama pondok pesantren tempat tinggal"
+              required
+              error={errors.namaPondok}
+            />
+          )}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <InputField
               label="Nama Ayah"
