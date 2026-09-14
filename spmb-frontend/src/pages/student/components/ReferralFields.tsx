@@ -5,6 +5,7 @@ import { api } from '../../../services/api'
 
 const KATEGORI_GURU_INTERNAL = 'Guru SMKS AL AZHAR SEMPU'
 const KATEGORI_GURU_SMP = 'Guru SMP/MTs'
+const KATEGORI_ADMIN = 'Admin SPMB / Panitia SPMB'
 const SEKOLAH_KOSONG = '(Belum diisi)'
 
 interface GuruSmpOption {
@@ -56,6 +57,14 @@ export default function ReferralFields({ kategori, nama, onChange }: ReferralFie
   const isGuruInternal = kategori === KATEGORI_GURU_INTERNAL
   const isGuruSmp = kategori === KATEGORI_GURU_SMP
 
+  const opsiKategori = useMemo(() => {
+    const tanpaAdmin = DATA_KATEGORI_REFERRAL.filter((k) => k.value !== KATEGORI_ADMIN)
+    if (kategori === KATEGORI_ADMIN) {
+      return [...tanpaAdmin, { value: KATEGORI_ADMIN, label: KATEGORI_ADMIN }]
+    }
+    return tanpaAdmin
+  }, [kategori])
+
   const daftarSekolah = useMemo(
     () =>
       Array.from(new Set(guruSmp.map((g) => g.asal_sekolah || SEKOLAH_KOSONG))).sort((a, b) =>
@@ -98,7 +107,7 @@ export default function ReferralFields({ kategori, nama, onChange }: ReferralFie
           name="referralKategori"
           value={kategori}
           onChange={(e) => handleKategoriChange(e.target.value)}
-          options={DATA_KATEGORI_REFERRAL}
+          options={opsiKategori}
         />
         {!isGuruSmp ? (
           dropdownInternalAktif ? (
