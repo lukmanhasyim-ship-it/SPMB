@@ -4,6 +4,7 @@ import { DATA_KATEGORI_REFERRAL } from '../../../data/constants'
 import { api } from '../../../services/api'
 
 const KATEGORI_GURU_INTERNAL = 'Guru SMKS AL AZHAR SEMPU'
+const KATEGORI_ADMIN = 'Admin SPMB / Panitia SPMB'
 const KATEGORI_GURU_SMP = 'Guru SMP/MTs'
 const SEKOLAH_KOSONG = '(Belum diisi)'
 
@@ -54,7 +55,10 @@ export default function ReferralFields({ kategori, nama, onChange }: ReferralFie
   }, [])
 
   const isGuruInternal = kategori === KATEGORI_GURU_INTERNAL
+  const isAdminReferral = kategori === KATEGORI_ADMIN
   const isGuruSmp = kategori === KATEGORI_GURU_SMP
+
+  const labelNamaInternal = isAdminReferral ? 'Nama Admin / Panitia SPMB' : 'Nama Guru SMKS AL AZHAR SEMPU'
 
   const daftarSekolah = useMemo(
     () =>
@@ -72,7 +76,7 @@ export default function ReferralFields({ kategori, nama, onChange }: ReferralFie
     [guruSmp, filterSekolah]
   )
 
-  const dropdownInternalAktif = !loadFailed && isGuruInternal && guruInternal.length > 0
+  const dropdownInternalAktif = !loadFailed && (isGuruInternal || isAdminReferral) && guruInternal.length > 0
   const dropdownSmpAktif = !loadFailed && isGuruSmp && guruSmp.length > 0
 
   const handleKategoriChange = (value: string) => {
@@ -90,7 +94,7 @@ export default function ReferralFields({ kategori, nama, onChange }: ReferralFie
     <div className="border-t border-slate-100 pt-5">
       <p className="text-sm font-semibold text-slate-700 mb-1">Referral (Opsional)</p>
       <p className="text-xs text-slate-500 mb-3">
-        Tuliskan nama guru, siswa kelas XI/XII, atau alumni yang mendaftarkan atau memandu proses pendaftaran Anda
+        Pilih admin/panitia atau guru yang mendaftarkan Anda, atau tuliskan nama siswa kelas XI/XII, alumni, atau yang lain yang memandu proses pendaftaran Anda
       </p>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <InputField
@@ -103,11 +107,11 @@ export default function ReferralFields({ kategori, nama, onChange }: ReferralFie
         {!isGuruSmp ? (
           dropdownInternalAktif ? (
             <InputField
-              label="Nama Guru SMKS AL AZHAR SEMPU"
+              label={labelNamaInternal}
               name="referralNama"
               value={nama}
               onChange={(e) => onChange('referralNama', e.target.value)}
-              placeholder="Pilih nama guru"
+              placeholder="Pilih dari daftar"
               options={guruInternal.map((n) => ({ value: n, label: n }))}
             />
           ) : (
