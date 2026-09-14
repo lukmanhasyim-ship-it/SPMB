@@ -70,10 +70,10 @@ function doPost(e) {
     if (action === 'setup') {
       var setupResult = setupSheet(params.sheetId)
       if (params.googleClientId) {
-        var props = PropertiesService.getScriptProperties()
-        if (!props.getProperty('GOOGLE_CLIENT_ID')) {
-          props.setProperty('GOOGLE_CLIENT_ID', String(params.googleClientId).trim())
-        }
+        PropertiesService.getScriptProperties().setProperty(
+          'GOOGLE_CLIENT_ID',
+          String(params.googleClientId).trim()
+        )
       }
       return jsonOutput(setupResult)
     }

@@ -93,7 +93,8 @@ export default function LoginPage() {
           navigate('/register')
         } else {
           setInternalLoading(false)
-          setLocalError('Login gagal. Silakan coba lagi.')
+          const msg = useAuthStore.getState().error || 'Login gagal. Silakan coba lagi.'
+          setLocalError(getFriendlyAuthError(msg))
         }
       } catch (err) {
         console.error('Login error:', err)

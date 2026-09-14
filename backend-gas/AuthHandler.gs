@@ -8,6 +8,7 @@ function handleAuth(params) {
 
   var verify = verifyGoogleTokenStrict_(idToken)
   if (!verify.valid) {
+    console.error('SPMB login gagal verifikasi token (email=' + String(params.email || '').toLowerCase() + '): ' + (verify.error || ''))
     return { status: 'error', message: 'Token Google tidak valid: ' + (verify.error || '') }
   }
   if (!verify.payload.email) {
