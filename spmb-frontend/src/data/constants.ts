@@ -29,6 +29,7 @@ export const DATA_ESTIMASI_PENGHASILAN = [
 ] as const
 
 export const DATA_KATEGORI_REFERRAL = [
+  { value: 'Admin SPMB / Panitia SPMB', label: 'Admin SPMB / Panitia SPMB' },
   { value: 'Guru SMKS AL AZHAR SEMPU', label: 'Guru SMKS AL AZHAR SEMPU' },
   { value: 'Guru SMP/MTs', label: 'Guru SMP/MTs' },
   { value: 'Siswa Kelas X', label: 'Siswa Kelas X' },

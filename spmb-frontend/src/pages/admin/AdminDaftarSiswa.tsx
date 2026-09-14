@@ -12,10 +12,12 @@ import { DATA_JURUSAN, DATA_AGAMA, DATA_TINGGAL_BERSAMA, DATA_KATEGORI_REFERRAL,
 
 const KATEGORI_GURU_INTERNAL = 'Guru SMKS AL AZHAR SEMPU'
 const KATEGORI_GURU_SMP = 'Guru SMP/MTs'
+const KATEGORI_ADMIN = 'Admin SPMB / Panitia SPMB'
 
 const buatFormKosong = (user: User | null) => {
   const isGuruInternal = user?.role === 'guru'
   const isGuruSmp = user?.role === 'guru_smp'
+  const isAdmin = user?.role === 'admin'
   return {
     email: '',
     namaLengkap: '',
@@ -45,8 +47,8 @@ const buatFormKosong = (user: User | null) => {
     teleponSiswa: '',
     estimasiPenghasilanOrtu: '',
     prestasi: '',
-    referralKategori: isGuruInternal ? KATEGORI_GURU_INTERNAL : isGuruSmp ? KATEGORI_GURU_SMP : '',
-    referralNama: isGuruInternal || isGuruSmp ? user?.nama || '' : '',
+    referralKategori: isGuruInternal ? KATEGORI_GURU_INTERNAL : isGuruSmp ? KATEGORI_GURU_SMP : isAdmin ? KATEGORI_ADMIN : '',
+    referralNama: isGuruInternal || isGuruSmp || isAdmin ? user?.nama || '' : '',
   }
 }
 
@@ -57,7 +59,7 @@ interface AdminDaftarSiswaProps {
 export default function AdminDaftarSiswa({ cetakPath = '/admin/formulir' }: AdminDaftarSiswaProps) {
   const navigate = useNavigate()
   const user = useAuthStore((s) => s.user)
-  const referralTerkunci = user?.role === 'guru' || user?.role === 'guru_smp'
+  const referralTerkunci = user?.role === 'guru' || user?.role === 'guru_smp' || user?.role === 'admin'
   const isGuruSmp = user?.role === 'guru_smp'
   const sekolahTerkunci = isGuruSmp && !!user?.asal_sekolah
   const [form, setForm] = useState(() => buatFormKosong(user))

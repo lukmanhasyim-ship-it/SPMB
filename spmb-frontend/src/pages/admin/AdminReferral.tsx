@@ -7,6 +7,7 @@ import Loader from '../../components/ui/Loader'
 import { api } from '../../services/api'
 
 const kategoriColors: Record<string, string> = {
+  'Admin SPMB / Panitia SPMB': 'bg-slate-100 text-slate-700',
   'Guru SMKS AL AZHAR SEMPU': 'bg-brand-green-light text-brand-green-dark',
   'Siswa Kelas X': 'bg-cyan-50 text-cyan-700',
   'Siswa Kelas XI': 'bg-blue-50 text-blue-700',

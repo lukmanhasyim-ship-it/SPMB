@@ -228,12 +228,18 @@ function handleAdminRegisterSiswa(params, session) {
 
   var idPendaftaran = generateId(tahunAjaran, gelombangAktif)
 
-  if (session && (session.role === 'guru' || session.role === 'guru_smp')
+  if (session && (session.role === 'guru' || session.role === 'guru_smp' || session.role === 'admin')
       && !(params.referral_nama || '').trim() && !(params.referral_kategori || '').trim()) {
     var adminRow = findRowByKey('Admin', 'email', session.email)
     if (!adminRow) adminRow = findRowByKey('Guru', 'email', session.email)
     params.referral_nama = (adminRow && adminRow.nama ? String(adminRow.nama).trim() : session.email)
-    params.referral_kategori = session.role === 'guru_smp' ? 'Guru SMP/MTs' : 'Guru SMKS AL AZHAR SEMPU'
+    if (session.role === 'guru_smp') {
+      params.referral_kategori = 'Guru SMP/MTs'
+    } else if (session.role === 'admin') {
+      params.referral_kategori = 'Admin SPMB / Panitia SPMB'
+    } else {
+      params.referral_kategori = 'Guru SMKS AL AZHAR SEMPU'
+    }
   }
 
   var allowedFields = [
