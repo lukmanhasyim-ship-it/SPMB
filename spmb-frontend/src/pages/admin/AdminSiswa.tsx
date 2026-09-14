@@ -21,7 +21,6 @@ interface SiswaRow {
   idPendaftaran: string
   email: string
   pilihanJurusan: string
-  pilihanAlternatif: string
   namaLengkap: string
   jenisKelamin: string
   nisn: string
@@ -78,7 +77,6 @@ export default function AdminSiswa() {
           idPendaftaran: s.id_pendaftaran || '',
           email: s.email || '',
           pilihanJurusan: s.pilihan_jurusan || '',
-          pilihanAlternatif: s.pilihan_alternatif || '',
           namaLengkap: s.nama_lengkap || '',
           jenisKelamin: s.jenis_kelamin || '',
           nisn: s.nisn || '',
@@ -149,9 +147,8 @@ export default function AdminSiswa() {
       'Tanggal Lahir': s.tanggalLahir,
       'Agama': s.agama,
       'Asal Sekolah': s.asalSekolah,
-      'Pilihan Jurusan': s.pilihanJurusan,
-      'Pilihan Alternatif': s.pilihanAlternatif,
-      'Alasan Pilih Jurusan': s.alasanPilihJurusan,
+      'Program Keahlian': s.pilihanJurusan,
+      'Alasan Memilih Program Keahlian': s.alasanPilihJurusan,
       'Dusun': s.dusun,
       'RT/RW': s.rtRw,
       'Desa': s.desa,
@@ -253,7 +250,6 @@ export default function AdminSiswa() {
     setEditingSiswa(siswa)
     setEditForm({
       pilihanJurusan: siswa.pilihanJurusan,
-      pilihanAlternatif: siswa.pilihanAlternatif,
       alasanPilihJurusan: siswa.alasanPilihJurusan,
       namaLengkap: siswa.namaLengkap,
       jenisKelamin: siswa.jenisKelamin,
@@ -299,7 +295,7 @@ export default function AdminSiswa() {
   const validateEdit = (): boolean => {
     const errs: Record<string, string> = {}
     if (!editForm.namaLengkap) errs.namaLengkap = 'Nama lengkap wajib diisi'
-    if (!editForm.pilihanJurusan) errs.pilihanJurusan = 'Pilih jurusan utama'
+    if (!editForm.pilihanJurusan) errs.pilihanJurusan = 'Pilih program keahlian utama'
     if (!editForm.nik) errs.nik = 'NIK wajib diisi'
     else if (editForm.nik.length !== 16) errs.nik = 'NIK harus tepat 16 digit'
     if (!editForm.jenisKelamin) errs.jenisKelamin = 'Pilih jenis kelamin'
@@ -326,7 +322,6 @@ export default function AdminSiswa() {
     try {
       await api.siswa.update(editingSiswa.email, {
         pilihan_jurusan: editForm.pilihanJurusan,
-        pilihan_alternatif: editForm.pilihanAlternatif,
         alasan_pilih_jurusan: editForm.alasanPilihJurusan,
         nama_lengkap: editForm.namaLengkap,
         jenis_kelamin: editForm.jenisKelamin,
@@ -426,7 +421,7 @@ export default function AdminSiswa() {
                   <th className="text-left px-4 py-3 font-semibold text-slate-600 text-xs uppercase">No</th>
                   <th className="text-left px-4 py-3 font-semibold text-slate-600 text-xs uppercase">ID</th>
                   <th className="text-left px-4 py-3 font-semibold text-slate-600 text-xs uppercase">Nama</th>
-                  <th className="text-left px-4 py-3 font-semibold text-slate-600 text-xs uppercase">Jurusan</th>
+                  <th className="text-left px-4 py-3 font-semibold text-slate-600 text-xs uppercase">Program Keahlian</th>
                   <th className="text-left px-4 py-3 font-semibold text-slate-600 text-xs uppercase">Gelombang</th>
                   <th className="text-left px-4 py-3 font-semibold text-slate-600 text-xs uppercase">Referral</th>
                   <th className="text-left px-4 py-3 font-semibold text-slate-600 text-xs uppercase">Status</th>
@@ -589,10 +584,10 @@ export default function AdminSiswa() {
               </div>
 
               <div>
-                <p className="text-sm font-semibold text-slate-700 mb-3">Pilihan Jurusan</p>
+                <p className="text-sm font-semibold text-slate-700 mb-3">Pilihan Program Keahlian</p>
                 <div className="space-y-4">
                   <InputField
-                    label="Jurusan Utama"
+                    label="Program Keahlian Utama"
                     name="pilihanJurusan"
                     value={editForm.pilihanJurusan}
                     onChange={handleEditChange}
@@ -601,20 +596,7 @@ export default function AdminSiswa() {
                     options={DATA_JURUSAN.map((j) => ({ value: j.value, label: j.label }))}
                   />
                   <InputField
-                    label="Jurusan Alternatif (Opsional)"
-                    name="pilihanAlternatif"
-                    value={editForm.pilihanAlternatif}
-                    onChange={handleEditChange}
-                    options={[
-                      { value: '', label: 'Tidak ada pilihan alternatif' },
-                      ...DATA_JURUSAN.filter((j) => j.value !== editForm.pilihanJurusan).map((j) => ({
-                        value: j.value,
-                        label: `${j.value} - ${j.label}`,
-                      })),
-                    ]}
-                  />
-                  <InputField
-                    label="Alasan Memilih Jurusan Alternatif"
+                    label="Alasan Memilih Program Keahlian (Motivasi Memilih Program Keahlian)"
                     name="alasanPilihJurusan"
                     value={editForm.alasanPilihJurusan}
                     onChange={handleEditChange}

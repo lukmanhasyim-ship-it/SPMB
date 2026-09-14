@@ -14,7 +14,6 @@ export default function KartuPendaftaran() {
   const { user } = useAuthStore()
 
   const jurusanLabel = DATA_JURUSAN.find((j) => j.value === data.pilihanJurusan)?.label || data.pilihanJurusan
-  const jurusanAltLabel = DATA_JURUSAN.find((j) => j.value === data.pilihanAlternatif)?.label || ''
 
   const qrData = data.idPendaftaran || '-'
 
@@ -73,15 +72,9 @@ export default function KartuPendaftaran() {
 
             <div className="space-y-2 text-xs">
               <div className="flex justify-between border-b border-white/10 pb-1.5">
-                <span className="text-slate-400">Jurusan Utama</span>
+                <span className="text-slate-400">Program Keahlian</span>
                 <span className="font-medium text-right">{jurusanLabel || '-'}</span>
               </div>
-              {jurusanAltLabel && (
-                <div className="flex justify-between border-b border-white/10 pb-1.5">
-                  <span className="text-slate-400">Jurusan Alternatif</span>
-                  <span className="font-medium text-right">{jurusanAltLabel}</span>
-                </div>
-              )}
               <div className="flex justify-between border-b border-white/10 pb-1.5">
                 <span className="text-slate-400">Gelombang</span>
                 <span className="font-medium">{data.gelombang || '-'}</span>

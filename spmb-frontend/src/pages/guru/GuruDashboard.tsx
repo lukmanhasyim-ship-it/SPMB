@@ -174,7 +174,7 @@ export default function GuruDashboard() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <Card glass className="p-5">
               <h3 className="text-sm font-bold text-slate-800 mb-1">Jumlah per Program Keahlian</h3>
-              <p className="text-xs text-slate-400 mb-4">Distribusi pendaftar antar jurusan</p>
+              <p className="text-xs text-slate-400 mb-4">Distribusi pendaftar antar program keahlian</p>
               {donutData.length > 0 ? (
                 <DonutChart data={donutData} centerLabel="Pendaftar" />
               ) : (

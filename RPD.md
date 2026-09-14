@@ -13,7 +13,7 @@ Dokumen RPD ini dirancang sebagai cetak biru teknis untuk sistem penerimaan muri
 1. **Satu Gerbang Masuk (Unified Login):** Semua pengguna (Calon Siswa dan Admin/Panitia) masuk melalui tombol login Google OAuth 2.0 yang sama di halaman depan.  
 2. **Identifikasi Peran Otomatis (Role Detection):** Backend secara otomatis memeriksa email pengguna terhadap daftar otorisasi Admin di database (Sistem\_Config).  
 3. **Pengalihan Dinamis (Dynamic Redirect):**  
-   * **Role: Siswa** \-\> Diarahkan ke Portal Pendaftaran (Form Wizard 5 langkah) untuk melengkapi profil (dengan **NISN Opsional**), memilih Kompetensi Keahlian Utama & **Keahlian Alternatif (Opsional)**, mendeteksi lokasi koordinat rumah di peta interaktif, mengunggah berkas, dan mengunduh kartu digital ber-QR Code.  
+   * **Role: Siswa** \-\> Diarahkan ke Portal Pendaftaran (Form Wizard 5 langkah) untuk melengkapi profil (dengan **NISN Opsional**), memilih **Program Keahlian Utama** beserta alasan/motivasi memilihnya, mendeteksi lokasi koordinat rumah di peta interaktif, mengunggah berkas, dan mengunduh kartu digital ber-QR Code.  
    * **Role: Admin** \-\> Diarahkan ke Dashboard Administrasi Utama untuk memantau statistik pendaftar, mengelola tabel pendaftar, mengubah Tahun Ajaran secara manual, mengonfigurasi parameter gelombang aktif secara fleksibel, serta mengirim notifikasi massal secara personal.
 
 ## **2\. ARSITEKTUR & DESAIN INTERAKSI (STATE MANAGEMENT)**
@@ -38,7 +38,7 @@ Aplikasi ini menggunakan konsep **Single Page Application (SPA)** yang responsif
      |      PORTAL SISWA         |     |      DASHBOARD ADMIN      |  
      | \- Gelombang Banner & WA   |     | \- Statistik & Grafik      |  
      | \- Wizard 5 Langkah        |     | \- Tabel Calon Siswa       |  
-     |   \* Jurusan Utama & Alt   |     | \- Kontrol TA & Gelombang  |  
+|   \* Program Keahlian Utama |   | \- Kontrol TA & Gelombang  |
      |   \* Pribadi (NISN Opsional)     | \- Broadcast Notifikasi    |  
      |   \* Alamat & Maps Pin     |     \+---------------------------+  
      |   \* Orang Tua/Wali        |  
@@ -56,8 +56,8 @@ Seluruh data disimpan secara terpusat pada satu berkas Google Spreadsheet yang t
 | :---- | :---- | :---- |
 | id\_pendaftaran | String (Key) | Format: SPMB-\[TA\]-\[GEL\]-\[RANDOM\_HEX\] (Cth: SPMB-2627-G1-89CA2) |
 | email | String | Email Google siswa (diperoleh otomatis lewat OAuth) |
-| pilihan\_jurusan | String | Kompetensi Keahlian Utama (PPLG / TJKT / TO / AKL / Busana) |
-| pilihan\_alternatif | String | Kompetensi Keahlian Cadangan \- **Opsional** (PPLG / TJKT / TO / AKL / Busana / Kosong) |
+| pilihan\_jurusan | String | Program Keahlian Utama (AK / TKR / RPL / TKJ / DPB) |
+| pilihan\_alternatif | String | Cadangan lama — **tidak dipakai lagi** sejak v69 (kolom dipertahankan untuk kompatibilitas) |
 | nama\_lengkap | String | Nama lengkap pendaftar (sesuai Ijazah/Akte) |
 | jenis\_kelamin | String | Laki-laki / Perempuan |
 | nisn | String (Optional) | NISN dari Kemendikbud (Opsional, tidak menghalangi finalisasi) |

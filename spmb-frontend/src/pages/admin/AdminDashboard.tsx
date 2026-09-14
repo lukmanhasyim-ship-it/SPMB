@@ -31,7 +31,6 @@ export default function AdminDashboard() {
   const { user } = useAuthStore()
   const [stats, setStats] = useState<Stats>({ total: 0, terverifikasi: 0, selesai: 0, draft: 0 })
   const [jurusanCounts, setJurusanCounts] = useState<Record<string, number>>({})
-  const [jurusanAltCounts, setJurusanAltCounts] = useState<Record<string, number>>({})
   const [gelombangCounts, setGelombangCounts] = useState<Record<string, number>>({})
   const [recent, setRecent] = useState<Array<Record<string, string>>>([])
   const [gelombangAktif, setGelombangAktif] = useState<{ gelombang: string; tanggalMulai: string; tanggalSelesai: string } | null>(null)
@@ -61,21 +60,16 @@ export default function AdminDashboard() {
           })
 
           const counts: Record<string, number> = {}
-          const altCounts: Record<string, number> = {}
           const gelCounts: Record<string, number> = {}
           list.forEach((s) => {
             if (s.pilihan_jurusan) {
               counts[s.pilihan_jurusan] = (counts[s.pilihan_jurusan] || 0) + 1
-            }
-            if (s.pilihan_alternatif) {
-              altCounts[s.pilihan_alternatif] = (altCounts[s.pilihan_alternatif] || 0) + 1
             }
             if (s.gelombang) {
               gelCounts[s.gelombang] = (gelCounts[s.gelombang] || 0) + 1
             }
           })
           setJurusanCounts(counts)
-          setJurusanAltCounts(altCounts)
           setGelombangCounts(gelCounts)
 
           const sorted = [...list].sort((a, b) => {
@@ -176,7 +170,7 @@ export default function AdminDashboard() {
             <Card glass className="p-5">
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <h3 className="text-sm font-bold text-slate-800">Pendaftar per Jurusan</h3>
+                  <h3 className="text-sm font-bold text-slate-800">Pendaftar per Program Keahlian</h3>
                   <p className="text-xs text-slate-400">Distribusi kompetensi keahlian utama</p>
                 </div>
                 <Link
@@ -229,27 +223,7 @@ export default function AdminDashboard() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card glass className="p-5">
-              <h3 className="text-sm font-bold text-slate-800 mb-1">Jurusan Alternatif</h3>
-              <p className="text-xs text-slate-400 mb-4">Pilihan cadangan para pendaftar</p>
-              {Object.entries(jurusanAltCounts).length > 0 ? (
-                <div className="space-y-4">
-                  {Object.entries(jurusanAltCounts).map(([jurusan, count]) => (
-                    <ProgressBar
-                      key={jurusan}
-                      label={jurusan}
-                      count={count}
-                      total={stats.total}
-                      color="bg-amber-400"
-                    />
-                  ))}
-                </div>
-              ) : (
-                <p className="text-sm text-slate-400 text-center py-10">Belum ada data</p>
-              )}
-            </Card>
-
-            <Card glass className="p-5">
+            <Card glass className="p-5 lg:col-span-2">
               <h3 className="text-sm font-bold text-slate-800 mb-4">Akses Cepat</h3>
               <div className="grid grid-cols-2 gap-3 mb-5">
                 {quickActions.map(({ to, icon: Icon, label, tone }) => (
@@ -310,7 +284,7 @@ export default function AdminDashboard() {
                     <tr>
                       <th>Nama</th>
                       <th>ID Pendaftaran</th>
-                      <th>Jurusan</th>
+                      <th>Program Keahlian</th>
                       <th>Status</th>
                     </tr>
                   </thead>

@@ -256,6 +256,9 @@ function debugSiswa(email) {
 }
 
 function initializeSheets() {
+  // Migrasi data lama jurusan ke kode baru (sekali saja).
+  migrateJurusanKode_()
+
   // Hanya jalankan ensureHeaders sekali untuk menghemat quota Sheets.
   // Kunci memakai versi schema: naikkan SCHEMA_VERSION agar ensureHeaders
   // berjalan kembali setelah deploy yang menambah/mengubah struktur sheet.
@@ -335,4 +338,57 @@ function initializeSheets() {
   scriptProps.setProperty('SCHEMA_READY_V' + SCHEMA_VERSION, '1')
 
   seedInitialData()
+}
+
+// Migrasi kode program keahlian lama -> baru pada data Siswa (sekali saja).
+// Kode lama: PPLG, TJKT, TO, AKL, Busana. Kode baru: RPL, TKJ, TKR, AK, DPB.
+function migrateJurusanKode_() {
+  var props = PropertiesService.getScriptProperties()
+  if (props.getProperty('JURUSAN_MIGRASI_V1') === '1') return
+
+  var MAPPING = { PPLG: 'RPL', TJKT: 'TKJ', 'TO': 'TKR', AKL: 'AK', Busana: 'DPB' }
+
+  var sheet = getSheet('Siswa')
+  var data = sheet.getDataRange().getValues()
+  if (data.length < 2) {
+    props.setProperty('JURUSAN_MIGRASI_V1', '1')
+    return
+  }
+
+  var headers = data[0]
+  var colUtama = headers.indexOf('pilihan_jurusan')
+  var colAlt = headers.indexOf('pilihan_alternatif')
+
+  var changedUtama = 0
+  var changedAlt = 0
+  for (var i = 1; i < data.length; i++) {
+    if (colUtama > -1) {
+      var utama = String(data[i][colUtama] || '').trim()
+      if (MAPPING[utama]) {
+        data[i][colUtama] = MAPPING[utama]
+        changedUtama++
+      }
+    }
+    if (colAlt > -1) {
+      var alt = String(data[i][colAlt] || '').trim()
+      if (MAPPING[alt]) {
+        data[i][colAlt] = MAPPING[alt]
+        changedAlt++
+      }
+    }
+  }
+
+  var numRows = data.length - 1
+  if (changedUtama > 0 && colUtama > -1) {
+    var utamaCol = []
+    for (var u = 1; u < data.length; u++) utamaCol.push([data[u][colUtama]])
+    sheet.getRange(2, colUtama + 1, numRows, 1).setNumberFormat('@').setValues(utamaCol)
+  }
+  if (changedAlt > 0 && colAlt > -1) {
+    var altCol = []
+    for (var a = 1; a < data.length; a++) altCol.push([data[a][colAlt]])
+    sheet.getRange(2, colAlt + 1, numRows, 1).setNumberFormat('@').setValues(altCol)
+  }
+
+  props.setProperty('JURUSAN_MIGRASI_V1', '1')
 }

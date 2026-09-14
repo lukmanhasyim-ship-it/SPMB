@@ -188,7 +188,7 @@ function handleAdminRegisterSiswa(params, session) {
   if (params.telepon_siswa) params.telepon_siswa = normalizePhone_(params.telepon_siswa)
 
   if (!nama) { lock.releaseLock(); return { status: 'error', message: 'Nama lengkap wajib diisi' } }
-  if (!jurusan) { lock.releaseLock(); return { status: 'error', message: 'Jurusan utama wajib diisi' } }
+  if (!jurusan) { lock.releaseLock(); return { status: 'error', message: 'Program keahlian utama wajib diisi' } }
 
   if (email) {
     var byEmail = findRowByKey('Siswa', 'email', email)

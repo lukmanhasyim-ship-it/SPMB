@@ -7,17 +7,17 @@ import { setPendingRegistration } from '../../services/pendingAuth'
 import Card from '../../components/ui/Card'
 
 const LOGIN_JURUSAN = [
-  { code: 'AKL', label: 'Akuntansi dan Keuangan Lembaga' },
+  { code: 'AK', label: 'Akuntansi' },
   { code: 'TKR', label: 'Teknik Kendaraan Ringan' },
-  { code: 'PPLG', label: 'Pengembangan Perangkat Lunak dan Gim' },
-  { code: 'TJKT', label: 'Teknik Jaringan Komputer dan Telekomunikasi' },
+  { code: 'RPL', label: 'Rekayasa Perangkat Lunak' },
+  { code: 'TKJ', label: 'Teknik Komputer dan Jaringan' },
   { code: 'DPB', label: 'Desain dan Produksi Busana' },
 ]
 
 const CARA_DAFTAR_STEPS = [
   { icon: LogIn, title: 'Login dengan Google', desc: 'Klik tombol di atas menggunakan akun Gmail yang aktif' },
   { icon: User, title: 'Lengkapi data akun', desc: 'Isi nama lengkap dan upload foto profil' },
-  { icon: School, title: 'Pilih jurusan', desc: 'Pilih kompetensi keahlian yang Anda minati' },
+  { icon: School, title: 'Pilih program keahlian', desc: 'Pilih kompetensi keahlian yang Anda minati' },
   { icon: MapPin, title: 'Isi data pribadi & alamat', desc: 'Lengkapi data pribadi, alamat, dan peta lokasi' },
   { icon: Users, title: 'Isi data orang tua/wali', desc: 'Lengkapi data ayah, ibu, atau wali' },
   { icon: Award, title: 'Unggah berkas & selesai', desc: 'Unggah pas foto, catat prestasi (opsional), lalu finalisasi — kartu bukti pendaftaran langsung terbit' },
@@ -146,7 +146,7 @@ export default function LoginPage() {
               MASA DEPAN CERAH <span className="text-brand-orange">Dimulai </span> dari SPMB Sekarang.
             </h1>
             <p className="mt-5 text-white/80 leading-relaxed max-w-md animate-fade-in-up" style={{ animationDelay: '240ms' }}>
-              Daftar online, pilih jurusan impian, dan bergabung bersama keluarga besar
+              Daftar online, pilih program keahlian impian, dan bergabung bersama keluarga besar
               SMKS AL AZHAR SEMPU. Proses cepat, mudah, dan sepenuhnya digital.
             </p>
           </div>

@@ -8,9 +8,9 @@ SPMB adalah aplikasi web **Single Page Application (SPA)** untuk pendaftaran mur
 
 | Peran | Fitur |
 |---|---|
-| **Calon Murid** | Login Google OAuth; wizard pendaftaran 5 langkah (jurusan utama & alternatif, data pribadi + NISN opsional, alamat + koordinat peta, orang tua/wali, berkas & prestasi) ditutup estimasi penghasilan orang tua/wali wajib pilih (dropdown rentang: `< Rp. 500.000,-` s.d `> Rp. 5.000.000,-`); nomor HP siswa & orang tua/wali dinormalisasi otomatis ke format internasional Indonesia (`628xx`); pindai KK/KTP untuk pengisian alamat otomatis (OCR); dropdown referral dinamis (nama guru SMKS, atau guru SMP/MTs tersaring per asal sekolah); upload pas foto & PDF gabungan; kartu pendaftaran digital ber-QR; timeline tahapan SPMB; feed pengumuman ala Instagram (suka, komentar, tambah agenda ke Google Calendar + pengingat email). |
-| **Admin** | Dashboard statistik & grafik; tabel & pencarian pendaftar; daftarkan siswa manual; import data via Excel (xlsx); export Excel rekap pendaftar (satu sheet per jurusan + *Belum Ditentukan*, termasuk link Google Maps dari koordinat alamat); kelola gelombang & tahun ajaran aktif; kelola timeline tahapan SPMB; broadcast event personal ke email; statistik referral; manajemen pengguna (admin/guru/panitia CRUD) termasuk mengelola akun Guru SMP/MTs hasil registrasi mandiri; verifikasi berkas. |
-| **Guru SMKS** | Dashboard statistik pendaftar (total, status, distribusi jurusan & gelombang); daftarkan siswa dengan referral terkunci atas nama sendiri. |
+| **Calon Murid** | Login Google OAuth; wizard pendaftaran 5 langkah (program keahlian utama + motivasi memilih, data pribadi + NISN opsional, alamat + koordinat peta, orang tua/wali, berkas & prestasi) ditutup estimasi penghasilan orang tua/wali wajib pilih (dropdown rentang: `< Rp. 500.000,-` s.d `> Rp. 5.000.000,-`); nomor HP siswa & orang tua/wali dinormalisasi otomatis ke format internasional Indonesia (`628xx`); pindai KK/KTP untuk pengisian alamat otomatis (OCR); dropdown referral dinamis (nama guru SMKS, atau guru SMP/MTs tersaring per asal sekolah); upload pas foto & PDF gabungan; kartu pendaftaran digital ber-QR; timeline tahapan SPMB; feed pengumuman ala Instagram (suka, komentar, tambah agenda ke Google Calendar + pengingat email). |
+| **Admin** | Dashboard statistik & grafik; tabel & pencarian pendaftar; daftarkan siswa manual; import data via Excel (xlsx); export Excel rekap pendaftar (satu sheet per program keahlian + *Belum Ditentukan*, termasuk link Google Maps dari koordinat alamat); kelola gelombang & tahun ajaran aktif; kelola timeline tahapan SPMB; broadcast event personal ke email; statistik referral; manajemen pengguna (admin/guru/panitia CRUD) termasuk mengelola akun Guru SMP/MTs hasil registrasi mandiri; verifikasi berkas. |
+| **Guru SMKS** | Dashboard statistik pendaftar (total, status, distribusi program keahlian & gelombang); daftarkan siswa dengan referral terkunci atas nama sendiri. |
 | **Guru SMP/MTs (`guru_smp`)** | Registrasi mandiri via halaman Registrasi (wajib Gmail + asal sekolah); dashboard khusus yang hanya menampilkan pendaftar dari sekolahnya sendiri (filter di sisi server, tanpa persaingan antar sekolah); daftarkan siswa dengan asal sekolah & referral terisi otomatis dari akun. |
 | **Panitia MPLS** | Scan QR kartu pendaftaran / lookup manual ID; absensi kehadiran harian; manajemen izin (sakit/keluarga/lainnya); dashboard & informasi MPLS. |
 | **Umum** | Satu gerbang login + deteksi peran otomatis; otorisasi peran di sisi server; normalisasi nomor telepon ke format E.164 Indonesia di sisi server; kartu digital ber-QR; notifikasi personal. |
@@ -33,7 +33,7 @@ SPMB/
 │  │  ├─ services/api.ts       # lapisan pemanggil API (action + session token)
 │  │  ├─ store/                # Zustand (authStore, studentStore)
 │  │  ├─ types/                # tipe TypeScript
-│  │  └─ data/constants.ts     # jurusan, agama, proyeksi karir, kategori referral
+│  │  └─ data/constants.ts     # program keahlian, agama, proyeksi karir, kategori referral
 │  ├─ .env.example             # template variabel lingkungan
 │  ├─ firebase.json            # konfigurasi Firebase Hosting (public: dist)
 │  └─ .firebaserc              # project Firebase Hosting (spmbskalzar)

@@ -76,7 +76,7 @@ export default function DashboardSiswa() {
   }
 
   const stepIcons = [FileText, UserCheck, MapPin, User, Award]
-  const stepLabels = ['Jurusan', 'Data Pribadi', 'Alamat & Peta', 'Orang Tua/Wali', 'Berkas & Prestasi']
+  const stepLabels = ['Program Keahlian', 'Data Pribadi', 'Alamat & Peta', 'Orang Tua/Wali', 'Berkas & Prestasi']
   const filteredEvents = events.filter(
     (e) => e.target_gelombang === 'Semua' || e.target_gelombang === data.gelombang
   )
@@ -322,7 +322,7 @@ export default function DashboardSiswa() {
             <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-xs">
               <span className="text-slate-500">ID Pendaftaran:</span>
               <span className="text-slate-800 font-medium">{data.idPendaftaran}</span>
-              <span className="text-slate-500">Jurusan Utama:</span>
+              <span className="text-slate-500">Program Keahlian:</span>
               <span className="text-slate-800 font-medium">{data.pilihanJurusan || '-'}</span>
               <span className="text-slate-500">Gelombang:</span>
               <span className="text-slate-800 font-medium">{data.gelombang || '-'}</span>

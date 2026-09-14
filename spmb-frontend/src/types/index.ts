@@ -1,4 +1,4 @@
-export type Jurusan = 'PPLG' | 'TJKT' | 'TO' | 'AKL' | 'Busana';
+export type Jurusan = 'AK' | 'TKR' | 'RPL' | 'TKJ' | 'DPB';
 export type Gelombang = 'Gelombang 1' | 'Gelombang 2' | 'Gelombang 3';
 export type StatusPendaftaran = 'Draft' | 'Terdaftar' | 'Selesai' | 'Terverifikasi';
 export type Role = 'siswa' | 'admin' | 'guru' | 'guru_smp' | 'panitia_mpls' | 'new';

@@ -71,7 +71,7 @@ function buildExportSheet(rows: RekapRow[]): XLSX.WorkSheet {
     'ID Pendaftaran': r.id_pendaftaran,
     'Nama Lengkap': r.nama_lengkap,
     Email: r.email,
-    Jurusan: r.jurusan,
+    'Program Keahlian': r.jurusan,
     Gelombang: r.gelombang,
     Tanggal: r.tanggal,
     Waktu: r.waktu,
@@ -189,7 +189,7 @@ export default function MplsDashboard() {
   }
 
   const jurusanCounts = kehadiran.reduce<Record<string, number>>((acc, k) => {
-    const key = k.jurusan || 'Tanpa Jurusan'
+    const key = k.jurusan || 'Tanpa Program Keahlian'
     acc[key] = (acc[key] || 0) + 1
     return acc
   }, {})
@@ -252,7 +252,7 @@ export default function MplsDashboard() {
 
       {Object.entries(jurusanCounts).length > 0 && (
         <Card glass className="p-5">
-          <h3 className="text-sm font-bold text-slate-800 mb-1">Kehadiran per Jurusan</h3>
+          <h3 className="text-sm font-bold text-slate-800 mb-1">Kehadiran per Program Keahlian</h3>
           <p className="text-xs text-slate-400 mb-4">Distribusi kehadiran hari ini</p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
             {Object.entries(jurusanCounts).map(([jurusan, count]) => (
@@ -314,7 +314,7 @@ export default function MplsDashboard() {
                   <th>Status</th>
                   <th>ID Pendaftaran</th>
                   <th>Nama</th>
-                  <th>Jurusan</th>
+                  <th>Program Keahlian</th>
                   <th>Waktu</th>
                   <th>Keterangan</th>
                   <th>Petugas</th>

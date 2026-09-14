@@ -4,7 +4,7 @@ import { api } from '../services/api'
 import { formatWIBDateInput } from '../utils/dateUtils'
 
 const STEPS: StepInfo[] = [
-  { nomor: 1, label: 'Jurusan', selesai: false },
+  { nomor: 1, label: 'Program Keahlian', selesai: false },
   { nomor: 2, label: 'Data Pribadi', selesai: false },
   { nomor: 3, label: 'Alamat & Peta', selesai: false },
   { nomor: 4, label: 'Orang Tua/Wali', selesai: false },

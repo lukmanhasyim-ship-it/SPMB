@@ -239,7 +239,7 @@ export default function AdminFormulir() {
                   <th className="text-left px-4 py-3 font-semibold text-slate-600 text-xs uppercase">No</th>
                   <th className="text-left px-4 py-3 font-semibold text-slate-600 text-xs uppercase">ID</th>
                   <th className="text-left px-4 py-3 font-semibold text-slate-600 text-xs uppercase">Nama</th>
-                  <th className="text-left px-4 py-3 font-semibold text-slate-600 text-xs uppercase">Jurusan</th>
+                  <th className="text-left px-4 py-3 font-semibold text-slate-600 text-xs uppercase">Program Keahlian</th>
                   <th className="text-left px-4 py-3 font-semibold text-slate-600 text-xs uppercase">Gelombang</th>
                   <th className="text-right px-4 py-3 font-semibold text-slate-600 text-xs uppercase">Aksi</th>
                 </tr>

@@ -82,7 +82,7 @@ export default function AdminReferral() {
         'Nama Pendaftar': p.nama_lengkap,
         'ID Pendaftaran': p.id_pendaftaran,
         'Email': p.email,
-        'Jurusan': p.jurusan,
+        'Program Keahlian': p.jurusan,
         'Gelombang': p.gelombang,
         'Status': p.status_pendaftaran,
       }))
@@ -197,7 +197,7 @@ export default function AdminReferral() {
                           <tr className="border-b border-slate-100 bg-slate-50/50">
                             <th className="text-left px-3 py-2 font-semibold text-slate-600 text-xs uppercase">No</th>
                             <th className="text-left px-3 py-2 font-semibold text-slate-600 text-xs uppercase">Nama Pendaftar</th>
-                            <th className="text-left px-3 py-2 font-semibold text-slate-600 text-xs uppercase">Jurusan</th>
+                            <th className="text-left px-3 py-2 font-semibold text-slate-600 text-xs uppercase">Program Keahlian</th>
                             <th className="text-left px-3 py-2 font-semibold text-slate-600 text-xs uppercase">Gelombang</th>
                             <th className="text-left px-3 py-2 font-semibold text-slate-600 text-xs uppercase">Status</th>
                           </tr>

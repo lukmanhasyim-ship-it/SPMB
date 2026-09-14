@@ -13,8 +13,7 @@ describe('FormulirPendaftaran', () => {
       nama_ibu: 'Us',
       jenis_kelamin: 'Laki-laki',
       agama: 'Islam',
-      pilihan_jurusan: 'tkj',
-      pilihan_alternatif: 'akl',
+      pilihan_jurusan: 'rpl',
       asal_sekolah: 'SMP 1 Sempu',
       alasan_pilih_jurusan: 'Suka menghitung',
       nisn: '1234567890',
@@ -40,7 +39,7 @@ describe('FormulirPendaftaran', () => {
 
     expect(screen.getAllByRole('img', { name: /Kop surat/i }).length).toBeGreaterThan(0)
     expect(screen.getAllByText(/FORMULIR PENDAFTARAN/i).length).toBeGreaterThan(0)
-    expect(screen.getAllByText(/A. PILIHAN JURUSAN/i).length).toBeGreaterThan(0)
+    expect(screen.getAllByText(/A. PILIHAN PROGRAM KEAHLIAN/i).length).toBeGreaterThan(0)
     expect(screen.getAllByText(/B. DATA SISWA/i).length).toBeGreaterThan(0)
     expect(screen.getAllByText(/C. ALAMAT TEMPAT TINGGAL/i).length).toBeGreaterThan(0)
     expect(screen.getAllByText(/D. ORANG TUA \/ WALI/i).length).toBeGreaterThan(0)

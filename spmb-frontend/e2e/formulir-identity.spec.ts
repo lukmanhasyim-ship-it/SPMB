@@ -31,8 +31,7 @@ const STUDENT = {
   nama_ibu: 'Us',
   jenis_kelamin: 'Laki-laki',
   agama: 'Islam',
-  pilihan_jurusan: 'tkj',
-  pilihan_alternatif: 'akl',
+  pilihan_jurusan: 'rpl',
   asal_sekolah: 'SMP 1 Sempu',
   alasan_pilih_jurusan: 'Suka menghitung',
   nisn: '1234567890',
@@ -74,15 +73,18 @@ test('JPG hasil download identik dengan preview di layar', async ({ page }) => {
   await page.waitForTimeout(700)
 
   const state = await page.evaluate(() => {
-    const scaled = document.querySelector<HTMLElement>('#area-cetak [style*="scale"]')
+    const scaled = document.querySelector<HTMLElement>('#area-cetak [style*="zoom"]')
     const area = { w: 0, h: 0 }
     const el = document.getElementById('area-cetak') as HTMLElement
     area.w = el.offsetWidth
     area.h = el.offsetHeight
-    return { transform: scaled?.style.transform ?? '', areaW: area.w, areaH: area.h }
+    return { zoom: scaled?.style.zoom ?? '', areaW: area.w, areaH: area.h }
   })
   console.log('AUTO-FIT', JSON.stringify(state))
-  expect(state.transform).toContain('scale(')
+  const zoomNum = parseFloat(state.zoom)
+  expect(Number.isFinite(zoomNum)).toBe(true)
+  expect(zoomNum).toBeGreaterThan(0)
+  expect(zoomNum).toBeLessThan(1)
 
   const shotPng = await page.locator('#area-cetak').screenshot()
   const shotB64 = shotPng.toString('base64')

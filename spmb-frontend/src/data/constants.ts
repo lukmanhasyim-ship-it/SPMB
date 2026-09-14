@@ -1,9 +1,9 @@
 export const DATA_JURUSAN = [
-  { value: 'PPLG', label: 'PPLG - Pengembangan Perangkat Lunak dan Gim' },
-  { value: 'TJKT', label: 'TJKT - Teknik Jaringan Komputer dan Telekomunikasi' },
-  { value: 'TO', label: 'TO - Teknik Otomotif' },
-  { value: 'AKL', label: 'AKL - Akuntansi dan Keuangan Lembaga' },
-  { value: 'Busana', label: 'Busana - Tata Busana' },
+  { value: 'AK', label: 'AK - Akuntansi' },
+  { value: 'TKR', label: 'TKR - Teknik Kendaraan Ringan' },
+  { value: 'RPL', label: 'RPL - Rekayasa Perangkat Lunak' },
+  { value: 'TKJ', label: 'TKJ - Teknik Komputer dan Jaringan' },
+  { value: 'DPB', label: 'DPB - Desain dan Produksi Busana' },
 ] as const
 
 export const DATA_AGAMA = [
@@ -40,7 +40,7 @@ export const DATA_KATEGORI_REFERRAL = [
 ]
 
 export const DATA_PROSPEK_KARIR: Record<string, string[]> = {
-  PPLG: [
+  RPL: [
     'Jadi Programmer Handal yang Dicari Banyak Perusahaan',
     'Membangun Website & Aplikasi Android Keren',
     'Menciptakan Game Seru yang Dimainkan Ribuan Orang',
@@ -51,7 +51,7 @@ export const DATA_PROSPEK_KARIR: Record<string, string[]> = {
     'Jadi Bos Startup / Freelancer Berpenghasilan Tinggi',
     'Dapat Melanjutkan ke Perguruan Tinggi yang Relevan',
   ],
-  TJKT: [
+  TKJ: [
     'Jadi Ahli Jaringan yang Menghubungkan Seluruh Dunia',
     'Network Administrator & Engineer Perusahaan',
     'Cyber Security — Melindungi Data dari Serangan Hacker',
@@ -62,7 +62,7 @@ export const DATA_PROSPEK_KARIR: Record<string, string[]> = {
     'Buka Jasa Instalasi & Perawatan Jaringan Sendiri',
     'Dapat Melanjutkan ke Perguruan Tinggi yang Relevan',
   ],
-  TO: [
+  TKR: [
     'Jadi Mekanik Andal di Bengkel Ternama',
     'Teknisi Motor Injeksi & Kendaraan Masa Kini',
     'Ahli Perawatan Mesin Diesel dan Industri',
@@ -73,7 +73,7 @@ export const DATA_PROSPEK_KARIR: Record<string, string[]> = {
     'Sales & After-Sales Produk Otomotif',
     'Dapat Melanjutkan ke Perguruan Tinggi yang Relevan',
   ],
-  AKL: [
+  AK: [
     'Jadi Staf Akuntansi yang Jeli dan Teliti',
     'Junior Accountant — Gerbang Karier di Dunia Keuangan',
     'Bendahara dan Pengelola Keuangan Organisasi',
@@ -84,7 +84,7 @@ export const DATA_PROSPEK_KARIR: Record<string, string[]> = {
     'Karier Stabil di Perusahaan hingga BUMN',
     'Dapat Melanjutkan ke Perguruan Tinggi yang Relevan',
   ],
-  Busana: [
+  DPB: [
     'Jadi Desainer Busana dengan Karyamu Sendiri',
     'Menjahit & Mendesain Baju Sesuai Tren',
     'Modiste Busana Muslim yang Diminati Banyak Orang',

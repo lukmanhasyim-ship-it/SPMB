@@ -368,7 +368,7 @@ export default function MplsScan() {
                   <span className="text-slate-700 text-right">{scanResult.email || '-'}</span>
                 </div>
                 <div className="flex justify-between border-b border-slate-50 pb-2">
-                  <span className="text-slate-500">Jurusan</span>
+                  <span className="text-slate-500">Program Keahlian</span>
                   <span className="text-slate-700 text-right">{scanResult.pilihan_jurusan || '-'}</span>
                 </div>
                 <div className="flex justify-between border-b border-slate-50 pb-2">

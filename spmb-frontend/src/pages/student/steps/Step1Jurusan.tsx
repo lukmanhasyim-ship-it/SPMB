@@ -20,11 +20,7 @@ export default function Step1Jurusan({ onComplete, onBack }: Step1Props) {
 
   const handleNext = () => {
     if (!data.pilihanJurusan) {
-      alert('Pilih jurusan utama terlebih dahulu')
-      return
-    }
-    if (data.pilihanAlternatif && !data.alasanPilihJurusan.trim()) {
-      alert('Isi Alasan Memilih Jurusan Alternatif terlebih dahulu')
+      alert('Pilih program keahlian utama terlebih dahulu')
       return
     }
     completeStep(1)
@@ -33,7 +29,7 @@ export default function Step1Jurusan({ onComplete, onBack }: Step1Props) {
 
   return (
     <StepLayout
-      title="Pilihan Jurusan"
+      title="Pilihan Program Keahlian"
       subtitle="Pilih kompetensi keahlian yang Anda minati"
       steps={steps}
       currentStep={1}
@@ -43,7 +39,7 @@ export default function Step1Jurusan({ onComplete, onBack }: Step1Props) {
     >
       <div className="space-y-5 max-w-lg mx-auto">
         <InputField
-          label="Jurusan Utama"
+          label="Program Keahlian Utama"
           name="pilihanJurusan"
           value={data.pilihanJurusan}
           onChange={handleChange}
@@ -54,7 +50,7 @@ export default function Step1Jurusan({ onComplete, onBack }: Step1Props) {
         {data.pilihanJurusan && DATA_PROSPEK_KARIR[data.pilihanJurusan] && (
           <div className="bg-brand-green-light/40 border border-brand-green/20 rounded-xl p-4">
             <p className="text-sm font-semibold text-brand-green-dark mb-3">
-              Prospek Karir — {data.pilihanJurusan}
+              Prospek Karir — {DATA_JURUSAN.find((j) => j.value === data.pilihanJurusan)?.label || data.pilihanJurusan}
             </p>
             <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1.5">
               {DATA_PROSPEK_KARIR[data.pilihanJurusan].map((karir) => (
@@ -67,36 +63,19 @@ export default function Step1Jurusan({ onComplete, onBack }: Step1Props) {
           </div>
         )}
 
-        <InputField
-          label="Jurusan Alternatif (Opsional)"
-          name="pilihanAlternatif"
-          value={data.pilihanAlternatif}
-          onChange={handleChange}
-          options={[
-            { value: '', label: 'Tidak ada pilihan alternatif' },
-            ...DATA_JURUSAN.filter((j) => j.value !== data.pilihanJurusan).map((j) => ({
-              value: j.value,
-              label: `${j.value} - ${j.label}`,
-            })),
-          ]}
-        />
-
-        {data.pilihanAlternatif && (
-          <div>
-            <label className="block text-sm font-semibold text-slate-700 mb-1">
-              Mengapa saya memilih jurusan ini? <span className="text-red-500">*</span>
-            </label>
-            <textarea
-              name="alasanPilihJurusan"
-              value={data.alasanPilihJurusan}
-              onChange={handleChange}
-              placeholder="Jelaskan alasan Anda memilih jurusan ini..."
-              required
-              rows={3}
-              className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-sm transition-all outline-none focus:border-brand-green focus:ring-2 focus:ring-brand-green/30 text-slate-800 placeholder:text-slate-400 resize-none"
-            />
-          </div>
-        )}
+        <div>
+          <label className="block text-sm font-semibold text-slate-700 mb-1">
+            Alasan Memilih Program Keahlian (Motivasi Memilih Program Keahlian)
+          </label>
+          <textarea
+            name="alasanPilihJurusan"
+            value={data.alasanPilihJurusan}
+            onChange={handleChange}
+            placeholder="Jelaskan alasan Anda memilih program keahlian ini..."
+            rows={3}
+            className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-sm transition-all outline-none focus:border-brand-green focus:ring-2 focus:ring-brand-green/30 text-slate-800 placeholder:text-slate-400 resize-none"
+          />
+        </div>
 
         <ReferralFields
           kategori={data.referralKategori}

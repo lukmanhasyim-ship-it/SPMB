@@ -159,7 +159,7 @@ function FormBody({ data }: { data: Record<string, string> }) {
         <div className="w-full leading-[1.35]">
           <div className="space-y-3">
             <section>
-              <SectionTitle>A. Pilihan Jurusan</SectionTitle>
+              <SectionTitle>A. Pilihan Program Keahlian</SectionTitle>
               <div className="grid grid-cols-[1fr_150px] items-start gap-x-5 gap-y-2">
                 <div>
                   <div className="grid grid-cols-2 gap-x-6 gap-y-2">
@@ -168,15 +168,11 @@ function FormBody({ data }: { data: Record<string, string> }) {
                       <FieldValue>{safeValue(jurusanLabel(data.pilihan_jurusan))}</FieldValue>
                     </div>
                     <div>
-                      <FieldLabel>Program Keahlian Alternatif</FieldLabel>
-                      <FieldValue>{safeValue(jurusanLabel(data.pilihan_alternatif))}</FieldValue>
-                    </div>
-                    <div>
                       <FieldLabel>Asal Sekolah</FieldLabel>
                       <FieldValue>{safeValue(data.asal_sekolah)}</FieldValue>
                     </div>
                     <div className="col-span-2">
-                      <FieldLabel>Alasan Memilih Jurusan Alternatif</FieldLabel>
+                      <FieldLabel>Alasan Memilih Program Keahlian (Motivasi Memilih Program Keahlian)</FieldLabel>
                       <FieldValue className="min-h-[26px]">{safeValue(data.alasan_pilih_jurusan)}</FieldValue>
                     </div>
                   </div>

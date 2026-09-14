@@ -62,5 +62,5 @@ src/
 ├─ store/            # Zustand: authStore (sesi), studentStore (data & wizard siswa)
 ├─ types/            # tipe TypeScript (DataSiswa, dll.)
 ├─ utils/            # dateUtils (konversi waktu WIB), dll.
-└─ data/constants.ts # jurusan, agama, proyeksi karir, kategori referral
+└─ data/constants.ts # program keahlian, agama, proyeksi karir, kategori referral
 ```

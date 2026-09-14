@@ -53,7 +53,7 @@ export default function FormPendaftaranAwal() {
 
   const validate = (): boolean => {
     const errs: Record<string, string> = {}
-    if (!data.pilihanJurusan) errs.pilihanJurusan = 'Pilih jurusan utama'
+    if (!data.pilihanJurusan) errs.pilihanJurusan = 'Pilih program keahlian utama'
     if (!data.namaLengkap) errs.namaLengkap = 'Nama lengkap harus diisi'
     if (!data.jenisKelamin) errs.jenisKelamin = 'Pilih jenis kelamin'
     if (!data.nik) errs.nik = 'NIK harus diisi'
@@ -106,13 +106,13 @@ export default function FormPendaftaranAwal() {
             <GraduationCap className="w-5 h-5 text-brand-green" />
           </div>
           <div>
-            <h3 className="text-base font-semibold text-slate-800">Pilihan Jurusan</h3>
+            <h3 className="text-base font-semibold text-slate-800">Pilihan Program Keahlian</h3>
             <p className="text-xs text-slate-500">Pilih kompetensi keahlian yang Anda minati</p>
           </div>
         </div>
         <div className="space-y-4">
           <InputField
-            label="Jurusan Utama"
+            label="Program Keahlian Utama"
             name="pilihanJurusan"
             value={data.pilihanJurusan}
             onChange={handleChange}
@@ -120,19 +120,19 @@ export default function FormPendaftaranAwal() {
             error={errors.pilihanJurusan}
             options={DATA_JURUSAN.map((j) => ({ value: j.value, label: j.label }))}
           />
-          <InputField
-            label="Jurusan Alternatif (Opsional)"
-            name="pilihanAlternatif"
-            value={data.pilihanAlternatif}
-            onChange={handleChange}
-            options={[
-              { value: '', label: 'Tidak ada pilihan alternatif' },
-              ...DATA_JURUSAN.filter((j) => j.value !== data.pilihanJurusan).map((j) => ({
-                value: j.value,
-                label: `${j.value} - ${j.label}`,
-              })),
-            ]}
-          />
+          <div>
+            <label className="block text-sm font-semibold text-slate-700 mb-1">
+              Alasan Memilih Program Keahlian (Motivasi Memilih Program Keahlian)
+            </label>
+            <textarea
+              name="alasanPilihJurusan"
+              value={data.alasanPilihJurusan}
+              onChange={handleChange}
+              placeholder="Jelaskan alasan Anda memilih program keahlian ini..."
+              rows={3}
+              className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-sm transition-all outline-none focus:border-brand-green focus:ring-2 focus:ring-brand-green/30 text-slate-800 placeholder:text-slate-400 resize-none"
+            />
+          </div>
           <ReferralFields
             kategori={data.referralKategori}
             nama={data.referralNama}

@@ -252,7 +252,7 @@ export default function MplsIzin() {
                   >
                     <p className="text-sm font-medium text-slate-800">{s.nama_lengkap || '-'}</p>
                     <p className="text-xs text-brand-green">{s.id_pendaftaran} · {s.email}</p>
-                    <p className="text-xs text-slate-500">Jurusan: {s.pilihan_jurusan || '-'}</p>
+                    <p className="text-xs text-slate-500">Program Keahlian: {s.pilihan_jurusan || '-'}</p>
                   </button>
                 ))}
               </div>
@@ -287,12 +287,12 @@ export default function MplsIzin() {
                 <div className="space-y-1.5 text-xs text-slate-600 mb-4">
                   <p><span className="text-slate-400">ID:</span> {selected.id_pendaftaran}</p>
                   <p><span className="text-slate-400">Email:</span> {selected.email || '-'}</p>
-                  <p><span className="text-slate-400">Jurusan:</span> {selected.pilihan_jurusan || '-'}</p>
+                  <p><span className="text-slate-400">Program Keahlian:</span> {selected.pilihan_jurusan || '-'}</p>
                   <p><span className="text-slate-400">Gelombang:</span> {selected.gelombang || '-'}</p>
                 </div>
                 <div className="flex flex-wrap gap-2 mb-4">
                   <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-brand-green-light text-brand-green-dark text-xs font-medium">
-                    Jurusan: {selected.pilihan_jurusan || '-'}
+                    Program Keahlian: {selected.pilihan_jurusan || '-'}
                   </span>
                   <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-100 text-slate-600 text-xs font-medium">
                     {selected.status_pendaftaran || '-'}

@@ -22,7 +22,6 @@ const buatFormKosong = (user: User | null) => {
     email: '',
     namaLengkap: '',
     pilihanJurusan: '',
-    pilihanAlternatif: '',
     alasanPilihJurusan: '',
     jenisKelamin: '',
     nisn: '',
@@ -76,7 +75,7 @@ export default function AdminDaftarSiswa({ cetakPath = '/admin/formulir' }: Admi
   const validate = (): boolean => {
     const errs: Record<string, string> = {}
     if (!form.namaLengkap) errs.namaLengkap = 'Nama lengkap wajib diisi'
-    if (!form.pilihanJurusan) errs.pilihanJurusan = 'Pilih jurusan utama'
+    if (!form.pilihanJurusan) errs.pilihanJurusan = 'Pilih program keahlian utama'
     if (form.email && !/^\S+@\S+\.\S+$/.test(form.email)) errs.email = 'Format email tidak valid'
     if (!form.nik) errs.nik = 'NIK wajib diisi'
     else if (form.nik.length !== 16) errs.nik = 'NIK harus tepat 16 digit'
@@ -104,7 +103,6 @@ export default function AdminDaftarSiswa({ cetakPath = '/admin/formulir' }: Admi
       const res = await api.siswa.create({
         email: form.email,
         pilihan_jurusan: form.pilihanJurusan,
-        pilihan_alternatif: form.pilihanAlternatif,
         alasan_pilih_jurusan: form.alasanPilihJurusan,
         nama_lengkap: form.namaLengkap,
         jenis_kelamin: form.jenisKelamin,
@@ -208,13 +206,13 @@ export default function AdminDaftarSiswa({ cetakPath = '/admin/formulir' }: Admi
         <div className="flex items-center gap-3 mb-4">
           {sectionIcon('bg-brand-green-light', GraduationCap)}
           <div>
-            <h3 className="text-base font-semibold text-slate-800">Pilihan Jurusan</h3>
+            <h3 className="text-base font-semibold text-slate-800">Pilihan Program Keahlian</h3>
             <p className="text-xs text-slate-500">Kompetensi keahlian yang dipilih calon siswa</p>
           </div>
         </div>
         <div className="space-y-4">
           <InputField
-            label="Jurusan Utama"
+            label="Program Keahlian Utama"
             name="pilihanJurusan"
             value={form.pilihanJurusan}
             onChange={handleChange}
@@ -223,25 +221,12 @@ export default function AdminDaftarSiswa({ cetakPath = '/admin/formulir' }: Admi
             options={DATA_JURUSAN.map((j) => ({ value: j.value, label: j.label }))}
           />
           <InputField
-            label="Jurusan Alternatif (Opsional)"
-            name="pilihanAlternatif"
-            value={form.pilihanAlternatif}
-            onChange={handleChange}
-            options={[
-              { value: '', label: 'Tidak ada pilihan alternatif' },
-              ...DATA_JURUSAN.filter((j) => j.value !== form.pilihanJurusan).map((j) => ({
-                value: j.value,
-                label: `${j.value} - ${j.label}`,
-              })),
-            ]}
-          />
-          <InputField
-            label="Alasan Memilih Jurusan Alternatif"
+            label="Alasan Memilih Program Keahlian (Motivasi Memilih Program Keahlian)"
             name="alasanPilihJurusan"
             value={form.alasanPilihJurusan}
             onChange={handleChange}
             textarea
-            placeholder="Alasan Memilih Jurusan Alternatif (opsional)"
+            placeholder="Alasan memilih program keahlian (opsional)"
           />
           <div className="border-t border-slate-100 pt-4">
             <p className="text-sm font-semibold text-slate-700 mb-1">

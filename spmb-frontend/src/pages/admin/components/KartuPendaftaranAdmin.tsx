@@ -8,7 +8,6 @@ interface KartuPendaftaranAdminProps {
 
 export default function KartuPendaftaranAdmin({ data }: KartuPendaftaranAdminProps) {
   const jurusanLabel = DATA_JURUSAN.find((j) => j.value === data.pilihan_jurusan)?.label || data.pilihan_jurusan
-  const jurusanAltLabel = DATA_JURUSAN.find((j) => j.value === data.pilihan_alternatif)?.label || ''
   const qrData = data.id_pendaftaran || '-'
 
   return (
@@ -51,15 +50,9 @@ export default function KartuPendaftaranAdmin({ data }: KartuPendaftaranAdminPro
 
         <div className="space-y-2 text-xs">
           <div className="flex justify-between border-b border-white/10 pb-1.5">
-            <span className="text-slate-400">Jurusan Utama</span>
+            <span className="text-slate-400">Program Keahlian</span>
             <span className="font-medium text-right">{jurusanLabel || '-'}</span>
           </div>
-          {jurusanAltLabel && (
-            <div className="flex justify-between border-b border-white/10 pb-1.5">
-              <span className="text-slate-400">Jurusan Alternatif</span>
-              <span className="font-medium text-right">{jurusanAltLabel}</span>
-            </div>
-          )}
           <div className="flex justify-between border-b border-white/10 pb-1.5">
             <span className="text-slate-400">Gelombang</span>
             <span className="font-medium">{data.gelombang || '-'}</span>
