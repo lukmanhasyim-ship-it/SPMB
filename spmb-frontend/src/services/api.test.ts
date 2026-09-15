@@ -153,6 +153,23 @@ describe('request()', () => {
     expect(fetchMock).toHaveBeenCalledTimes(2)
   })
 
+  it('me-retry pada HTTP 404 sementara lalu berhasil', async () => {
+    vi.stubEnv('VITE_API_URL', TEST_API_URL)
+    const notFound = { ok: false, status: 404, statusText: 'Not Found' }
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(notFound)
+      .mockResolvedValueOnce(jsonResponse({ status: 'ok', data: {} }))
+    vi.stubGlobal('fetch', fetchMock)
+
+    const api = await loadApi()
+    api._internals.backoff = () => Promise.resolve()
+
+    const result = await api.api.siswa.get('a@gmail.com')
+
+    expect(result.status).toBe('ok')
+    expect(fetchMock).toHaveBeenCalledTimes(2)
+  })
+
   it('tidak me-retry pada HTTP 400', async () => {
     vi.stubEnv('VITE_API_URL', TEST_API_URL)
     const clientError = { ok: false, status: 400, statusText: 'Bad Request' }

@@ -37,7 +37,7 @@ function isRetryable(err: unknown): boolean {
   if (failure.kind === 'network') return true
   if (failure.kind === 'timeout') return false
   const status = failure.statusCode
-  return status === 429 || (typeof status === 'number' && status >= 500 && status < 600)
+  return status === 404 || status === 429 || (typeof status === 'number' && status >= 500 && status < 600)
 }
 
 interface ApiResponse {
