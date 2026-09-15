@@ -405,8 +405,9 @@ export default function FormulirPendaftaran({ data }: FormulirPendaftaranProps) 
     }
 
     measure()
-    const resizeObserver = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(measure) : null
-    if (resizeObserver) resizeObserver.observe(content)
+    const frame = window.requestAnimationFrame(measure)
+    const images = Array.from(content.querySelectorAll('img'))
+    images.forEach((image) => image.addEventListener('load', measure, { once: true }))
 
     const fonts = (document as Document & { fonts?: FontFaceSet }).fonts
     if (fonts?.ready?.then) fonts.ready.then(measure)
@@ -414,7 +415,8 @@ export default function FormulirPendaftaran({ data }: FormulirPendaftaranProps) 
     window.addEventListener('load', measure)
 
     return () => {
-      if (resizeObserver) resizeObserver.disconnect()
+      window.cancelAnimationFrame(frame)
+      images.forEach((image) => image.removeEventListener('load', measure))
       window.removeEventListener('load', measure)
     }
   }, [data])
