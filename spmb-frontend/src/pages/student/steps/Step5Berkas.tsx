@@ -72,6 +72,7 @@ export default function Step5Berkas({ onComplete, onBack }: Step5Props) {
             <div>
               <p className="text-sm font-medium text-slate-800">Pas Foto</p>
               <p className="text-xs text-slate-500">Maks 2MB, format JPG/PNG</p>
+              <p className="text-xs text-brand-green-dark mt-0.5">Foto ini akan muncul di formulir pendaftaran.</p>
             </div>
           </div>
 
@@ -143,8 +144,9 @@ export default function Step5Berkas({ onComplete, onBack }: Step5Props) {
           <div className="mt-4 flex items-start gap-3 bg-blue-50/50 border border-blue-100 rounded-xl p-3">
             <Award className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
             <p className="text-xs text-slate-600 leading-relaxed">
-              Sertifikat/Piagam pendukung tidak perlu diunggah, tetapi siapkan fisiknya untuk
-              keperluan administrasi dan validasi oleh panitia SPMB saat verifikasi berkas.
+              Jika memiliki prestasi, siapkan foto sertifikat/piagam untuk diunggah pada proses
+              berikutnya. Foto ini akan muncul di formulir pendaftaran. Sertifikat/piagam fisik
+              tetap perlu disiapkan untuk validasi panitia SPMB.
             </p>
           </div>
         </Card>
