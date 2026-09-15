@@ -2,6 +2,7 @@ import type { ChangeEvent } from 'react'
 import { useRef, useState } from 'react'
 import { Upload, Award } from 'lucide-react'
 import { useStudentStore } from '../../../store/studentStore'
+import { api } from '../../../services/api'
 import StepLayout from '../components/StepLayout'
 import Card from '../../../components/ui/Card'
 import Button from '../../../components/ui/Button'
@@ -39,9 +40,31 @@ export default function Step5Berkas({ onComplete, onBack }: Step5Props) {
       return
     }
     setUploadingFoto(true)
-    const base64 = await fileToBase64(file)
-    updateData({ fotoProfilBase64: base64 })
-    setUploadingFoto(false)
+    try {
+      const base64 = await fileToBase64(file)
+      const identitas = (data.idPendaftaran || data.email || 'siswa').replace(/[^a-zA-Z0-9_-]/g, '_')
+      const uploadResult = await api.upload(`${identitas}-foto-profil.jpg`, file.type || 'image/jpeg', base64)
+      const info = uploadResult.data as { fileUrl?: string; fileId?: string } | undefined
+      const fotoUrl = info?.fileId
+        ? `https://drive.google.com/uc?export=view&id=${encodeURIComponent(info.fileId)}`
+        : info?.fileUrl
+      if (!fotoUrl) throw new Error('URL foto tidak tersedia')
+
+      updateData({ fotoProfilBase64: fotoUrl })
+      if (data.email) {
+        try {
+          await api.siswa.update(data.email, { foto_profil_url: fotoUrl })
+        } catch {
+          alert('Foto berhasil diunggah, tetapi penyimpanan data tertunda. Tekan Selesai untuk menyimpan.')
+        }
+      }
+    } catch (error) {
+      updateData({ fotoProfilBase64: '' })
+      const message = error instanceof Error ? error.message : 'Kesalahan tidak diketahui'
+      alert(`Foto gagal diunggah: ${message}`)
+    } finally {
+      setUploadingFoto(false)
+    }
   }
 
   const handleSelesai = async () => {

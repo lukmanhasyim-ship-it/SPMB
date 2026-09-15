@@ -179,6 +179,9 @@ function mapDataToApi(data: DataSiswa): Record<string, unknown> {
     estimasi_penghasilan_ayah: data.estimasiPenghasilanAyah,
     estimasi_penghasilan_ibu: data.estimasiPenghasilanIbu,
     estimasi_penghasilan_wali: data.estimasiPenghasilanWali,
+    ...(data.fotoProfilBase64.startsWith('http')
+      ? { foto_profil_url: data.fotoProfilBase64 }
+      : {}),
     prestasi: data.prestasi,
     referral_nama: data.referralNama,
     referral_kategori: data.referralKategori,

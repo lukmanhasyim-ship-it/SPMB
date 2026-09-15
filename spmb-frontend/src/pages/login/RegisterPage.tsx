@@ -130,6 +130,9 @@ export default function RegisterPage() {
                   }`}
               >
                 <GraduationCap className={`w-6 h-6 ${peran === 'siswa' ? 'text-brand-green' : 'text-slate-400'}`} />
+              <p className="text-xs text-brand-green-dark text-center">
+                Silakan upload foto profile. Foto ini akan muncul di formulir pendaftaran.
+              </p>
                 <span className="text-sm font-bold text-slate-800">Siswa Baru</span>
                 <span className="text-[11px] text-slate-500 leading-snug">Calon murid baru SMKS</span>
               </button>
