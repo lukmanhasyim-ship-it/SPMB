@@ -259,10 +259,13 @@ function initializeSheets() {
   // Migrasi data lama jurusan ke kode baru (sekali saja).
   migrateJurusanKode_()
 
+  // Hapus kolom lama yang tidak terpakai pada sheet Siswa (sekali saja).
+  dropColumns_()
+
   // Hanya jalankan ensureHeaders sekali untuk menghemat quota Sheets.
   // Kunci memakai versi schema: naikkan SCHEMA_VERSION agar ensureHeaders
   // berjalan kembali setelah deploy yang menambah/mengubah struktur sheet.
-  var SCHEMA_VERSION = '10'
+  var SCHEMA_VERSION = '12'
   var scriptProps = PropertiesService.getScriptProperties()
   if (scriptProps.getProperty('SCHEMA_READY_V' + SCHEMA_VERSION) === '1') {
     seedInitialData()
@@ -270,13 +273,15 @@ function initializeSheets() {
   }
 
   ensureHeaders('Siswa', [
-    'id_pendaftaran', 'email', 'pilihan_jurusan', 'pilihan_alternatif',
+    'id_pendaftaran', 'email', 'pilihan_jurusan',
     'nama_lengkap', 'jenis_kelamin', 'nisn', 'nik', 'tempat_lahir',
     'tanggal_lahir', 'agama', 'asal_sekolah', 'dusun', 'rt_rw',
     'desa', 'kecamatan', 'kabupaten', 'kode_pos', 'koordinat_maps',
     'dokumen_alamat_url',
     'tinggal_bersama', 'nama_pondok', 'nama_ayah', 'kerja_ayah', 'nama_ibu', 'kerja_ibu',
-    'telepon_ortu', 'telepon_siswa', 'estimasi_penghasilan_ortu',
+    'telepon_ortu', 'telepon_siswa', 'anak_ke', 'jumlah_saudara',
+    'tinggi_badan', 'berat_badan', 'tahun_lahir_ayah', 'tahun_lahir_ibu',
+    'nama_wali', 'tahun_lahir_wali', 'estimasi_penghasilan_ayah', 'estimasi_penghasilan_ibu', 'estimasi_penghasilan_wali',
     'foto_profil_url', 'berkas_pdf_url', 'prestasi',
     'alasan_pilih_jurusan', 'referral_nama', 'referral_kategori',
     'gelombang', 'tahun_ajaran', 'status_pendaftaran',
@@ -391,4 +396,24 @@ function migrateJurusanKode_() {
   }
 
   props.setProperty('JURUSAN_MIGRASI_V1', '1')
+}
+
+// Hapus kolom lama yang tidak terpakai pada sheet Siswa (sekali saja).
+// - estimasi_penghasilan_ortu: digantikan estimasi_penghasilan_ayah/ibu/wali.
+// - pilihan_alternatif: pilihan jurusan ke-2 yang tidak pernah dipakai.
+function dropColumns_() {
+  var props = PropertiesService.getScriptProperties()
+  if (props.getProperty('SISWA_DROP_COLUMNS_V1') === '1') return
+
+  var sheet = getSheet('Siswa')
+  var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0]
+
+  // Hapus dari kanan ke kiri agar posisi kolom tidak bergeser.
+  var order = ['estimasi_penghasilan_ortu', 'pilihan_alternatif']
+  for (var i = 0; i < order.length; i++) {
+    var idx = headers.indexOf(order[i])
+    if (idx > -1) sheet.deleteColumn(idx + 1)
+  }
+
+  props.setProperty('SISWA_DROP_COLUMNS_V1', '1')
 }

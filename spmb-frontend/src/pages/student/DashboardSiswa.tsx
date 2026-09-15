@@ -187,7 +187,7 @@ export default function DashboardSiswa() {
             )
           ) : (
             <div className="w-full">
-              {status === 'Draft' && (
+              {(status === 'Draft' || (status === 'Terdaftar' && !langkah123Selesai)) && (
                 <Button
                   onClick={() => navigate('/student/wizard?mode=awal')}
                   fullWidth
@@ -197,7 +197,7 @@ export default function DashboardSiswa() {
                   Lanjutkan Isi Formulir
                 </Button>
               )}
-            {status === 'Terdaftar' && (
+            {status === 'Terdaftar' && langkah123Selesai && (
               <div className="flex flex-col sm:flex-row gap-2.5 w-full">
                 <Button
                   onClick={() => navigate('/student/kartu-pendaftaran')}

@@ -45,7 +45,17 @@ interface SiswaRow {
   kerjaIbu: string
   teleponOrtu: string
   teleponSiswa: string
-  estimasiPenghasilanOrtu: string
+  anakKe: string
+  jumlahSaudara: string
+  tinggiBadan: string
+  beratBadan: string
+  tahunLahirAyah: string
+  tahunLahirIbu: string
+  namaWali: string
+  tahunLahirWali: string
+  estimasiPenghasilanAyah: string
+  estimasiPenghasilanIbu: string
+  estimasiPenghasilanWali: string
   prestasi: string
   alasanPilihJurusan: string
   referralNama: string
@@ -102,7 +112,17 @@ export default function AdminSiswa() {
           kerjaIbu: s.kerja_ibu || '',
           teleponOrtu: s.telepon_ortu || '',
           teleponSiswa: s.telepon_siswa || '',
-          estimasiPenghasilanOrtu: s.estimasi_penghasilan_ortu || '',
+          anakKe: s.anak_ke || '',
+          jumlahSaudara: s.jumlah_saudara || '',
+          tinggiBadan: s.tinggi_badan || '',
+          beratBadan: s.berat_badan || '',
+          tahunLahirAyah: s.tahun_lahir_ayah || '',
+          tahunLahirIbu: s.tahun_lahir_ibu || '',
+          namaWali: s.nama_wali || '',
+          tahunLahirWali: s.tahun_lahir_wali || '',
+          estimasiPenghasilanAyah: s.estimasi_penghasilan_ayah || '',
+          estimasiPenghasilanIbu: s.estimasi_penghasilan_ibu || '',
+          estimasiPenghasilanWali: s.estimasi_penghasilan_wali || '',
           prestasi: s.prestasi || '',
           alasanPilihJurusan: s.alasan_pilih_jurusan || '',
           referralNama: s.referral_nama || '',
@@ -167,7 +187,17 @@ export default function AdminSiswa() {
       'Pekerjaan Ibu': s.kerjaIbu,
       'Telepon Orang Tua': s.teleponOrtu,
       'No. HP Siswa': s.teleponSiswa,
-      'Estimasi Penghasilan': s.estimasiPenghasilanOrtu,
+      'Anak Ke-': s.anakKe,
+      'Jumlah Saudara': s.jumlahSaudara,
+      'Tinggi Badan': s.tinggiBadan,
+      'Berat Badan': s.beratBadan,
+      'Tahun Lahir Ayah': s.tahunLahirAyah,
+      'Tahun Lahir Ibu': s.tahunLahirIbu,
+      'Nama Wali': s.namaWali,
+      'Tahun Lahir Wali': s.tahunLahirWali,
+      'Estimasi Penghasilan Ayah': s.estimasiPenghasilanAyah,
+      'Estimasi Penghasilan Ibu': s.estimasiPenghasilanIbu,
+      'Estimasi Penghasilan Wali': s.estimasiPenghasilanWali,
       'Prestasi': s.prestasi,
       'Referral (Kategori)': s.referralKategori,
       'Referral (Nama)': s.referralNama,
@@ -183,7 +213,9 @@ export default function AdminSiswa() {
       { wch: 35 }, { wch: 20 }, { wch: 10 }, { wch: 18 }, { wch: 18 }, { wch: 18 },
       { wch: 10 }, { wch: 22 }, { wch: 30 }, { wch: 14 }, { wch: 20 }, { wch: 18 },
       { wch: 20 }, { wch: 18 }, { wch: 18 }, { wch: 22 }, { wch: 30 }, { wch: 16 },
-      { wch: 20 }, { wch: 14 }, { wch: 14 }, { wch: 14 }, { wch: 20 },
+      { wch: 14 }, { wch: 14 }, { wch: 14 }, { wch: 14 }, { wch: 14 }, { wch: 14 },
+      { wch: 30 }, { wch: 30 }, { wch: 30 }, { wch: 14 }, { wch: 14 }, { wch: 20 },
+      { wch: 14 }, { wch: 14 }, { wch: 20 }, { wch: 20 },
     ]
 
     const jurusanOrder = DATA_JURUSAN.map((j) => j.value) as string[]
@@ -277,7 +309,17 @@ export default function AdminSiswa() {
       kerjaIbu: siswa.kerjaIbu,
       teleponOrtu: siswa.teleponOrtu,
       teleponSiswa: siswa.teleponSiswa,
-      estimasiPenghasilanOrtu: siswa.estimasiPenghasilanOrtu,
+      anakKe: siswa.anakKe,
+      jumlahSaudara: siswa.jumlahSaudara,
+      tinggiBadan: siswa.tinggiBadan,
+      beratBadan: siswa.beratBadan,
+      tahunLahirAyah: siswa.tahunLahirAyah,
+      tahunLahirIbu: siswa.tahunLahirIbu,
+      namaWali: siswa.namaWali,
+      tahunLahirWali: siswa.tahunLahirWali,
+      estimasiPenghasilanAyah: siswa.estimasiPenghasilanAyah,
+      estimasiPenghasilanIbu: siswa.estimasiPenghasilanIbu,
+      estimasiPenghasilanWali: siswa.estimasiPenghasilanWali,
       prestasi: siswa.prestasi,
       statusPendaftaran: siswa.statusPendaftaran,
     })
@@ -292,6 +334,10 @@ export default function AdminSiswa() {
 
   const handleEditChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
+    if (name === 'tinggalBersama' && value !== 'Wali') {
+      setEditForm((prev) => ({ ...prev, tinggalBersama: value, namaWali: '', tahunLahirWali: '', estimasiPenghasilanWali: '' }))
+      return
+    }
     setEditForm((prev) => ({ ...prev, [name]: value }))
     setEditErrors((prev) => ({ ...prev, [name]: '' }))
   }
@@ -302,6 +348,7 @@ export default function AdminSiswa() {
     if (!editForm.pilihanJurusan) errs.pilihanJurusan = 'Pilih program keahlian utama'
     if (!editForm.nik) errs.nik = 'NIK wajib diisi'
     else if (editForm.nik.length !== 16) errs.nik = 'NIK harus tepat 16 digit'
+    if (!editForm.nisn) errs.nisn = 'NISN wajib diisi'
     if (!editForm.jenisKelamin) errs.jenisKelamin = 'Pilih jenis kelamin'
     if (!editForm.tempatLahir) errs.tempatLahir = 'Tempat lahir wajib diisi'
     if (!editForm.tanggalLahir) errs.tanggalLahir = 'Tanggal lahir wajib diisi'
@@ -313,9 +360,17 @@ export default function AdminSiswa() {
     if (!editForm.tinggalBersama) errs.tinggalBersama = 'Pilih tinggal bersama'
     if (editForm.tinggalBersama === 'Pondok' && !editForm.namaPondok) errs.namaPondok = 'Nama pondok pesantren wajib diisi'
     if (!editForm.namaAyah) errs.namaAyah = 'Nama ayah wajib diisi'
+    if (!editForm.tahunLahirAyah) errs.tahunLahirAyah = 'Tahun lahir ayah wajib diisi'
     if (!editForm.namaIbu) errs.namaIbu = 'Nama ibu wajib diisi'
+    if (!editForm.tahunLahirIbu) errs.tahunLahirIbu = 'Tahun lahir ibu wajib diisi'
+    if (editForm.tinggalBersama === 'Wali') {
+      if (!editForm.namaWali) errs.namaWali = 'Nama wali wajib diisi'
+      if (!editForm.tahunLahirWali) errs.tahunLahirWali = 'Tahun lahir wali wajib diisi'
+      if (!editForm.estimasiPenghasilanWali) errs.estimasiPenghasilanWali = 'Estimasi penghasilan wali wajib dipilih'
+    }
     if (!editForm.teleponOrtu) errs.teleponOrtu = 'No. telepon wajib diisi'
-    if (!editForm.estimasiPenghasilanOrtu) errs.estimasiPenghasilanOrtu = 'Estimasi penghasilan wajib dipilih'
+    if (!editForm.estimasiPenghasilanAyah) errs.estimasiPenghasilanAyah = 'Estimasi penghasilan ayah wajib dipilih'
+    if (!editForm.estimasiPenghasilanIbu) errs.estimasiPenghasilanIbu = 'Estimasi penghasilan ibu wajib dipilih'
     if (!editForm.statusPendaftaran) errs.statusPendaftaran = 'Pilih status pendaftaran'
     setEditErrors(errs)
     return Object.keys(errs).length === 0
@@ -351,7 +406,17 @@ export default function AdminSiswa() {
         kerja_ibu: editForm.kerjaIbu,
         telepon_ortu: editForm.teleponOrtu,
         telepon_siswa: editForm.teleponSiswa,
-        estimasi_penghasilan_ortu: editForm.estimasiPenghasilanOrtu,
+        anak_ke: editForm.anakKe,
+        jumlah_saudara: editForm.jumlahSaudara,
+        tinggi_badan: editForm.tinggiBadan,
+        berat_badan: editForm.beratBadan,
+        tahun_lahir_ayah: editForm.tahunLahirAyah,
+        tahun_lahir_ibu: editForm.tahunLahirIbu,
+        nama_wali: editForm.namaWali,
+        tahun_lahir_wali: editForm.tahunLahirWali,
+        estimasi_penghasilan_ayah: editForm.estimasiPenghasilanAyah,
+        estimasi_penghasilan_ibu: editForm.estimasiPenghasilanIbu,
+        estimasi_penghasilan_wali: editForm.estimasiPenghasilanWali,
         prestasi: editForm.prestasi,
         status_pendaftaran: editForm.statusPendaftaran,
       })
@@ -647,10 +712,13 @@ export default function AdminSiswa() {
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <InputField
-                      label="NISN (Opsional)"
+                      label="NISN"
                       name="nisn"
                       value={editForm.nisn}
                       onChange={handleEditChange}
+                      required
+                      error={editErrors.nisn}
+                      helperText="NISN dapat dilihat di kartu pelajar maupun di raport."
                     />
                     <InputField
                       label="NIK"
@@ -696,6 +764,47 @@ export default function AdminSiswa() {
                     type="tel"
                     placeholder="628xxxxxxxxxx"
                   />
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <InputField
+                      label="Anak Ke-"
+                      name="anakKe"
+                      value={editForm.anakKe}
+                      onChange={handleEditChange}
+                      type="number"
+                      min={1}
+                      placeholder="Contoh: 1"
+                    />
+                    <InputField
+                      label="Jumlah Saudara"
+                      name="jumlahSaudara"
+                      value={editForm.jumlahSaudara}
+                      onChange={handleEditChange}
+                      type="number"
+                      min={0}
+                      placeholder="Contoh: 2"
+                      helperText="Jumlah saudara kandung."
+                    />
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <InputField
+                      label="Tinggi Badan (cm)"
+                      name="tinggiBadan"
+                      value={editForm.tinggiBadan}
+                      onChange={handleEditChange}
+                      type="number"
+                      min={1}
+                      placeholder="Contoh: 155"
+                    />
+                    <InputField
+                      label="Berat Badan (kg)"
+                      name="beratBadan"
+                      value={editForm.beratBadan}
+                      onChange={handleEditChange}
+                      type="number"
+                      min={1}
+                      placeholder="Contoh: 45"
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -785,7 +894,7 @@ export default function AdminSiswa() {
                       error={editErrors.namaPondok}
                     />
                   )}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <InputField
                       label="Nama Ayah"
                       name="namaAyah"
@@ -795,13 +904,35 @@ export default function AdminSiswa() {
                       error={editErrors.namaAyah}
                     />
                     <InputField
-                      label="Pekerjaan Ayah"
-                      name="kerjaAyah"
-                      value={editForm.kerjaAyah}
+                      label="Tahun Lahir Ayah"
+                      name="tahunLahirAyah"
+                      value={editForm.tahunLahirAyah}
                       onChange={handleEditChange}
+                      type="number"
+                      min={1920}
+                      max={2005}
+                      placeholder="Contoh: 1980"
+                      required
+                      error={editErrors.tahunLahirAyah}
+                      helperText="Data dapat dilihat di KK (Kartu Keluarga)"
+                    />
+                    <InputField
+                      label="Estimasi Penghasilan Ayah"
+                      name="estimasiPenghasilanAyah"
+                      value={editForm.estimasiPenghasilanAyah}
+                      onChange={handleEditChange}
+                      required
+                      error={editErrors.estimasiPenghasilanAyah}
+                      options={DATA_ESTIMASI_PENGHASILAN.map((p) => ({ value: p, label: p }))}
                     />
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <InputField
+                    label="Pekerjaan Ayah"
+                    name="kerjaAyah"
+                    value={editForm.kerjaAyah}
+                    onChange={handleEditChange}
+                  />
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <InputField
                       label="Nama Ibu"
                       name="namaIbu"
@@ -811,12 +942,72 @@ export default function AdminSiswa() {
                       error={editErrors.namaIbu}
                     />
                     <InputField
-                      label="Pekerjaan Ibu"
-                      name="kerjaIbu"
-                      value={editForm.kerjaIbu}
+                      label="Tahun Lahir Ibu"
+                      name="tahunLahirIbu"
+                      value={editForm.tahunLahirIbu}
                       onChange={handleEditChange}
+                      type="number"
+                      min={1920}
+                      max={2005}
+                      placeholder="Contoh: 1982"
+                      required
+                      error={editErrors.tahunLahirIbu}
+                      helperText="Data dapat dilihat di KK (Kartu Keluarga)"
+                    />
+                    <InputField
+                      label="Estimasi Penghasilan Ibu"
+                      name="estimasiPenghasilanIbu"
+                      value={editForm.estimasiPenghasilanIbu}
+                      onChange={handleEditChange}
+                      required
+                      error={editErrors.estimasiPenghasilanIbu}
+                      options={DATA_ESTIMASI_PENGHASILAN.map((p) => ({ value: p, label: p }))}
                     />
                   </div>
+                  <InputField
+                    label="Pekerjaan Ibu"
+                    name="kerjaIbu"
+                    value={editForm.kerjaIbu}
+                    onChange={handleEditChange}
+                  />
+                  {editForm.tinggalBersama === 'Wali' && (
+                    <div className="border-t border-slate-100 pt-4">
+                      <p className="text-sm font-semibold text-slate-700 mb-3">Data Wali</p>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <InputField
+                          label="Nama Wali"
+                          name="namaWali"
+                          value={editForm.namaWali}
+                          onChange={handleEditChange}
+                          placeholder="Nama lengkap wali"
+                          required
+                          error={editErrors.namaWali}
+                        />
+                        <InputField
+                          label="Tahun Lahir Wali"
+                          name="tahunLahirWali"
+                          value={editForm.tahunLahirWali}
+                          onChange={handleEditChange}
+                          type="number"
+                          min={1920}
+                          max={2005}
+                          placeholder="Contoh: 1978"
+                          required
+                          error={editErrors.tahunLahirWali}
+                          helperText="Data dapat dilihat di KK (Kartu Keluarga)"
+                        />
+                        <InputField
+                          label="Estimasi Penghasilan Wali"
+                          name="estimasiPenghasilanWali"
+                          value={editForm.estimasiPenghasilanWali}
+                          onChange={handleEditChange}
+                          required
+                          error={editErrors.estimasiPenghasilanWali}
+                          options={DATA_ESTIMASI_PENGHASILAN.map((p) => ({ value: p, label: p }))}
+                        />
+                      </div>
+                    </div>
+                  )}
                   <InputField
                     label="No. Telepon Orang Tua/Wali (WhatsApp)"
                     name="teleponOrtu"
@@ -826,15 +1017,6 @@ export default function AdminSiswa() {
                     placeholder="628xxxxxxxxxx"
                     required
                     error={editErrors.teleponOrtu}
-                  />
-                  <InputField
-                    label="Estimasi Penghasilan Orang Tua/Wali"
-                    name="estimasiPenghasilanOrtu"
-                    value={editForm.estimasiPenghasilanOrtu}
-                    onChange={handleEditChange}
-                    required
-                    error={editErrors.estimasiPenghasilanOrtu}
-                    options={DATA_ESTIMASI_PENGHASILAN.map((p) => ({ value: p, label: p }))}
                   />
                 </div>
               </div>

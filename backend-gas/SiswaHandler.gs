@@ -135,11 +135,13 @@ function handleUpdateSiswa(params, session) {
   if (params.telepon_siswa) params.telepon_siswa = normalizePhone_(params.telepon_siswa)
 
   var allowedFields = [
-    'pilihan_jurusan', 'pilihan_alternatif', 'nama_lengkap', 'jenis_kelamin',
+    'pilihan_jurusan', 'nama_lengkap', 'jenis_kelamin',
     'nisn', 'nik', 'tempat_lahir', 'tanggal_lahir', 'agama', 'asal_sekolah',
     'dusun', 'rt_rw', 'desa', 'kecamatan', 'kabupaten', 'kode_pos',
     'koordinat_maps', 'dokumen_alamat_url', 'tinggal_bersama', 'nama_pondok', 'nama_ayah', 'kerja_ayah',
-    'nama_ibu', 'kerja_ibu', 'telepon_ortu', 'telepon_siswa', 'estimasi_penghasilan_ortu', 'prestasi',
+    'nama_ibu', 'kerja_ibu', 'telepon_ortu', 'telepon_siswa', 'anak_ke', 'jumlah_saudara',
+    'tinggi_badan', 'berat_badan', 'tahun_lahir_ayah', 'tahun_lahir_ibu', 'nama_wali', 'tahun_lahir_wali',
+    'estimasi_penghasilan_ayah', 'estimasi_penghasilan_ibu', 'estimasi_penghasilan_wali', 'prestasi',
     'alasan_pilih_jurusan', 'referral_nama', 'referral_kategori',
     'status_pendaftaran', 'foto_profil_url',
     'berkas_pdf_url'
@@ -182,6 +184,7 @@ function handleAdminRegisterSiswa(params, session) {
   var email = (params.email || '').toLowerCase().trim()
   var nama = (params.nama_lengkap || '').trim()
   var jurusan = (params.pilihan_jurusan || '').trim()
+  var nisn = (params.nisn || '').trim()
   var nik = (params.nik || '').trim()
 
   if (params.telepon_ortu) params.telepon_ortu = normalizePhone_(params.telepon_ortu)
@@ -189,6 +192,7 @@ function handleAdminRegisterSiswa(params, session) {
 
   if (!nama) { lock.releaseLock(); return { status: 'error', message: 'Nama lengkap wajib diisi' } }
   if (!jurusan) { lock.releaseLock(); return { status: 'error', message: 'Program keahlian utama wajib diisi' } }
+  if (!nisn) { lock.releaseLock(); return { status: 'error', message: 'NISN wajib diisi' } }
 
   if (email) {
     var byEmail = findRowByKey('Siswa', 'email', email)
@@ -243,11 +247,13 @@ function handleAdminRegisterSiswa(params, session) {
   }
 
   var allowedFields = [
-    'pilihan_jurusan', 'pilihan_alternatif', 'nama_lengkap', 'jenis_kelamin',
+    'pilihan_jurusan', 'nama_lengkap', 'jenis_kelamin',
     'nisn', 'nik', 'tempat_lahir', 'tanggal_lahir', 'agama', 'asal_sekolah',
     'dusun', 'rt_rw', 'desa', 'kecamatan', 'kabupaten', 'kode_pos',
     'koordinat_maps', 'dokumen_alamat_url', 'tinggal_bersama', 'nama_pondok', 'nama_ayah', 'kerja_ayah',
-    'nama_ibu', 'kerja_ibu', 'telepon_ortu', 'telepon_siswa', 'estimasi_penghasilan_ortu', 'prestasi',
+    'nama_ibu', 'kerja_ibu', 'telepon_ortu', 'telepon_siswa', 'anak_ke', 'jumlah_saudara',
+    'tinggi_badan', 'berat_badan', 'tahun_lahir_ayah', 'tahun_lahir_ibu', 'nama_wali', 'tahun_lahir_wali',
+    'estimasi_penghasilan_ayah', 'estimasi_penghasilan_ibu', 'estimasi_penghasilan_wali', 'prestasi',
     'alasan_pilih_jurusan', 'referral_nama', 'referral_kategori'
   ]
 

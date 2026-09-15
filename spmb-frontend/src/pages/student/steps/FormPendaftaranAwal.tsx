@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import type { ChangeEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, MapPin, GraduationCap, Map as MapIcon, ExternalLink } from 'lucide-react'
-import { useStudentStore } from '../../../store/studentStore'
+import { isPendaftaranAwalLengkap, useStudentStore } from '../../../store/studentStore'
 import { useAuthStore } from '../../../store/authStore'
 import InputField from '../../../components/ui/InputField'
 import Card from '../../../components/ui/Card'
@@ -56,21 +56,25 @@ export default function FormPendaftaranAwal() {
     if (!data.pilihanJurusan) errs.pilihanJurusan = 'Pilih program keahlian utama'
     if (!data.namaLengkap) errs.namaLengkap = 'Nama lengkap harus diisi'
     if (!data.jenisKelamin) errs.jenisKelamin = 'Pilih jenis kelamin'
+    if (!data.nisn) errs.nisn = 'NISN harus diisi'
     if (!data.nik) errs.nik = 'NIK harus diisi'
     else if (data.nik.length !== 16) errs.nik = 'NIK harus tepat 16 digit'
     if (!data.tempatLahir) errs.tempatLahir = 'Tempat lahir harus diisi'
     if (!data.tanggalLahir) errs.tanggalLahir = 'Tanggal lahir harus diisi'
     if (!data.agama) errs.agama = 'Pilih agama'
+    if (!data.asalSekolah) errs.asalSekolah = 'Asal sekolah harus diisi'
     if (!data.dusun) errs.dusun = 'Dusun/Jalan harus diisi'
     if (!data.desa) errs.desa = 'Desa/Kelurahan harus diisi'
     if (!data.kecamatan) errs.kecamatan = 'Kecamatan harus diisi'
     if (!data.kabupaten) errs.kabupaten = 'Kabupaten/Kota harus diisi'
+    if (!data.koordinatMaps) errs.koordinatMaps = 'Titik koordinat peta harus diisi'
     setErrors(errs)
     return Object.keys(errs).length === 0
   }
 
   const handleSubmit = async () => {
     if (!validate()) return
+    if (!isPendaftaranAwalLengkap(data)) return
     setSubmitting(true)
     try {
       await selesaikanPendaftaranAwal()
@@ -177,11 +181,14 @@ export default function FormPendaftaranAwal() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <InputField
-              label="NISN (Opsional)"
+              label="NISN"
               name="nisn"
               value={data.nisn}
               onChange={handleChange}
               placeholder="Nomor Induk Siswa Nasional"
+              required
+              error={errors.nisn}
+              helperText="NISN dapat dilihat di kartu pelajar maupun di raport."
             />
             <InputField
               label="NIK"

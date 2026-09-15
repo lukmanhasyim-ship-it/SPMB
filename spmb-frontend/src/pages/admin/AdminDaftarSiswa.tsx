@@ -17,7 +17,6 @@ const KATEGORI_ADMIN = 'Admin SPMB / Panitia SPMB'
 const buatFormKosong = (user: User | null) => {
   const isGuruInternal = user?.role === 'guru'
   const isGuruSmp = user?.role === 'guru_smp'
-  const isAdmin = user?.role === 'admin'
   return {
     email: '',
     namaLengkap: '',
@@ -45,10 +44,20 @@ const buatFormKosong = (user: User | null) => {
     kerjaIbu: '',
     teleponOrtu: '',
     teleponSiswa: '',
-    estimasiPenghasilanOrtu: '',
+    anakKe: '',
+    jumlahSaudara: '',
+    tinggiBadan: '',
+    beratBadan: '',
+    tahunLahirAyah: '',
+    tahunLahirIbu: '',
+    namaWali: '',
+    tahunLahirWali: '',
+    estimasiPenghasilanAyah: '',
+    estimasiPenghasilanIbu: '',
+    estimasiPenghasilanWali: '',
     prestasi: '',
-    referralKategori: isGuruInternal ? KATEGORI_GURU_INTERNAL : isGuruSmp ? KATEGORI_GURU_SMP : isAdmin ? KATEGORI_ADMIN : '',
-    referralNama: isGuruInternal || isGuruSmp || isAdmin ? user?.nama || '' : '',
+    referralKategori: isGuruInternal ? KATEGORI_GURU_INTERNAL : isGuruSmp ? KATEGORI_GURU_SMP : '',
+    referralNama: isGuruInternal || isGuruSmp ? user?.nama || '' : '',
   }
 }
 
@@ -59,7 +68,7 @@ interface AdminDaftarSiswaProps {
 export default function AdminDaftarSiswa({ cetakPath = '/admin/formulir' }: AdminDaftarSiswaProps) {
   const navigate = useNavigate()
   const user = useAuthStore((s) => s.user)
-  const referralTerkunci = user?.role === 'guru' || user?.role === 'guru_smp' || user?.role === 'admin'
+  const referralTerkunci = user?.role === 'guru' || user?.role === 'guru_smp'
   const isGuruSmp = user?.role === 'guru_smp'
   const sekolahTerkunci = isGuruSmp && !!user?.asal_sekolah
   const [form, setForm] = useState(() => buatFormKosong(user))
@@ -69,6 +78,10 @@ export default function AdminDaftarSiswa({ cetakPath = '/admin/formulir' }: Admi
 
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
+    if (name === 'tinggalBersama' && value !== 'Wali') {
+      setForm((prev) => ({ ...prev, tinggalBersama: value, namaWali: '', tahunLahirWali: '', estimasiPenghasilanWali: '' }))
+      return
+    }
     setForm((prev) => ({ ...prev, [name]: value }))
     setErrors((prev) => ({ ...prev, [name]: '' }))
   }
@@ -80,6 +93,7 @@ export default function AdminDaftarSiswa({ cetakPath = '/admin/formulir' }: Admi
     if (form.email && !/^\S+@\S+\.\S+$/.test(form.email)) errs.email = 'Format email tidak valid'
     if (!form.nik) errs.nik = 'NIK wajib diisi'
     else if (form.nik.length !== 16) errs.nik = 'NIK harus tepat 16 digit'
+    if (!form.nisn) errs.nisn = 'NISN wajib diisi'
     if (!form.jenisKelamin) errs.jenisKelamin = 'Pilih jenis kelamin'
     if (!form.tempatLahir) errs.tempatLahir = 'Tempat lahir wajib diisi'
     if (!form.tanggalLahir) errs.tanggalLahir = 'Tanggal lahir wajib diisi'
@@ -91,9 +105,17 @@ export default function AdminDaftarSiswa({ cetakPath = '/admin/formulir' }: Admi
     if (!form.tinggalBersama) errs.tinggalBersama = 'Pilih tinggal bersama'
     if (form.tinggalBersama === 'Pondok' && !form.namaPondok) errs.namaPondok = 'Nama pondok pesantren wajib diisi'
     if (!form.namaAyah) errs.namaAyah = 'Nama ayah wajib diisi'
+    if (!form.tahunLahirAyah) errs.tahunLahirAyah = 'Tahun lahir ayah wajib diisi'
     if (!form.namaIbu) errs.namaIbu = 'Nama ibu wajib diisi'
+    if (!form.tahunLahirIbu) errs.tahunLahirIbu = 'Tahun lahir ibu wajib diisi'
+    if (form.tinggalBersama === 'Wali') {
+      if (!form.namaWali) errs.namaWali = 'Nama wali wajib diisi'
+      if (!form.tahunLahirWali) errs.tahunLahirWali = 'Tahun lahir wali wajib diisi'
+      if (!form.estimasiPenghasilanWali) errs.estimasiPenghasilanWali = 'Estimasi penghasilan wali wajib dipilih'
+    }
     if (!form.teleponOrtu) errs.teleponOrtu = 'No. telepon wajib diisi'
-    if (!form.estimasiPenghasilanOrtu) errs.estimasiPenghasilanOrtu = 'Estimasi penghasilan wajib dipilih'
+    if (!form.estimasiPenghasilanAyah) errs.estimasiPenghasilanAyah = 'Estimasi penghasilan ayah wajib dipilih'
+    if (!form.estimasiPenghasilanIbu) errs.estimasiPenghasilanIbu = 'Estimasi penghasilan ibu wajib dipilih'
     setErrors(errs)
     return Object.keys(errs).length === 0
   }
@@ -129,7 +151,17 @@ export default function AdminDaftarSiswa({ cetakPath = '/admin/formulir' }: Admi
         kerja_ibu: form.kerjaIbu,
         telepon_ortu: form.teleponOrtu,
         telepon_siswa: form.teleponSiswa,
-        estimasi_penghasilan_ortu: form.estimasiPenghasilanOrtu,
+        anak_ke: form.anakKe,
+        jumlah_saudara: form.jumlahSaudara,
+        tinggi_badan: form.tinggiBadan,
+        berat_badan: form.beratBadan,
+        tahun_lahir_ayah: form.tahunLahirAyah,
+        tahun_lahir_ibu: form.tahunLahirIbu,
+        nama_wali: form.namaWali,
+        tahun_lahir_wali: form.tahunLahirWali,
+        estimasi_penghasilan_ayah: form.estimasiPenghasilanAyah,
+        estimasi_penghasilan_ibu: form.estimasiPenghasilanIbu,
+        estimasi_penghasilan_wali: form.estimasiPenghasilanWali,
         prestasi: form.prestasi,
         referral_kategori: form.referralKategori,
         referral_nama: form.referralNama,
@@ -256,6 +288,11 @@ export default function AdminDaftarSiswa({ cetakPath = '/admin/formulir' }: Admi
                 placeholder={referralTerkunci ? 'Otomatis dari akun Anda' : 'Nama yang memandu pendaftaran'}
               />
             </div>
+            {user?.role === 'admin' && (
+              <p className="mt-1 text-xs text-slate-400">
+                Jika dibiarkan kosong, referral otomatis tercatat sebagai "{KATEGORI_ADMIN}" atas nama Anda.
+              </p>
+            )}
           </div>
         </div>
       </Card>
@@ -283,11 +320,14 @@ export default function AdminDaftarSiswa({ cetakPath = '/admin/formulir' }: Admi
           />
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <InputField
-              label="NISN (Opsional)"
+              label="NISN"
               name="nisn"
               value={form.nisn}
               onChange={handleChange}
               placeholder="Nomor Induk Siswa Nasional"
+              required
+              error={errors.nisn}
+              helperText="NISN dapat dilihat di kartu pelajar maupun di raport."
             />
             <InputField
               label="NIK"
@@ -356,6 +396,47 @@ export default function AdminDaftarSiswa({ cetakPath = '/admin/formulir' }: Admi
             type="tel"
             placeholder="628xxxxxxxxxx"
           />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <InputField
+              label="Anak Ke-"
+              name="anakKe"
+              value={form.anakKe}
+              onChange={handleChange}
+              type="number"
+              min={1}
+              placeholder="Contoh: 1"
+            />
+            <InputField
+              label="Jumlah Saudara"
+              name="jumlahSaudara"
+              value={form.jumlahSaudara}
+              onChange={handleChange}
+              type="number"
+              min={0}
+              placeholder="Contoh: 2"
+              helperText="Jumlah saudara kandung."
+            />
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <InputField
+              label="Tinggi Badan (cm)"
+              name="tinggiBadan"
+              value={form.tinggiBadan}
+              onChange={handleChange}
+              type="number"
+              min={1}
+              placeholder="Contoh: 155"
+            />
+            <InputField
+              label="Berat Badan (kg)"
+              name="beratBadan"
+              value={form.beratBadan}
+              onChange={handleChange}
+              type="number"
+              min={1}
+              placeholder="Contoh: 45"
+            />
+          </div>
         </div>
       </Card>
 
@@ -463,7 +544,7 @@ export default function AdminDaftarSiswa({ cetakPath = '/admin/formulir' }: Admi
               error={errors.namaPondok}
             />
           )}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <InputField
               label="Nama Ayah"
               name="namaAyah"
@@ -474,14 +555,36 @@ export default function AdminDaftarSiswa({ cetakPath = '/admin/formulir' }: Admi
               error={errors.namaAyah}
             />
             <InputField
-              label="Pekerjaan Ayah"
-              name="kerjaAyah"
-              value={form.kerjaAyah}
+              label="Tahun Lahir Ayah"
+              name="tahunLahirAyah"
+              value={form.tahunLahirAyah}
               onChange={handleChange}
-              placeholder="Pekerjaan ayah"
+              type="number"
+              min={1920}
+              max={2005}
+              placeholder="Contoh: 1980"
+              required
+              error={errors.tahunLahirAyah}
+              helperText="Data dapat dilihat di KK (Kartu Keluarga)"
+            />
+            <InputField
+              label="Estimasi Penghasilan Ayah"
+              name="estimasiPenghasilanAyah"
+              value={form.estimasiPenghasilanAyah}
+              onChange={handleChange}
+              required
+              error={errors.estimasiPenghasilanAyah}
+              options={DATA_ESTIMASI_PENGHASILAN.map((p) => ({ value: p, label: p }))}
             />
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <InputField
+            label="Pekerjaan Ayah"
+            name="kerjaAyah"
+            value={form.kerjaAyah}
+            onChange={handleChange}
+            placeholder="Pekerjaan ayah"
+          />
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <InputField
               label="Nama Ibu"
               name="namaIbu"
@@ -492,13 +595,73 @@ export default function AdminDaftarSiswa({ cetakPath = '/admin/formulir' }: Admi
               error={errors.namaIbu}
             />
             <InputField
-              label="Pekerjaan Ibu"
-              name="kerjaIbu"
-              value={form.kerjaIbu}
+              label="Tahun Lahir Ibu"
+              name="tahunLahirIbu"
+              value={form.tahunLahirIbu}
               onChange={handleChange}
-              placeholder="Pekerjaan ibu"
+              type="number"
+              min={1920}
+              max={2005}
+              placeholder="Contoh: 1982"
+              required
+              error={errors.tahunLahirIbu}
+              helperText="Data dapat dilihat di KK (Kartu Keluarga)"
+            />
+            <InputField
+              label="Estimasi Penghasilan Ibu"
+              name="estimasiPenghasilanIbu"
+              value={form.estimasiPenghasilanIbu}
+              onChange={handleChange}
+              required
+              error={errors.estimasiPenghasilanIbu}
+              options={DATA_ESTIMASI_PENGHASILAN.map((p) => ({ value: p, label: p }))}
             />
           </div>
+          <InputField
+            label="Pekerjaan Ibu"
+            name="kerjaIbu"
+            value={form.kerjaIbu}
+            onChange={handleChange}
+            placeholder="Pekerjaan ibu"
+          />
+          {form.tinggalBersama === 'Wali' && (
+          <div className="border-t border-slate-100 pt-4">
+            <p className="text-sm font-semibold text-slate-700 mb-3">Data Wali</p>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <InputField
+                label="Nama Wali"
+                name="namaWali"
+                value={form.namaWali}
+                onChange={handleChange}
+                placeholder="Nama lengkap wali"
+                required
+                error={errors.namaWali}
+              />
+              <InputField
+                label="Tahun Lahir Wali"
+                name="tahunLahirWali"
+                value={form.tahunLahirWali}
+                onChange={handleChange}
+                type="number"
+                min={1920}
+                max={2005}
+                placeholder="Contoh: 1978"
+                required
+                error={errors.tahunLahirWali}
+                helperText="Data dapat dilihat di KK (Kartu Keluarga)"
+              />
+              <InputField
+                label="Estimasi Penghasilan Wali"
+                name="estimasiPenghasilanWali"
+                value={form.estimasiPenghasilanWali}
+                onChange={handleChange}
+                required
+                error={errors.estimasiPenghasilanWali}
+                options={DATA_ESTIMASI_PENGHASILAN.map((p) => ({ value: p, label: p }))}
+              />
+            </div>
+          </div>
+        )}
           <InputField
             label="No. Telepon Orang Tua/Wali (WhatsApp)"
             name="teleponOrtu"
@@ -508,15 +671,6 @@ export default function AdminDaftarSiswa({ cetakPath = '/admin/formulir' }: Admi
             placeholder="628xxxxxxxxxx"
             required
             error={errors.teleponOrtu}
-          />
-          <InputField
-            label="Estimasi Penghasilan Orang Tua/Wali"
-            name="estimasiPenghasilanOrtu"
-            value={form.estimasiPenghasilanOrtu}
-            onChange={handleChange}
-            required
-            error={errors.estimasiPenghasilanOrtu}
-            options={DATA_ESTIMASI_PENGHASILAN.map((p) => ({ value: p, label: p }))}
           />
         </div>
       </Card>

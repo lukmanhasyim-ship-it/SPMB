@@ -15,7 +15,6 @@ const initialState: DataSiswa = {
   idPendaftaran: '',
   email: '',
   pilihanJurusan: '',
-  pilihanAlternatif: '',
   alasanPilihJurusan: '',
   namaLengkap: '',
   jenisKelamin: '',
@@ -41,7 +40,17 @@ const initialState: DataSiswa = {
   kerjaIbu: '',
   teleponOrtu: '',
   teleponSiswa: '',
-  estimasiPenghasilanOrtu: '',
+  anakKe: '',
+  jumlahSaudara: '',
+  tinggiBadan: '',
+  beratBadan: '',
+  tahunLahirAyah: '',
+  tahunLahirIbu: '',
+  namaWali: '',
+  tahunLahirWali: '',
+  estimasiPenghasilanAyah: '',
+  estimasiPenghasilanIbu: '',
+  estimasiPenghasilanWali: '',
   fotoProfilBase64: '',
   berkasPdfBase64: '',
   prestasiFotoBase64: '',
@@ -54,12 +63,34 @@ const initialState: DataSiswa = {
   waktuDaftar: '',
 }
 
+const isFilled = (value: string) => value.trim().length > 0
+
+export function isDataPribadiLengkap(data: DataSiswa) {
+  return [
+    data.namaLengkap,
+    data.jenisKelamin,
+    data.nisn,
+    data.nik,
+    data.tempatLahir,
+    data.tanggalLahir,
+    data.agama,
+    data.asalSekolah,
+  ].every(isFilled) && data.nik.length === 16
+}
+
+export function isAlamatLengkap(data: DataSiswa) {
+  return [data.dusun, data.desa, data.kecamatan, data.kabupaten, data.koordinatMaps].every(isFilled)
+}
+
+export function isPendaftaranAwalLengkap(data: DataSiswa) {
+  return isFilled(data.pilihanJurusan) && isDataPribadiLengkap(data) && isAlamatLengkap(data)
+}
+
 function mapApiToData(apiData: Record<string, unknown>): DataSiswa {
   return {
     idPendaftaran: String(apiData.id_pendaftaran || ''),
     email: String(apiData.email || ''),
     pilihanJurusan: (String(apiData.pilihan_jurusan || '') as DataSiswa['pilihanJurusan']),
-    pilihanAlternatif: (String(apiData.pilihan_alternatif || '') as DataSiswa['pilihanAlternatif']),
     alasanPilihJurusan: String(apiData.alasan_pilih_jurusan || ''),
     namaLengkap: String(apiData.nama_lengkap || ''),
     jenisKelamin: (String(apiData.jenis_kelamin || '') as DataSiswa['jenisKelamin']),
@@ -85,7 +116,17 @@ function mapApiToData(apiData: Record<string, unknown>): DataSiswa {
     kerjaIbu: String(apiData.kerja_ibu || ''),
     teleponOrtu: String(apiData.telepon_ortu || ''),
     teleponSiswa: String(apiData.telepon_siswa || ''),
-    estimasiPenghasilanOrtu: (String(apiData.estimasi_penghasilan_ortu || '') as DataSiswa['estimasiPenghasilanOrtu']),
+    anakKe: String(apiData.anak_ke || ''),
+    jumlahSaudara: String(apiData.jumlah_saudara || ''),
+    tinggiBadan: String(apiData.tinggi_badan || ''),
+    beratBadan: String(apiData.berat_badan || ''),
+    tahunLahirAyah: String(apiData.tahun_lahir_ayah || ''),
+    tahunLahirIbu: String(apiData.tahun_lahir_ibu || ''),
+    namaWali: String(apiData.nama_wali || ''),
+    tahunLahirWali: String(apiData.tahun_lahir_wali || ''),
+    estimasiPenghasilanAyah: (String(apiData.estimasi_penghasilan_ayah || '') as DataSiswa['estimasiPenghasilanAyah']),
+    estimasiPenghasilanIbu: (String(apiData.estimasi_penghasilan_ibu || '') as DataSiswa['estimasiPenghasilanIbu']),
+    estimasiPenghasilanWali: (String(apiData.estimasi_penghasilan_wali || '') as DataSiswa['estimasiPenghasilanWali']),
     fotoProfilBase64: String(apiData.foto_profil_url || ''),
     berkasPdfBase64: String(apiData.berkas_pdf_url || ''),
     prestasiFotoBase64: String(apiData.prestasi_foto_url || ''),
@@ -102,7 +143,6 @@ function mapApiToData(apiData: Record<string, unknown>): DataSiswa {
 function mapDataToApi(data: DataSiswa): Record<string, unknown> {
   return {
     pilihan_jurusan: data.pilihanJurusan,
-    pilihan_alternatif: data.pilihanAlternatif,
     alasan_pilih_jurusan: data.alasanPilihJurusan,
     nama_lengkap: data.namaLengkap,
     jenis_kelamin: data.jenisKelamin,
@@ -128,7 +168,17 @@ function mapDataToApi(data: DataSiswa): Record<string, unknown> {
     kerja_ibu: data.kerjaIbu,
     telepon_ortu: data.teleponOrtu,
     telepon_siswa: data.teleponSiswa,
-    estimasi_penghasilan_ortu: data.estimasiPenghasilanOrtu,
+    anak_ke: data.anakKe,
+    jumlah_saudara: data.jumlahSaudara,
+    tinggi_badan: data.tinggiBadan,
+    berat_badan: data.beratBadan,
+    tahun_lahir_ayah: data.tahunLahirAyah,
+    tahun_lahir_ibu: data.tahunLahirIbu,
+    nama_wali: data.namaWali,
+    tahun_lahir_wali: data.tahunLahirWali,
+    estimasi_penghasilan_ayah: data.estimasiPenghasilanAyah,
+    estimasi_penghasilan_ibu: data.estimasiPenghasilanIbu,
+    estimasi_penghasilan_wali: data.estimasiPenghasilanWali,
     prestasi: data.prestasi,
     referral_nama: data.referralNama,
     referral_kategori: data.referralKategori,
@@ -169,9 +219,9 @@ export const useStudentStore = create<StudentState>((set, get) => ({
         const mapped = mapApiToData(apiData)
 
         const completedSteps: number[] = []
-        if (mapped.pilihanJurusan) completedSteps.push(1)
-        if (mapped.namaLengkap) completedSteps.push(2)
-        if (mapped.dusun) completedSteps.push(3)
+        if (isFilled(mapped.pilihanJurusan)) completedSteps.push(1)
+        if (isDataPribadiLengkap(mapped)) completedSteps.push(2)
+        if (isAlamatLengkap(mapped)) completedSteps.push(3)
         if (mapped.namaAyah || mapped.namaIbu) completedSteps.push(4)
         if (mapped.berkasPdfBase64 || mapped.prestasiFotoBase64 || mapped.prestasi) completedSteps.push(5)
 

@@ -7,7 +7,7 @@ const HEAVY_TIMEOUT_MS = 120_000
 const RETRY_BACKOFF_MS = 800
 const MAX_ATTEMPTS = 2
 
-const HEAVY_ACTIONS = new Set(['upload', 'register', 'adminRegisterSiswa'])
+const HEAVY_ACTIONS = new Set(['upload', 'register', 'adminRegisterSiswa', 'auth'])
 const NO_RETRY_ACTIONS = new Set(['register', 'adminRegisterSiswa'])
 
 type FailureKind = 'network' | 'timeout' | 'http'

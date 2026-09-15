@@ -20,7 +20,6 @@ export interface DataSiswa {
   idPendaftaran: string;
   email: string;
   pilihanJurusan: Jurusan | '';
-  pilihanAlternatif: Jurusan | '';
   alasanPilihJurusan: string;
   namaLengkap: string;
   jenisKelamin: JenisKelamin | '';
@@ -46,7 +45,17 @@ export interface DataSiswa {
   kerjaIbu: string;
   teleponOrtu: string;
   teleponSiswa: string;
-  estimasiPenghasilanOrtu: EstimasiPenghasilan | '';
+  anakKe: string;
+  jumlahSaudara: string;
+  tinggiBadan: string;
+  beratBadan: string;
+  tahunLahirAyah: string;
+  tahunLahirIbu: string;
+  namaWali: string;
+  tahunLahirWali: string;
+  estimasiPenghasilanAyah: EstimasiPenghasilan | '';
+  estimasiPenghasilanIbu: EstimasiPenghasilan | '';
+  estimasiPenghasilanWali: EstimasiPenghasilan | '';
   fotoProfilBase64: string;
   berkasPdfBase64: string;
   prestasiFotoBase64: string;

@@ -1,7 +1,8 @@
+import { useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { ArrowLeft, Download } from 'lucide-react'
 import { QRCodeSVG } from 'qrcode.react'
-import { useStudentStore } from '../../store/studentStore'
+import { isPendaftaranAwalLengkap, useStudentStore } from '../../store/studentStore'
 import { useAuthStore } from '../../store/authStore'
 import Card from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
@@ -10,8 +11,20 @@ import { formatWIB } from '../../utils/dateUtils'
 
 export default function KartuPendaftaran() {
   const navigate = useNavigate()
-  const { data } = useStudentStore()
+  const { data, loading, loadSiswa } = useStudentStore()
   const { user } = useAuthStore()
+
+  useEffect(() => {
+    if (!data.idPendaftaran && user?.email) loadSiswa(user.email)
+  }, [data.idPendaftaran, user?.email, loadSiswa])
+
+  useEffect(() => {
+    if (!loading && data.idPendaftaran && !isPendaftaranAwalLengkap(data)) {
+      navigate('/student/dashboard', { replace: true })
+    }
+  }, [data, loading, navigate])
+
+  if (loading || !data.idPendaftaran || !isPendaftaranAwalLengkap(data)) return null
 
   const jurusanLabel = DATA_JURUSAN.find((j) => j.value === data.pilihanJurusan)?.label || data.pilihanJurusan
 

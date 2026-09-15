@@ -222,6 +222,22 @@ function FormBody({ data }: { data: Record<string, string> }) {
                   <FieldValue>{safeValue(data.telepon_siswa)}</FieldValue>
                 </div>
                 <div>
+                  <FieldLabel>Anak Ke-</FieldLabel>
+                  <FieldValue>{safeValue(data.anak_ke)}</FieldValue>
+                </div>
+                <div>
+                  <FieldLabel>Jumlah Saudara</FieldLabel>
+                  <FieldValue>{safeValue(data.jumlah_saudara)}</FieldValue>
+                </div>
+                <div>
+                  <FieldLabel>Tinggi Badan (cm)</FieldLabel>
+                  <FieldValue>{safeValue(data.tinggi_badan)}</FieldValue>
+                </div>
+                <div>
+                  <FieldLabel>Berat Badan (kg)</FieldLabel>
+                  <FieldValue>{safeValue(data.berat_badan)}</FieldValue>
+                </div>
+                <div>
                   <FieldLabel>Tempat Lahir</FieldLabel>
                   <FieldValue>{safeValue(data.tempat_lahir)}</FieldValue>
                 </div>
@@ -280,24 +296,48 @@ function FormBody({ data }: { data: Record<string, string> }) {
                   <FieldValue>{safeValue(data.nama_ayah)}</FieldValue>
                 </div>
                 <div>
+                  <FieldLabel>Tahun Lahir Ayah</FieldLabel>
+                  <FieldValue>{safeValue(data.tahun_lahir_ayah)}</FieldValue>
+                </div>
+                <div>
                   <FieldLabel>Pekerjaan Ayah</FieldLabel>
                   <FieldValue>{safeValue(data.kerja_ayah)}</FieldValue>
+                </div>
+                <div>
+                  <FieldLabel>Estimasi Penghasilan Ayah</FieldLabel>
+                  <FieldValue>{safeValue(data.estimasi_penghasilan_ayah)}</FieldValue>
                 </div>
                 <div>
                   <FieldLabel>Nama Ibu</FieldLabel>
                   <FieldValue>{safeValue(data.nama_ibu)}</FieldValue>
                 </div>
                 <div>
+                  <FieldLabel>Tahun Lahir Ibu</FieldLabel>
+                  <FieldValue>{safeValue(data.tahun_lahir_ibu)}</FieldValue>
+                </div>
+                <div>
                   <FieldLabel>Pekerjaan Ibu</FieldLabel>
                   <FieldValue>{safeValue(data.kerja_ibu)}</FieldValue>
+                </div>
+                <div>
+                  <FieldLabel>Estimasi Penghasilan Ibu</FieldLabel>
+                  <FieldValue>{safeValue(data.estimasi_penghasilan_ibu)}</FieldValue>
+                </div>
+                <div>
+                  <FieldLabel>Nama Wali</FieldLabel>
+                  <FieldValue>{safeValue(data.nama_wali)}</FieldValue>
+                </div>
+                <div>
+                  <FieldLabel>Tahun Lahir Wali</FieldLabel>
+                  <FieldValue>{safeValue(data.tahun_lahir_wali)}</FieldValue>
+                </div>
+                <div>
+                  <FieldLabel>Estimasi Penghasilan Wali</FieldLabel>
+                  <FieldValue>{safeValue(data.estimasi_penghasilan_wali)}</FieldValue>
                 </div>
                 <div className="col-span-2">
                   <FieldLabel>No. Telepon Orang Tua / Wali</FieldLabel>
                   <FieldValue>{safeValue(data.telepon_ortu)}</FieldValue>
-                </div>
-                <div className="col-span-2">
-                  <FieldLabel>Estimasi Penghasilan Orang Tua / Wali</FieldLabel>
-                  <FieldValue>{safeValue(data.estimasi_penghasilan_ortu)}</FieldValue>
                 </div>
               </div>
             </section>
@@ -339,7 +379,7 @@ function FormBody({ data }: { data: Record<string, string> }) {
             </div>
 
             <div className="mt-1 grid grid-cols-2 gap-5 text-[10px] font-bold text-slate-900">
-              <div className="text-left">({safeValue(data.nama_ayah || data.nama_ibu)})</div>
+              <div className="text-left">({safeValue(data.nama_ayah || data.nama_ibu || data.nama_wali)})</div>
               <div className="text-right">({safeValue(data.nama_lengkap)})</div>
             </div>
           </div>

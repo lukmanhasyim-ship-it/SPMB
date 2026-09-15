@@ -1,5 +1,6 @@
+import { useState } from 'react'
 import type { ChangeEvent } from 'react'
-import { useStudentStore } from '../../../store/studentStore'
+import { isDataPribadiLengkap, useStudentStore } from '../../../store/studentStore'
 import { DATA_AGAMA } from '../../../data/constants'
 import StepLayout from '../components/StepLayout'
 import InputField from '../../../components/ui/InputField'
@@ -11,19 +12,20 @@ interface Step2Props {
 
 export default function Step2Pribadi({ onComplete, onBack }: Step2Props) {
   const { data, steps, updateData, completeStep } = useStudentStore()
+  const [showValidation, setShowValidation] = useState(false)
+
+  const requiredError = (value: string) => showValidation && !value.trim() ? 'Lengkapi' : undefined
+  const nikError = showValidation && data.nik && data.nik.length !== 16 ? 'Lengkapi 16 digit' : requiredError(data.nik)
 
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
     updateData({ [name]: value })
+    setShowValidation(true)
   }
 
   const handleNext = () => {
-    if (!data.namaLengkap || !data.nik || !data.tempatLahir || !data.tanggalLahir || !data.agama || !data.jenisKelamin) {
-      alert('Lengkapi semua field yang wajib diisi')
-      return
-    }
-    if (data.nik.length !== 16) {
-      alert('NIK harus tepat 16 digit')
+    if (!isDataPribadiLengkap(data)) {
+      setShowValidation(true)
       return
     }
     completeStep(2)
@@ -40,6 +42,11 @@ export default function Step2Pribadi({ onComplete, onBack }: Step2Props) {
       onNext={handleNext}
     >
       <div className="space-y-4 max-w-lg mx-auto">
+        {showValidation && !isDataPribadiLengkap(data) && (
+          <div role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            Lengkapi semua field yang wajib diisi sebelum melanjutkan.
+          </div>
+        )}
         <InputField
           label="Nama Lengkap (sesuai Ijazah/Akte)"
           name="namaLengkap"
@@ -47,6 +54,7 @@ export default function Step2Pribadi({ onComplete, onBack }: Step2Props) {
           onChange={handleChange}
           placeholder="Masukkan nama lengkap"
           required
+          error={requiredError(data.namaLengkap)}
         />
 
         <InputField
@@ -55,6 +63,7 @@ export default function Step2Pribadi({ onComplete, onBack }: Step2Props) {
           value={data.jenisKelamin}
           onChange={handleChange}
           required
+          error={requiredError(data.jenisKelamin)}
           options={[
             { value: 'Laki-laki', label: 'Laki-laki' },
             { value: 'Perempuan', label: 'Perempuan' },
@@ -63,11 +72,14 @@ export default function Step2Pribadi({ onComplete, onBack }: Step2Props) {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <InputField
-            label="NISN (Opsional)"
+            label="NISN"
             name="nisn"
             value={data.nisn}
             onChange={handleChange}
             placeholder="Nomor Induk Siswa Nasional"
+            required
+            helperText="NISN dapat dilihat di kartu pelajar maupun di raport."
+            error={requiredError(data.nisn)}
           />
           <InputField
             label="NIK"
@@ -77,6 +89,7 @@ export default function Step2Pribadi({ onComplete, onBack }: Step2Props) {
             placeholder="16 digit NIK"
             required
             maxLength={16}
+            error={nikError}
           />
         </div>
 
@@ -88,6 +101,7 @@ export default function Step2Pribadi({ onComplete, onBack }: Step2Props) {
             onChange={handleChange}
             placeholder="Kabupaten/Kota"
             required
+            error={requiredError(data.tempatLahir)}
           />
           <InputField
             label="Tanggal Lahir"
@@ -96,6 +110,7 @@ export default function Step2Pribadi({ onComplete, onBack }: Step2Props) {
             value={data.tanggalLahir}
             onChange={handleChange}
             required
+            error={requiredError(data.tanggalLahir)}
           />
         </div>
 
@@ -105,6 +120,7 @@ export default function Step2Pribadi({ onComplete, onBack }: Step2Props) {
           value={data.agama}
           onChange={handleChange}
           required
+          error={requiredError(data.agama)}
           options={DATA_AGAMA.map((a) => ({ value: a, label: a }))}
         />
 
@@ -115,6 +131,7 @@ export default function Step2Pribadi({ onComplete, onBack }: Step2Props) {
           onChange={handleChange}
           placeholder="Nama SMP/MTs asal"
           required
+          error={requiredError(data.asalSekolah)}
         />
 
         <InputField
@@ -125,6 +142,49 @@ export default function Step2Pribadi({ onComplete, onBack }: Step2Props) {
           type="tel"
           placeholder="628xxxxxxxxxx"
         />
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <InputField
+            label="Anak Ke-"
+            name="anakKe"
+            value={data.anakKe}
+            onChange={handleChange}
+            type="number"
+            min={1}
+            placeholder="Contoh: 1"
+          />
+          <InputField
+            label="Jumlah Saudara"
+            name="jumlahSaudara"
+            value={data.jumlahSaudara}
+            onChange={handleChange}
+            type="number"
+            min={0}
+            placeholder="Contoh: 2"
+            helperText="Jumlah saudara kandung."
+          />
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <InputField
+            label="Tinggi Badan (cm)"
+            name="tinggiBadan"
+            value={data.tinggiBadan}
+            onChange={handleChange}
+            type="number"
+            min={1}
+            placeholder="Contoh: 155"
+          />
+          <InputField
+            label="Berat Badan (kg)"
+            name="beratBadan"
+            value={data.beratBadan}
+            onChange={handleChange}
+            type="number"
+            min={1}
+            placeholder="Contoh: 45"
+          />
+        </div>
       </div>
     </StepLayout>
   )

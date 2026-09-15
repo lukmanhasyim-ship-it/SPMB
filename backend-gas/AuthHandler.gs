@@ -236,9 +236,21 @@ function generateId(tahunAjaran, gelombang) {
     if (parts.length > 1) gel = 'G' + parts[1]
   }
 
-  // 8 karakter hex acak (kriptografis via Utilities.getUuid).
-  var uuid = Utilities.getUuid().replace(/-/g, '')
-  var random = uuid.slice(0, 8).toUpperCase()
+  // Nomor urut: ambil nomor terbesar yang sudah terdaftar untuk tahun ajaran & gelombang yang sama, lalu + 1.
+  // Pendekatan ini tetap aman meski ada data yang dihapus (tidak akan menghasilkan nomor duplikat).
+  var prefix = 'SPMB-' + tahun + '-' + gel + '-'
+  var allSiswa = getAllRows('Siswa')
+  var maxNomor = 0
+  for (var i = 0; i < allSiswa.length; i++) {
+    var id = String(allSiswa[i].id_pendaftaran || '')
+    if (id.indexOf(prefix) !== 0) continue
+    var parts = id.split('-')
+    var nomorStr = parts.length > 3 ? parts[parts.length - 1] : ''
+    if (!/^\d+$/.test(nomorStr)) continue
+    var nomor = parseInt(nomorStr, 10)
+    if (nomor > maxNomor) maxNomor = nomor
+  }
+  var nomorUrut = String(maxNomor + 1).padStart(3, '0')
 
-  return 'SPMB-' + tahun + '-' + gel + '-' + random
+  return prefix + nomorUrut
 }

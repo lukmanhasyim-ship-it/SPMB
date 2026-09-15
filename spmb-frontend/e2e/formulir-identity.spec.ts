@@ -47,7 +47,7 @@ const STUDENT = {
   tinggal_bersama: 'Orang Tua',
   telepon_siswa: '6281234567788',
   telepon_ortu: '6282330295812',
-  estimasi_penghasilan_ortu: 'Rp. 500.000, - sd Rp. 1.000.000,-',
+  estimasi_penghasilan_ayah: 'Rp. 500.000, - sd Rp. 1.000.000,-',
   prestasi: LONG_PRESTASI,
   referral_kategori: 'Guru SMK AL AZHAR SEMPU',
   referral_nama: 'Imam Saroni',
