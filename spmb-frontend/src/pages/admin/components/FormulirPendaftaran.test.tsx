@@ -104,4 +104,23 @@ describe('FormulirPendaftaran', () => {
     expect(screen.getAllByText(/Nama Pondok Pesantren/i).length).toBeGreaterThan(0)
     expect(screen.getAllByText(/Pondok Pesantren Al-Hikmah/i).length).toBeGreaterThan(0)
   })
+
+  it('renders numeric values returned by the sheet without crashing', () => {
+    render(
+      <FormulirPendaftaran
+        data={{
+          pilihan_jurusan: 'RPL',
+          nama_lengkap: 'Siswa Uji',
+          nik: 3510203012940001,
+          nisn: 1234567890,
+          kode_pos: 68468,
+          tahun_lahir_ayah: 1980,
+        }}
+      />,
+    )
+
+    expect(screen.getAllByText('3510203012940001').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('1234567890').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('68468').length).toBeGreaterThan(0)
+  })
 })

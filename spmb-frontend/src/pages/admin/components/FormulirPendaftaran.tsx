@@ -3,17 +3,19 @@ import { formatWIBShort } from '../../../utils/dateUtils'
 import { DATA_JURUSAN } from '../../../data/constants'
 
 interface FormulirPendaftaranProps {
-  data: Record<string, string>
+  data: Record<string, unknown>
 }
 
-function jurusanLabel(value: string): string {
-  if (!value) return ''
-  const jurusan = DATA_JURUSAN.find((j) => j.value === value)
-  return jurusan ? jurusan.label : value
+function jurusanLabel(value: unknown): string {
+  const normalized = String(value ?? '').trim()
+  if (!normalized) return ''
+  const jurusan = DATA_JURUSAN.find((j) => j.value === normalized)
+  return jurusan ? jurusan.label : normalized
 }
 
-function safeValue(value?: string): string {
-  return value && value.trim() ? value : '-'
+function safeValue(value: unknown): string {
+  const normalized = String(value ?? '').trim()
+  return normalized || '-'
 }
 
 function FieldLabel({ children }: { children: ReactNode }) {
@@ -136,8 +138,8 @@ const contentMarginStyle: React.CSSProperties = {
 
 const FIT_TARGET_PX = 1200
 
-function FormBody({ data }: { data: Record<string, string> }) {
-  const tglLahir = data.tanggal_lahir ? formatWIBShort(data.tanggal_lahir) : '-'
+function FormBody({ data }: { data: Record<string, unknown> }) {
+  const tglLahir = data.tanggal_lahir ? formatWIBShort(String(data.tanggal_lahir)) : '-'
   const today = formatWIBShort(new Date().toISOString())
 
   return (
@@ -181,7 +183,7 @@ function FormBody({ data }: { data: Record<string, string> }) {
                 <div className="mt-0 flex items-start justify-center self-start pt-1">
                   <div className="flex h-[140px] w-[105px] items-center justify-center border-[2px] border-[#9bb9a7] bg-[#f8faf9] text-center shadow-inner overflow-hidden">
                     {data.foto_profil_url ? (
-                      <img src={data.foto_profil_url} alt="Pas foto" className="h-full w-full object-cover" />
+                      <img src={String(data.foto_profil_url)} alt="Pas foto" className="h-full w-full object-cover" />
                     ) : (
                       <div className="text-[11px] font-bold uppercase leading-5 tracking-[0.12em] text-slate-400">
                         FOTO
