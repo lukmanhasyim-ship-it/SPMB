@@ -36,23 +36,27 @@ export default function StudentWizard() {
   }, [idPendaftaran, user?.email, loadSiswa])
 
   const handleStepComplete = async () => {
-    if (mode === 'awal') {
-      const nextStep = getCurrentStep()
-      if (nextStep > 3) {
-        if (statusPendaftaran === 'Draft') {
-          await selesaikanPendaftaranAwal()
+    try {
+      if (mode === 'awal') {
+        const nextStep = getCurrentStep()
+        if (nextStep > 3) {
+          if (statusPendaftaran === 'Draft') {
+            await selesaikanPendaftaranAwal()
+          }
+          navigate('/student/kartu-pendaftaran')
+        } else {
+          navigate(`/student/wizard?mode=awal&step=${nextStep}`)
         }
-        navigate('/student/kartu-pendaftaran')
       } else {
-        navigate(`/student/wizard?mode=awal&step=${nextStep}`)
+        const nextStep = getCurrentStep()
+        if (nextStep > 5) {
+          navigate('/student/dashboard')
+        } else {
+          navigate(`/student/wizard?mode=final&step=${nextStep}`)
+        }
       }
-    } else {
-      const nextStep = getCurrentStep()
-      if (nextStep > 5) {
-        navigate('/student/dashboard')
-      } else {
-        navigate(`/student/wizard?mode=final&step=${nextStep}`)
-      }
+    } catch {
+      return
     }
   }
 

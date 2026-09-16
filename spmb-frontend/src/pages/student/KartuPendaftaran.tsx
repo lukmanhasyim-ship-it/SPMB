@@ -6,6 +6,7 @@ import { isPendaftaranAwalLengkap, useStudentStore } from '../../store/studentSt
 import { useAuthStore } from '../../store/authStore'
 import Card from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
+import Loader from '../../components/ui/Loader'
 import { DATA_JURUSAN } from '../../data/constants'
 import { formatWIB } from '../../utils/dateUtils'
 
@@ -24,7 +25,27 @@ export default function KartuPendaftaran() {
     }
   }, [data, loading, navigate])
 
-  if (loading || !data.idPendaftaran || !isPendaftaranAwalLengkap(data)) return null
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <Loader />
+      </div>
+    )
+  }
+
+  if (!data.idPendaftaran || !isPendaftaranAwalLengkap(data)) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
+        <Card className="w-full max-w-md p-6 text-center">
+          <h2 className="text-lg font-semibold text-slate-800">Data pendaftaran belum siap</h2>
+          <p className="mt-2 text-sm text-slate-500">Lengkapi data pendaftaran terlebih dahulu.</p>
+          <Button onClick={() => navigate('/student/wizard?mode=awal&step=3')} className="mt-5">
+            Kembali ke Formulir
+          </Button>
+        </Card>
+      </div>
+    )
+  }
 
   const jurusanLabel = DATA_JURUSAN.find((j) => j.value === data.pilihanJurusan)?.label || data.pilihanJurusan
 
