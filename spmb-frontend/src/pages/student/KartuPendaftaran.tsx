@@ -66,8 +66,8 @@ export default function KartuPendaftaran() {
 
             <div className="flex items-center gap-4 mb-6">
               <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-white/20 shrink-0 bg-slate-700 flex items-center justify-center">
-                {user?.fotoUrl ? (
-                  <img src={user.fotoUrl} alt="Foto" className="w-full h-full object-cover" />
+                {(data.fotoProfilBase64 || user?.fotoUrl) ? (
+                  <img src={data.fotoProfilBase64 || user?.fotoUrl} alt="Foto" loading="lazy" referrerPolicy="no-referrer" className="w-full h-full object-cover" />
                 ) : (
                   <span className="text-xl font-bold text-slate-400">
                     {data.namaLengkap?.charAt(0) || '?'}

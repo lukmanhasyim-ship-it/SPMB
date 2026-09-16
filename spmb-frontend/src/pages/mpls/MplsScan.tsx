@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
 import { Camera, ScanLine, CheckCircle2, XCircle, RefreshCw, Loader2, ClipboardX } from 'lucide-react'
-import { Html5Qrcode, Html5QrcodeSupportedFormats } from 'html5-qrcode'
 import { useAuthStore } from '../../store/authStore'
 import Card from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
@@ -48,7 +47,8 @@ function extractIdPendaftaran(text: string): string {
 
 export default function MplsScan() {
   const { user } = useAuthStore()
-  const scannerRef = useRef<Html5Qrcode | null>(null)
+  type QrScanner = { stop: () => Promise<unknown>; clear: () => void }
+  const scannerRef = useRef<QrScanner | null>(null)
   const lastScanRef = useRef<{ text: string; time: number }>({ text: '', time: 0 })
   const [cameraOn, setCameraOn] = useState(false)
   const [cameraStarting, setCameraStarting] = useState(false)
@@ -159,6 +159,8 @@ export default function MplsScan() {
     setCameraStarting(true)
     setCameraOn(true)
     try {
+      // Lazy-load html5-qrcode agar bundle awal ringan.
+      const { Html5Qrcode, Html5QrcodeSupportedFormats } = await import('html5-qrcode')
       const qrCode = new Html5Qrcode(READER_ID, {
         verbose: false,
         formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE],

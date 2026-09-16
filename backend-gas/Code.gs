@@ -52,7 +52,7 @@ var ROUTES = {
 
 function doGet() {
   return ContentService
-    .createTextOutput(JSON.stringify({ status: 'ok', message: 'SPMB API is running' }))
+    .createTextOutput(JSON.stringify({ status: 'ok', message: 'SPMB API is running', serverBuild: (typeof SERVER_BUILD_TAG !== 'undefined' ? SERVER_BUILD_TAG : 'unknown') }))
     .setMimeType(ContentService.MimeType.JSON)
 }
 
@@ -80,7 +80,7 @@ function doPost(e) {
 
     var route = ROUTES[action]
     if (!route) {
-      return jsonOutput({ status: 'error', message: 'Unknown action: ' + action })
+      return jsonOutput({ status: 'error', code: 'UNKNOWN_ACTION', message: 'Unknown action: ' + action + '. Kemungkinan frontend lebih baru dari backend — hubungi admin untuk redeploy.', serverBuild: (typeof SERVER_BUILD_TAG !== 'undefined' ? SERVER_BUILD_TAG : 'unknown') })
     }
 
     // Pastikan sheet & schema siap sebelum handler jalan.

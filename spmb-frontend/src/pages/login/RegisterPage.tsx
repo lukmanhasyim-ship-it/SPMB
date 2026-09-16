@@ -3,6 +3,7 @@ import { useNavigate, useLocation, Link } from 'react-router-dom'
 import { UserPlus, Upload, Camera, GraduationCap, School } from 'lucide-react'
 import { useAuthStore } from '../../store/authStore'
 import { getFriendlyAuthError } from '../../services/api'
+import { compressAndCropImage } from '../../utils/imageCompress'
 import { readPendingRegistration, clearPendingRegistration } from '../../services/pendingAuth'
 import Card from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
@@ -38,13 +39,25 @@ export default function RegisterPage() {
   const handleUploadFoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
-    if (file.size > 2 * 1024 * 1024) {
-      setLocalError('Ukuran foto maksimal 2MB')
+    // Batas input 10MB; hasil dikompresi (crop 4/5) agar ringan. Preview lokal saja —
+    // yang dikirim ke backend hanya URL http (avatar Google); dataURL tidak dikirim
+    // agar sel Sheet tidak jebol (foto resmi diunggah via Step 5).
+    if (file.size > 10 * 1024 * 1024) {
+      setLocalError('Ukuran foto maksimal 10MB')
+      e.target.value = ''
       return
     }
-    const base64 = await fileToBase64(file)
-    setFotoBase64(base64)
-    setLocalError('')
+    try {
+      const raw = await compressAndCropImage(file, { maxWidth: 640, quality: 0.7 })
+      setFotoBase64(`data:image/jpeg;base64,${raw}`)
+      setLocalError('')
+    } catch {
+      const base64 = await fileToBase64(file)
+      setFotoBase64(base64)
+      setLocalError('')
+    } finally {
+      e.target.value = ''
+    }
   }
 
   const handleRegister = async () => {
@@ -75,10 +88,13 @@ export default function RegisterPage() {
       return
     }
     try {
+      // Hanya kirim foto berupa URL http (avatar Google). dataURL preview tidak dikirim
+      // agar tidak memenuhi sel Sheet; foto resmi diunggah di Step 5 Berkass.
+      const fotoUntukBackend = fotoBase64.startsWith('http') ? fotoBase64 : undefined
       const role = await register(
         email.trim(),
         nama.trim(),
-        peran === 'guru_smp' ? undefined : (fotoBase64 || undefined),
+        peran === 'guru_smp' ? undefined : fotoUntukBackend,
         googleToken,
         peran === 'guru_smp'
           ? {
@@ -175,7 +191,7 @@ export default function RegisterPage() {
               <Upload className="w-3.5 h-3.5" />
               {fromGoogle ? 'Ganti Foto Profile' : 'Upload Foto Profile'}
             </button>
-            <p className="text-[10px] text-slate-400">Maks 2MB, format JPG/PNG</p>
+            <p className="text-[10px] text-slate-400">Maks 10MB, otomatis dikompresi (JPG/PNG/WEBP)</p>
           </div>
           )}
 

@@ -1,5 +1,6 @@
 var ALLOWED_UPLOAD_MIMES = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf']
-var MAX_UPLOAD_BYTES = 5 * 1024 * 1024
+// Batas pengaman server 10MB; batas UX diatur di frontend (input 10MB -> kompres <300KB).
+var MAX_UPLOAD_BYTES = 10 * 1024 * 1024
 
 function handleUpload(params, session) {
   var fileName = (params.fileName || 'upload_' + new Date().getTime()).replace(/[\/\\:*?"<>|]/g, '_')
@@ -19,7 +20,7 @@ function handleUpload(params, session) {
   }
 
   if (!rateLimit_(session.email, 'upload', 50, 3600)) {
-    return { status: 'error', message: 'Terlalu banyak upload, silakan coba lagi nanti' }
+    return { status: 'error', code: 'RATE_LIMITED', scope: 'upload', message: 'Terlalu banyak upload, silakan coba lagi nanti' }
   }
 
   var base64 = fileData.indexOf(',') !== -1 ? fileData.split(',')[1] : fileData
@@ -29,7 +30,7 @@ function handleUpload(params, session) {
 
   var estimatedBytes = Math.floor(base64.length * 3 / 4)
   if (estimatedBytes > MAX_UPLOAD_BYTES) {
-    return { status: 'error', message: 'Ukuran file maksimal 5MB' }
+    return { status: 'error', code: 'FILE_TOO_LARGE', message: 'Ukuran file maksimal 10MB setelah kompresi. Coba foto lain atau turunkan kualitas.' }
   }
 
   try {

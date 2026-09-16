@@ -2,7 +2,8 @@ import type { ChangeEvent } from 'react'
 import { useRef, useState } from 'react'
 import { Upload, Award } from 'lucide-react'
 import { useStudentStore } from '../../../store/studentStore'
-import { api } from '../../../services/api'
+import { api, driveImageUrl, getFriendlyAuthError } from '../../../services/api'
+import { compressAndCropImage } from '../../../utils/imageCompress'
 import StepLayout from '../components/StepLayout'
 import Card from '../../../components/ui/Card'
 import Button from '../../../components/ui/Button'
@@ -21,10 +22,22 @@ function fileToBase64(file: File): Promise<string> {
   })
 }
 
+const MAX_INPUT_BYTES = 10 * 1024 * 1024
+
+async function compressFoto(file: File): Promise<{ base64: string; info: string }> {
+  // Kompresi wajib (crop 4/5 dipertahankan di util): 10MB -> target <300KB agar Drive hemat & upload cepat.
+  const raw = await compressAndCropImage(file, { maxWidth: 1024, quality: 0.75 })
+  const approxBytes = Math.floor(raw.length * 3 / 4)
+  const kb = Math.round(approxBytes / 1024)
+  return { base64: raw, info: `~${kb}KB setelah kompresi` }
+}
+
 export default function Step5Berkas({ onComplete, onBack }: Step5Props) {
   const { data, steps, updateData, completeStep, finalisasi } = useStudentStore()
   const fotoRef = useRef<HTMLInputElement>(null)
   const [uploadingFoto, setUploadingFoto] = useState(false)
+  const [uploadStage, setUploadStage] = useState('')
+  const [saveError, setSaveError] = useState('')
   const [loading, setLoading] = useState(false)
 
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -35,33 +48,64 @@ export default function Step5Berkas({ onComplete, onBack }: Step5Props) {
   const handleUploadFoto = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
-    if (file.size > 2 * 1024 * 1024) {
-      alert('Ukuran file maksimal 2MB')
+    if (file.size > MAX_INPUT_BYTES) {
+      alert('Ukuran foto maksimal 10MB. Foto akan dikompresi otomatis di bawah 300KB.')
+      e.target.value = ''
       return
     }
     setUploadingFoto(true)
+    setSaveError('')
     try {
-      const base64 = await fileToBase64(file)
+      setUploadStage('Mengompresi foto...')
+      let base64: string
+      try {
+        const compressed = await compressFoto(file)
+        base64 = compressed.base64
+        setUploadStage(`Mengunggah (${compressed.info})...`)
+      } catch {
+        // Fallback: file mentah bila kompresi gagal (mis. browser lama).
+        setUploadStage('Mengunggah...')
+        base64 = await fileToBase64(file)
+      }
       const identitas = (data.idPendaftaran || data.email || 'siswa').replace(/[^a-zA-Z0-9_-]/g, '_')
-      const uploadResult = await api.upload(`${identitas}-foto-profil.jpg`, file.type || 'image/jpeg', base64)
+      const uploadResult = await api.upload(`${identitas}-foto-profil.jpg`, 'image/jpeg', base64)
       const info = uploadResult.data as { fileUrl?: string; fileId?: string } | undefined
       const fotoUrl = info?.fileId
-        ? `https://drive.google.com/uc?export=view&id=${encodeURIComponent(info.fileId)}`
+        ? driveImageUrl(info.fileId, 800)
         : info?.fileUrl
+          ? driveImageUrl(info.fileUrl, 800)
+          : ''
       if (!fotoUrl) throw new Error('URL foto tidak tersedia')
 
+      setUploadStage('Menyimpan ke data...')
       updateData({ fotoProfilBase64: fotoUrl })
       if (data.email) {
         try {
           await api.siswa.update(data.email, { foto_profil_url: fotoUrl })
-        } catch {
-          alert('Foto berhasil diunggah, tetapi penyimpanan data tertunda. Tekan Selesai untuk menyimpan.')
+        } catch (err) {
+          // File sudah di Drive, hanya simpan ke Sheet yang gagal -> bisa Simpan Ulang.
+          setSaveError(getFriendlyAuthError(err))
         }
       }
     } catch (error) {
       updateData({ fotoProfilBase64: '' })
       const message = error instanceof Error ? error.message : 'Kesalahan tidak diketahui'
-      alert(`Foto gagal diunggah: ${message}`)
+      alert(`Foto gagal diunggah: ${getFriendlyAuthError(message)}`)
+    } finally {
+      setUploadingFoto(false)
+      setUploadStage('')
+      if (e.target) e.target.value = ''
+    }
+  }
+
+  const handleSimpanUlangFoto = async () => {
+    if (!data.email || !data.fotoProfilBase64) return
+    setUploadingFoto(true)
+    setSaveError('')
+    try {
+      await api.siswa.update(data.email, { foto_profil_url: data.fotoProfilBase64 })
+    } catch (err) {
+      setSaveError(getFriendlyAuthError(err))
     } finally {
       setUploadingFoto(false)
     }
@@ -94,7 +138,7 @@ export default function Step5Berkas({ onComplete, onBack }: Step5Props) {
             </div>
             <div>
               <p className="text-sm font-medium text-slate-800">Pas Foto</p>
-              <p className="text-xs text-slate-500">Maks 2MB, format JPG/PNG</p>
+              <p className="text-xs text-slate-500">Maks 10MB, otomatis dikompresi di bawah 300KB (JPG/PNG/WEBP)</p>
               <p className="text-xs text-brand-green-dark mt-0.5">Foto ini akan muncul di formulir pendaftaran.</p>
             </div>
           </div>
@@ -112,6 +156,9 @@ export default function Step5Berkas({ onComplete, onBack }: Step5Props) {
               <img
                 src={data.fotoProfilBase64}
                 alt="Preview"
+                loading="lazy"
+                referrerPolicy="no-referrer"
+                onError={(ev) => { (ev.target as HTMLImageElement).style.opacity = '0.4' }}
                 className="w-16 h-16 rounded-lg object-cover border border-slate-200"
               />
               <Button onClick={() => fotoRef.current?.click()} variant="ghost" className="text-xs">
@@ -128,6 +175,17 @@ export default function Step5Berkas({ onComplete, onBack }: Step5Props) {
               <Upload className="w-4 h-4" />
               Pilih Foto
             </Button>
+          )}
+          {uploadingFoto && uploadStage && (
+            <p className="text-xs text-slate-500 mt-2">{uploadStage}</p>
+          )}
+          {saveError && (
+            <div className="mt-2 bg-amber-50 border border-amber-200 rounded-xl p-3">
+              <p className="text-xs text-amber-800">{saveError}</p>
+              <Button onClick={handleSimpanUlangFoto} variant="secondary" loading={uploadingFoto} className="w-full mt-2 text-xs">
+                Simpan Ulang ke Data
+              </Button>
+            </div>
           )}
         </Card>
 

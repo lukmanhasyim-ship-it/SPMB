@@ -74,12 +74,53 @@ function requireAuth_(params, allowedRoles) {
   return { session: sess }
 }
 
-// Pembatasan laju per email (anti brute-force / anti spam).
-function rateLimit_(email, scope, maxPerWindow, windowSec) {
-  var key = 'rl:' + scope + ':' + String(email || '').toLowerCase()
+// Pembatasan laju per email dengan fixed-window (tidak me-reset TTL tiap hit).
+// checkRateLimit_ mengembalikan { allowed, retryAfterSec } agar frontend bisa countdown.
+function checkRateLimit_(email, scope, maxPerWindow, windowSec) {
+  var norm = String(email || '').toLowerCase().trim()
+  var countKey = 'rl:' + scope + ':' + norm
+  var startKey = 'rl:' + scope + ':' + norm + ':start'
   var cache = CacheService.getScriptCache()
-  var count = Number(cache.get(key) || 0) + 1
-  if (count > maxPerWindow) return false
-  cache.put(key, String(count), windowSec)
-  return true
+  var now = Date.now()
+
+  var start = Number(cache.get(startKey) || 0)
+  var count = Number(cache.get(countKey) || 0)
+
+  // Jendela baru bila belum ada atau sudah kedaluwarsa.
+  if (!start || (now - start) >= windowSec * 1000) {
+    start = now
+    count = 0
+    cache.put(startKey, String(start), windowSec)
+    cache.put(countKey, '0', windowSec)
+  }
+
+  count += 1
+  if (count > maxPerWindow) {
+    var elapsedSec = Math.floor((now - start) / 1000)
+    var retryAfter = windowSec - elapsedSec
+    if (!(retryAfter > 0)) retryAfter = 1
+    console.error('SPMB rate-limit (' + scope + ') email=' + norm + ' count=' + count + ' retryAfter=' + retryAfter + 's')
+    return { allowed: false, retryAfterSec: retryAfter }
+  }
+
+  var elapsed = Math.floor((now - start) / 1000)
+  var remaining = windowSec - elapsed
+  if (!(remaining > 0)) remaining = 1
+  // Simpan counter dengan sisa TTL jendela agar jendela tetap (fixed), tidak geser.
+  cache.put(countKey, String(count), remaining)
+  return { allowed: true, retryAfterSec: 0 }
+}
+
+// Kompatibilitas: pemanggil lama yang hanya butuh boolean.
+function rateLimit_(email, scope, maxPerWindow, windowSec) {
+  return checkRateLimit_(email, scope, maxPerWindow, windowSec).allowed
+}
+
+// Hapus counter setelah aksi sukses agar user yang berhasil tidak ikut terhukum.
+function resetRateLimit_(email, scope) {
+  var norm = String(email || '').toLowerCase().trim()
+  if (!norm) return
+  var cache = CacheService.getScriptCache()
+  cache.remove('rl:' + scope + ':' + norm)
+  cache.remove('rl:' + scope + ':' + norm + ':start')
 }

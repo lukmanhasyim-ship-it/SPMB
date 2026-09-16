@@ -16,8 +16,9 @@ function handleAuth(params) {
   }
 
   var email = verify.payload.email.toLowerCase().trim()
-  if (!rateLimit_(email, 'auth', 20, 3600)) {
-    return { status: 'error', message: 'Terlalu banyak percobaan, silakan coba lagi nanti' }
+  var authLimit = checkRateLimit_(email, 'auth', 30, 600)
+  if (!authLimit.allowed) {
+    return { status: 'error', code: 'RATE_LIMITED', scope: 'auth', retryAfterSec: authLimit.retryAfterSec, message: 'Terlalu banyak percobaan login, silakan coba lagi dalam ' + authLimit.retryAfterSec + ' detik' }
   }
 
   var nama = verify.payload.name || ''
@@ -25,6 +26,7 @@ function handleAuth(params) {
 
   var role = resolveRole_(email)
   var sessionToken = createSession_(email, role)
+  resetRateLimit_(email, 'auth')
 
   var configs = getAllRows('Sistem_Config')
   var tahunAjaran = getConfigValue(configs, 'TAHUN_AJARAN_AKTIF', '2026/2027')
@@ -56,7 +58,8 @@ function handleAuth(params) {
     role: role,
     user: user,
     sessionToken: sessionToken,
-    tahunAjaran: tahunAjaran
+    tahunAjaran: tahunAjaran,
+    serverBuild: SERVER_BUILD_TAG
   }
 }
 
@@ -95,6 +98,7 @@ function isTokenError_(payload) {
 }
 
 var REGISTER_BUILD_TAG = 'v45-guru-sheet'
+var SERVER_BUILD_TAG = 'spmb-2026-09-17'
 
 function handleRegister(params) {
   initializeSheets()
@@ -119,8 +123,9 @@ function handleRegister(params) {
     return { status: 'error', message: 'Email tidak sesuai dengan akun Google Anda' }
   }
 
-  if (!rateLimit_(email, 'register', 5, 3600)) {
-    return { status: 'error', message: 'Terlalu banyak percobaan pendaftaran, silakan coba lagi nanti' }
+  var registerLimit = checkRateLimit_(email, 'register', 10, 3600)
+  if (!registerLimit.allowed) {
+    return { status: 'error', code: 'RATE_LIMITED', scope: 'register', retryAfterSec: registerLimit.retryAfterSec, message: 'Terlalu banyak percobaan pendaftaran, silakan coba lagi dalam ' + registerLimit.retryAfterSec + ' detik' }
   }
 
   var nama = (params.nama || verify.payload.name || '').trim()
@@ -169,12 +174,14 @@ function handleRegister(params) {
     lock.releaseLock()
 
     var guruSession = createSession_(email, 'guru_smp')
+    resetRateLimit_(email, 'register')
     return {
       status: 'ok',
       role: 'guru_smp',
       user: { email: email, nama: nama, fotoUrl: '' },
       sessionToken: guruSession,
-      buildTag: REGISTER_BUILD_TAG
+      buildTag: REGISTER_BUILD_TAG,
+      serverBuild: SERVER_BUILD_TAG
     }
   }
 
@@ -217,6 +224,7 @@ function handleRegister(params) {
   lock.releaseLock()
 
   var sessionToken = createSession_(email, 'siswa')
+  resetRateLimit_(email, 'register')
 
   return {
     status: 'ok',
@@ -224,7 +232,8 @@ function handleRegister(params) {
     user: { email: email, nama: nama, fotoUrl: fotoUrl },
     sessionToken: sessionToken,
     idPendaftaran: idPendaftaran,
-    buildTag: REGISTER_BUILD_TAG
+    buildTag: REGISTER_BUILD_TAG,
+    serverBuild: SERVER_BUILD_TAG
   }
 }
 

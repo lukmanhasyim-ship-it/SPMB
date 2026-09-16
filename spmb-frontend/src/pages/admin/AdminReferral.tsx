@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { UserCheck, Users, ChevronDown, ChevronUp, Download } from 'lucide-react'
-import * as XLSX from 'xlsx'
 import Card from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
 import Loader from '../../components/ui/Loader'
@@ -74,7 +73,8 @@ export default function AdminReferral() {
     setExpanded((prev) => ({ ...prev, [index]: !prev[index] }))
   }
 
-  const handleExport = () => {
+  const handleExport = async () => {
+    const XLSX = await import('xlsx')
     const data = filtered.flatMap((s) =>
       s.pendaftar.map((p) => ({
         'Kategori': s.kategori,

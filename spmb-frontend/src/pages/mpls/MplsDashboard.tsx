@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Users, CheckCircle2, ScanLine, RefreshCw, FileSpreadsheet, AlertTriangle, ClipboardX, Percent } from 'lucide-react'
-import * as XLSX from 'xlsx'
 import { useAuthStore } from '../../store/authStore'
 import Card from '../../components/ui/Card'
 import Loader from '../../components/ui/Loader'
@@ -64,7 +63,9 @@ function buildRekap(kehadiran: KehadiranMpls[], izinList: IzinMpls[]): RekapRow[
   return rows.sort((a, b) => (a.waktu || '').localeCompare(b.waktu || ''))
 }
 
-function buildExportSheet(rows: RekapRow[]): XLSX.WorkSheet {
+type XlsxModule = typeof import('xlsx')
+
+function buildExportSheet(rows: RekapRow[], XLSX: XlsxModule): import('xlsx').WorkSheet {
   const data = rows.map((r, i) => ({
     No: i + 1,
     Status: r.status,
@@ -151,10 +152,11 @@ export default function MplsDashboard() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tanggal])
 
-  const handleExport = () => {
+  const handleExport = async () => {
     const rows = buildRekap(kehadiran, izinList)
+    const XLSX = await import('xlsx')
     const wb = XLSX.utils.book_new()
-    XLSX.utils.book_append_sheet(wb, buildExportSheet(rows), sheetNameFromTanggal(tanggal))
+    XLSX.utils.book_append_sheet(wb, buildExportSheet(rows, XLSX), sheetNameFromTanggal(tanggal))
     XLSX.writeFile(wb, `absensi-mpls-${tanggal}.xlsx`)
   }
 
@@ -174,9 +176,10 @@ export default function MplsDashboard() {
           alert('Belum ada data absensi untuk diekspor')
           return
         }
+        const XLSX = await import('xlsx')
         const wb = XLSX.utils.book_new()
         for (const group of groupByTanggal(all)) {
-          XLSX.utils.book_append_sheet(wb, buildExportSheet(group.rows), sheetNameFromTanggal(group.tanggal))
+          XLSX.utils.book_append_sheet(wb, buildExportSheet(group.rows, XLSX), sheetNameFromTanggal(group.tanggal))
         }
         XLSX.writeFile(wb, 'absensi-mpls-semua.xlsx')
       }

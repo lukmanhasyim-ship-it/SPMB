@@ -35,29 +35,28 @@ export default function DashboardSiswa() {
       setInitialLoading(false)
       return
     }
-    Promise.all([
-      loadSiswa(user.email),
-      api.gelombang.get().then((res) => {
-        if (res.status === 'ok') {
-          const list = res.data as Array<Record<string, string>>
-          const aktif = list.find((g) => g.status === 'Aktif')
-          if (aktif) {
-            setGelombangAktif({
-              gelombang: aktif.gelombang,
-              tanggalMulai: aktif.tanggal_mulai,
-              tanggalSelesai: aktif.tanggal_selesai,
-              linkGroupWA: aktif.link_group_wa,
-            })
-          }
+    // Progresif: data siswa dulu (kritis), gelombang & event menyusul tanpa blokir.
+    loadSiswa(user.email).catch(() => {}).finally(() => setInitialLoading(false))
+    api.gelombang.get().then((res) => {
+      if (res.status === 'ok') {
+        const list = res.data as Array<Record<string, string>>
+        const aktif = list.find((g) => g.status === 'Aktif')
+        if (aktif) {
+          setGelombangAktif({
+            gelombang: aktif.gelombang,
+            tanggalMulai: aktif.tanggal_mulai,
+            tanggalSelesai: aktif.tanggal_selesai,
+            linkGroupWA: aktif.link_group_wa,
+          })
         }
-      }),
-      api.broadcast.getEvents().then((res) => {
-        if (res.status === 'ok') {
-          setEvents(res.data as Array<{ id_event: string; target_gelombang: string; judul: string; deskripsi: string; gambar_url: string; tanggal_pelaksanaan: string; waktu_pelaksanaan: string; tempat_pelaksanaan: string; created_at: string }>)
-        }
-      }),
-    ]).catch(() => {}).finally(() => setInitialLoading(false))
-  }, [user?.email])
+      }
+    }).catch(() => {})
+    api.broadcast.getEvents().then((res) => {
+      if (res.status === 'ok') {
+        setEvents(res.data as Array<{ id_event: string; target_gelombang: string; judul: string; deskripsi: string; gambar_url: string; tanggal_pelaksanaan: string; waktu_pelaksanaan: string; tempat_pelaksanaan: string; created_at: string }>)
+      }
+    }).catch(() => {})
+  }, [user?.email, loadSiswa])
 
   const isInitialized = data.idPendaftaran !== ''
   const progressPercent = getProgressPercent()

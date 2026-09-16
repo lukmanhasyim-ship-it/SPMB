@@ -1,8 +1,8 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Info, LogIn, User, School, MapPin, Users, Award, X, Loader2, Sparkles } from 'lucide-react'
 import { useAuthStore } from '../../store/authStore'
-import { getFriendlyAuthError } from '../../services/api'
+import { checkBackendHealth, formatRetryCountdown, getFriendlyAuthError, getRetryAfterSec } from '../../services/api'
 import { setPendingRegistration } from '../../services/pendingAuth'
 import Card from '../../components/ui/Card'
 
@@ -30,12 +30,40 @@ export default function LoginPage() {
   const [internalLoading, setInternalLoading] = useState(false)
   const [localError, setLocalError] = useState('')
   const [caraDaftarOpen, setCaraDaftarOpen] = useState(false)
+  const [cooldownSec, setCooldownSec] = useState(0)
+  const [backendDown, setBackendDown] = useState(false)
+  const inFlightRef = useRef(false)
 
   const isLoading = loading || internalLoading
   const sessionExpired = searchParams.get('session') === 'expired'
 
+  // Health-check backend saat halaman dibuka (deteksi URL basi pasca-deploy).
+  useEffect(() => {
+    let cancelled = false
+    checkBackendHealth().then((h) => {
+      if (!cancelled && !h.ok) setBackendDown(true)
+    }).catch(() => {
+      if (!cancelled) setBackendDown(true)
+    })
+    return () => { cancelled = true }
+  }, [])
+
+  // Countdown blokir rate-limit.
+  useEffect(() => {
+    if (cooldownSec <= 0) return
+    const t = setTimeout(() => setCooldownSec((s) => Math.max(0, s - 1)), 1000)
+    return () => clearTimeout(t)
+  }, [cooldownSec])
+
+  const failWithCooldown = (err: unknown) => {
+    const secs = getRetryAfterSec(err)
+    if (secs > 0) setCooldownSec(secs)
+    setLocalError(getFriendlyAuthError(err))
+  }
+
   const handleGoogleClick = () => {
     setLocalError('')
+    if (inFlightRef.current || isLoading || cooldownSec > 0) return
 
     if (!import.meta.env.VITE_GOOGLE_CLIENT_ID) {
       console.error('VITE_GOOGLE_CLIENT_ID is not configured')
@@ -52,12 +80,18 @@ export default function LoginPage() {
     }
 
     setInternalLoading(true)
+    inFlightRef.current = true
+
+    const done = () => {
+      inFlightRef.current = false
+      setInternalLoading(false)
+    }
 
     const cb = async (response: Record<string, unknown>) => {
       const accessToken = response.access_token as string | undefined
       if (!accessToken) {
         console.error('No access_token received')
-        setInternalLoading(false)
+        done()
         setLocalError('Login Google tidak mengembalikan token. Silakan coba lagi.')
         return
       }
@@ -68,7 +102,7 @@ export default function LoginPage() {
           { headers: { Authorization: `Bearer ${accessToken}` } },
         )
         if (!userRes.ok) {
-          throw new Error('Failed to fetch user info')
+          throw new Error('Gagal mengambil info pengguna Google. Periksa koneksi lalu coba lagi.')
         }
         const userInfo = await userRes.json()
 
@@ -92,14 +126,14 @@ export default function LoginPage() {
           setPendingRegistration({ email, nama, fotoUrl, token: accessToken })
           navigate('/register')
         } else {
-          setInternalLoading(false)
+          done()
           const msg = useAuthStore.getState().error || 'Login gagal. Silakan coba lagi.'
-          setLocalError(getFriendlyAuthError(msg))
+          failWithCooldown(msg)
         }
       } catch (err) {
         console.error('Login error:', err)
-        setInternalLoading(false)
-        setLocalError(getFriendlyAuthError(err))
+        done()
+        failWithCooldown(err)
       }
     }
 
@@ -108,7 +142,7 @@ export default function LoginPage() {
       scope: 'openid email profile',
       callback: cb,
       error_callback: () => {
-        setInternalLoading(false)
+        done()
         setLocalError('Login Google dibatalkan atau gagal. Silakan coba lagi.')
       },
     })
@@ -197,9 +231,16 @@ export default function LoginPage() {
           </div>
 
           <div className="space-y-4 animate-fade-in-up" style={{ animationDelay: '120ms' }}>
+            {backendDown && (
+              <div className="bg-red-50 border border-red-200 rounded-xl p-3">
+                <p className="text-xs text-red-800 text-center font-medium">
+                  Layanan backend tidak terjangkau (kemungkinan URL basi setelah deploy). Hubungi admin sebelum mencoba login berulang.
+                </p>
+              </div>
+            )}
             <button
               onClick={handleGoogleClick}
-              disabled={isLoading}
+              disabled={isLoading || cooldownSec > 0}
               className="w-full flex items-center justify-center gap-3 px-6 py-3 rounded-xl bg-white border border-slate-200 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all text-sm font-semibold text-slate-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isLoading ? (
@@ -224,7 +265,7 @@ export default function LoginPage() {
                   />
                 </svg>
               )}
-              {isLoading ? 'Memproses...' : 'Masuk dengan Google'}
+              {isLoading ? 'Memproses...' : cooldownSec > 0 ? `Coba lagi dalam ${formatRetryCountdown(cooldownSec)}` : 'Masuk dengan Google'}
             </button>
 
             <p className="text-xs text-slate-400 text-center">

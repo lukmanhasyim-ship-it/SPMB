@@ -1,12 +1,12 @@
-import html2canvas from 'html2canvas'
-import { toJpeg } from 'html-to-image'
-
 const F4_WIDTH_MM = 210
 const F4_HEIGHT_MM = 330
 const TARGET_DPI = 300
 export const F4_PIXEL_WIDTH = Math.round((F4_WIDTH_MM / 25.4) * TARGET_DPI)
 export const F4_PIXEL_HEIGHT = Math.round((F4_HEIGHT_MM / 25.4) * TARGET_DPI)
 const JPEG_QUALITY = 0.92
+
+// html2canvas + html-to-image dipertahankan (dibutuhkan fitur print) tapi di-load
+// malas via dynamic import agar tidak memberatkan bundle awal.
 
 const AREA_ID = 'area-cetak'
 
@@ -44,6 +44,7 @@ async function waitForImages(root: HTMLElement): Promise<void> {
 }
 
 async function renderWithSnapshot(area: HTMLElement): Promise<string> {
+  const { toJpeg } = await import('html-to-image')
   const cssWidth = area.offsetWidth
   return toJpeg(area, {
     pixelRatio: F4_PIXEL_WIDTH / cssWidth,
@@ -54,6 +55,7 @@ async function renderWithSnapshot(area: HTMLElement): Promise<string> {
 }
 
 async function renderWithCanvas(area: HTMLElement): Promise<string> {
+  const { default: html2canvas } = await import('html2canvas')
   const cssWidth = area.offsetWidth
   const cssHeight = area.offsetHeight
   const canvas = await html2canvas(area, {

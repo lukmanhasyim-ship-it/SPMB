@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { getFriendlyAuthError } from './api'
+import { driveImageUrl, formatRetryCountdown, getFriendlyAuthError, getRetryAfterSec } from './api'
 
 const TEST_API_URL = 'https://script.google.com/macros/s/TEST/exec'
 const TOKEN_KEY = 'spmb.session-token'
@@ -39,6 +39,9 @@ describe('getFriendlyAuthError', () => {
     ['Akses ditolak', 'tidak memiliki izin'],
     ['Terlalu banyak percobaan', 'Terlalu banyak percobaan'],
     ['Failed to fetch', 'Koneksi bermasalah'],
+    ['HTTP 404: Not Found', 'tidak tersedia'],
+    ['Foto berhasil diunggah tetapi gagal disimpan ke data', 'gagal disimpan'],
+    ['Unknown action: foo. Kemungkinan frontend lebih baru', 'belum diperbarui'],
   ])('memetakan "%s" ke pesan ramah', (raw, expectedFragment) => {
     expect(getFriendlyAuthError(new Error(raw))).toContain(expectedFragment)
   })
@@ -153,21 +156,30 @@ describe('request()', () => {
     expect(fetchMock).toHaveBeenCalledTimes(2)
   })
 
-  it('me-retry pada HTTP 404 sementara lalu berhasil', async () => {
+  it('tidak me-retry pada HTTP 404 (URL basi pasca-deploy)', async () => {
     vi.stubEnv('VITE_API_URL', TEST_API_URL)
     const notFound = { ok: false, status: 404, statusText: 'Not Found' }
-    const fetchMock = vi.fn()
-      .mockResolvedValueOnce(notFound)
-      .mockResolvedValueOnce(jsonResponse({ status: 'ok', data: {} }))
+    const fetchMock = vi.fn().mockResolvedValue(notFound)
     vi.stubGlobal('fetch', fetchMock)
 
     const api = await loadApi()
     api._internals.backoff = () => Promise.resolve()
 
-    const result = await api.api.siswa.get('a@gmail.com')
+    await expect(api.api.siswa.get('a@gmail.com')).rejects.toThrow('HTTP 404')
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+  })
 
-    expect(result.status).toBe('ok')
-    expect(fetchMock).toHaveBeenCalledTimes(2)
+  it('tidak me-retry aksi auth (1 klik = 1 hit agar tidak mempercepat rate-limit)', async () => {
+    vi.stubEnv('VITE_API_URL', TEST_API_URL)
+    const serverError = { ok: false, status: 500, statusText: 'Internal Server Error' }
+    const fetchMock = vi.fn().mockResolvedValue(serverError)
+    vi.stubGlobal('fetch', fetchMock)
+
+    const api = await loadApi()
+    api._internals.backoff = () => Promise.resolve()
+
+    await expect(api.api.auth.login('a@gmail.com')).rejects.toThrow('HTTP 500')
+    expect(fetchMock).toHaveBeenCalledTimes(1)
   })
 
   it('tidak me-retry pada HTTP 400', async () => {
@@ -193,5 +205,30 @@ describe('request()', () => {
       'Koneksi bermasalah',
     )
     expect(fetchMock).toHaveBeenCalledTimes(1)
+  })
+
+  it('meneruskan code RATE_LIMITED + retryAfterSec dari server', async () => {
+    vi.stubEnv('VITE_API_URL', TEST_API_URL)
+    const fetchMock = vi.fn(async () => jsonResponse({ status: 'error', code: 'RATE_LIMITED', retryAfterSec: 123, message: 'Terlalu banyak percobaan login, silakan coba lagi dalam 123 detik' }))
+    vi.stubGlobal('fetch', fetchMock)
+
+    const api = await loadApi()
+    const err = await api.api.auth.login('a@gmail.com').catch((e: Error) => e)
+
+    expect(getRetryAfterSec(err)).toBe(123)
+    expect(getFriendlyAuthError(err)).toContain('Terlalu banyak')
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+  })
+})
+
+describe('helpers baru', () => {
+  it('driveImageUrl memakai thumbnail stabil', () => {
+    expect(driveImageUrl('abc123')).toBe('https://drive.google.com/thumbnail?id=abc123&sz=w800')
+    expect(driveImageUrl('https://drive.google.com/uc?export=view&id=abc123')).toBe('https://drive.google.com/thumbnail?id=abc123&sz=w800')
+  })
+
+  it('formatRetryCountdown MM:SS', () => {
+    expect(formatRetryCountdown(65)).toBe('01:05')
+    expect(formatRetryCountdown(5)).toBe('00:05')
   })
 })

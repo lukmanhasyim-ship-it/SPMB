@@ -1,7 +1,6 @@
 import { useEffect, useState, useMemo } from 'react'
 import type { ChangeEvent } from 'react'
 import { Search, Filter, ChevronDown, Download, Trash2, AlertTriangle, X, Pencil } from 'lucide-react'
-import * as XLSX from 'xlsx'
 import Card from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
 import Loader from '../../components/ui/Loader'
@@ -157,7 +156,9 @@ export default function AdminSiswa() {
     })
   }, [siswaList, search, filterStatus])
 
-  const handleExport = () => {
+  const handleExport = async () => {
+    // Lazy-load xlsx agar bundle awal ringan (hanya dimuat saat klik Export).
+    const XLSX = await import('xlsx')
     const mapRow = (s: SiswaRow) => ({
       'ID Pendaftaran': s.idPendaftaran,
       'Nama Lengkap': s.namaLengkap,

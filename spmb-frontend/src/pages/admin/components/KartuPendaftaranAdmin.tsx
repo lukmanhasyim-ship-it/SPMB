@@ -32,7 +32,7 @@ export default function KartuPendaftaranAdmin({ data }: KartuPendaftaranAdminPro
         <div className="flex items-center gap-4 mb-6">
           <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-white/20 shrink-0 bg-slate-700 flex items-center justify-center">
             {data.foto_profil_url ? (
-              <img src={data.foto_profil_url} alt="Foto" className="w-full h-full object-cover" />
+              <img src={data.foto_profil_url} alt="Foto" loading="lazy" referrerPolicy="no-referrer" className="w-full h-full object-cover" />
             ) : (
               <span className="text-xl font-bold text-slate-400">
                 {data.nama_lengkap?.charAt(0) || '?'}

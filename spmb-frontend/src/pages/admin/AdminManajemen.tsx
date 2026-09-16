@@ -1,6 +1,5 @@
 import { useEffect, useState, useRef } from 'react'
 import { Plus, Edit3, Trash2, Shield, School, X, Upload, FileSpreadsheet, CheckCircle2, AlertTriangle, Loader2, Download } from 'lucide-react'
-import * as XLSX from 'xlsx'
 import Card from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
 import Loader from '../../components/ui/Loader'
@@ -122,6 +121,7 @@ export default function AdminManajemen() {
 
     try {
       const data = await file.arrayBuffer()
+      const XLSX = await import('xlsx')
       const workbook = XLSX.read(data)
       const sheet = workbook.Sheets[workbook.SheetNames[0]]
       const rows = XLSX.utils.sheet_to_json<Record<string, string>>(sheet)
@@ -171,7 +171,8 @@ export default function AdminManajemen() {
     }
   }
 
-  const handleDownloadTemplate = () => {
+  const handleDownloadTemplate = async () => {
+    const XLSX = await import('xlsx')
     const ws = XLSX.utils.aoa_to_sheet([
       ['email', 'nama', 'role', 'no_telp'],
       ['guru1@gmail.com', 'Guru Satu', 'guru', '08123456789'],

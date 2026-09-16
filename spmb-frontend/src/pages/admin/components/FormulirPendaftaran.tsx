@@ -183,7 +183,7 @@ function FormBody({ data }: { data: Record<string, unknown> }) {
                 <div className="mt-0 flex items-start justify-center self-start pt-1">
                   <div className="flex h-[140px] w-[105px] items-center justify-center border-[2px] border-[#9bb9a7] bg-[#f8faf9] text-center shadow-inner overflow-hidden">
                     {data.foto_profil_url ? (
-                      <img src={String(data.foto_profil_url)} alt="Pas foto" className="h-full w-full object-cover" />
+                      <img src={String(data.foto_profil_url)} alt="Pas foto" loading="lazy" referrerPolicy="no-referrer" className="h-full w-full object-cover" />
                     ) : (
                       <div className="text-[11px] font-bold uppercase leading-5 tracking-[0.12em] text-slate-400">
                         FOTO

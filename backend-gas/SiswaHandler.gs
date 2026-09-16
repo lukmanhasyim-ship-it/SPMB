@@ -90,13 +90,23 @@ function handleGetSiswa(params, session) {
   }
 
   var allSiswa = getAllRows('Siswa')
+  // Batch: baca Telepon_Siswa sekali saja (sebelumnya per-baris baca full sheet = O(n^2)).
+  var teleponMap = {}
+  try {
+    var telRows = getAllRows('Telepon_Siswa')
+    for (var t = 0; t < telRows.length; t++) {
+      var tid = String(telRows[t].id_pendaftaran || '').trim()
+      if (tid) teleponMap[tid] = String(telRows[t].telepon || '')
+    }
+  } catch (e) { teleponMap = {} }
   var result = []
   for (var i = 0; i < allSiswa.length; i++) {
     if (session.role === 'guru_smp' &&
         normalizeSekolah_(allSiswa[i].asal_sekolah) !== guruSmpSekolah) {
       continue
     }
-    allSiswa[i].telepon_siswa = getTeleponSiswa_(allSiswa[i].id_pendaftaran)
+    var sid = String(allSiswa[i].id_pendaftaran || '').trim()
+    allSiswa[i].telepon_siswa = sid && teleponMap[sid] ? teleponMap[sid] : ''
     result.push(cleanSiswaRow(allSiswa[i]))
   }
   return { status: 'ok', data: result }
@@ -104,6 +114,9 @@ function handleGetSiswa(params, session) {
 
 function handleUpdateSiswa(params, session) {
   initializeSheets()
+  // Pastikan kolom foto/berkas ada (Sheet lama bisa belum punya kolom ini).
+  // Tanpa ini updateRow() akan mengabaikan field secara diam-diam.
+  ensureHeaders('Siswa', ['foto_profil_url', 'berkas_pdf_url', 'prestasi_foto_url'])
 
   var email = (params.email || '').toLowerCase().trim()
   if (!email) return { status: 'error', message: 'Email wajib diisi' }
@@ -163,6 +176,11 @@ function handleUpdateSiswa(params, session) {
   lock.releaseLock()
 
   var updated = findRowByKey('Siswa', 'email', email)
+  // Verifikasi baca-balik: pastikan URL foto/berkas yang diminta benar-benar tersimpan.
+  if (params.foto_profil_url !== undefined && String((updated && updated.foto_profil_url) || '') !== String(params.foto_profil_url || '')) {
+    console.error('SPMB updateSiswa GAGAL verifikasi foto_profil_url: ' + email)
+    return { status: 'error', code: 'UPLOAD_OK_SAVE_FAILED', message: 'Foto berhasil diunggah tetapi gagal disimpan ke data. Silakan coba simpan ulang.' }
+  }
   updated.telepon_siswa = getTeleponSiswa_(updated.id_pendaftaran)
   return { status: 'ok', data: cleanSiswaRow(updated) }
 }

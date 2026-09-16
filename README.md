@@ -1,19 +1,30 @@
-# SPMB — Sistem Penerimaan Murid Baru
+# SPMB — Portal Penerimaan Murid Baru
 
 **SMKS Al Azhar Sempu** · Serverless & Cloud Database (Google Workspace)
 
-SPMB adalah aplikasi web **Single Page Application (SPA)** untuk pendaftaran murid baru secara online. Aplikasi ini menggunakan **Google OAuth 2.0** sebagai satu gerbang masuk, **Google Apps Script** sebagai backend, **Google Sheets** sebagai database, **Google Drive** untuk penyimpanan berkas, dan **Google Calendar** untuk pengingat agenda — semuanya berbasis ekosistem cloud gratis tanpa biaya infrastruktur.
+SPMB adalah portal penerimaan murid baru berbasis web untuk mengelola pendaftaran dari pengisian formulir hingga pendataan MPLS. Aplikasi terdiri dari frontend React/Vite dan backend Google Apps Script yang terhubung dengan Google Sheets, Google Drive, dan Google Calendar.
 
-## Fitur Utama
+Semua pengguna masuk melalui Google Sign-In. Setelah token diverifikasi di server, aplikasi mengarahkan pengguna ke area sesuai perannya: calon murid, admin, guru, guru SMP/MTs, atau panitia MPLS.
+
+## Alur dan Fitur Utama
 
 | Peran | Fitur |
 |---|---|
-| **Calon Murid** | Login Google OAuth; wizard pendaftaran 5 langkah (program keahlian utama + motivasi memilih, data pribadi + NISN opsional, alamat + koordinat peta, orang tua/wali, berkas & prestasi) ditutup estimasi penghasilan orang tua/wali wajib pilih (dropdown rentang: `< Rp. 500.000,-` s.d `> Rp. 5.000.000,-`); nomor HP siswa & orang tua/wali dinormalisasi otomatis ke format internasional Indonesia (`628xx`); pindai KK/KTP untuk pengisian alamat otomatis (OCR); dropdown referral dinamis (nama guru SMKS, atau guru SMP/MTs tersaring per asal sekolah); upload pas foto & PDF gabungan; kartu pendaftaran digital ber-QR; timeline tahapan SPMB; feed pengumuman ala Instagram (suka, komentar, tambah agenda ke Google Calendar + pengingat email). |
-| **Admin** | Dashboard statistik & grafik; tabel & pencarian pendaftar; daftarkan siswa manual; import data via Excel (xlsx); export Excel rekap pendaftar (satu sheet per program keahlian + *Belum Ditentukan*, termasuk link Google Maps dari koordinat alamat); kelola gelombang & tahun ajaran aktif; kelola timeline tahapan SPMB; broadcast event personal ke email; statistik referral; manajemen pengguna (admin/guru/panitia CRUD) termasuk mengelola akun Guru SMP/MTs hasil registrasi mandiri; verifikasi berkas. |
-| **Guru SMKS** | Dashboard statistik pendaftar (total, status, distribusi program keahlian & gelombang); daftarkan siswa dengan referral terkunci atas nama sendiri. |
-| **Guru SMP/MTs (`guru_smp`)** | Registrasi mandiri via halaman Registrasi (wajib Gmail + asal sekolah); dashboard khusus yang hanya menampilkan pendaftar dari sekolahnya sendiri (filter di sisi server, tanpa persaingan antar sekolah); daftarkan siswa dengan asal sekolah & referral terisi otomatis dari akun. |
-| **Panitia MPLS** | Scan QR kartu pendaftaran / lookup manual ID; absensi kehadiran harian; manajemen izin (sakit/keluarga/lainnya); dashboard & informasi MPLS. |
-| **Umum** | Satu gerbang login + deteksi peran otomatis; otorisasi peran di sisi server; normalisasi nomor telepon ke format E.164 Indonesia di sisi server; kartu digital ber-QR; notifikasi personal. |
+| **Calon murid** | Registrasi dan login Google; wizard pendaftaran 5 langkah; pilihan program keahlian; data pribadi, alamat, orang tua/wali, berkas, dan prestasi; OCR KK/KTP untuk alamat; referral; kartu pendaftaran dengan QR; timeline dan pengumuman. |
+| **Admin** | Dashboard statistik; daftar dan pencarian pendaftar; pendaftaran manual; import/export Excel; verifikasi dan formulir pendaftaran; pengaturan gelombang dan timeline; broadcast; statistik referral; manajemen pengguna. |
+| **Guru SMKS** | Melihat statistik dan daftar pendaftar serta mendaftarkan calon murid dengan referral atas nama sendiri. |
+| **Guru SMP/MTs** | Registrasi mandiri dengan asal sekolah; hanya melihat pendaftar dari sekolahnya; mendaftarkan calon murid dengan asal sekolah dan referral otomatis. |
+| **Panitia MPLS** | Dashboard MPLS; scan QR atau pencarian ID pendaftaran; absensi harian; pencatatan izin; informasi MPLS. |
+
+### Rute Frontend
+
+| Area | Rute utama |
+|---|---|
+| Login dan registrasi | `/`, `/register` |
+| Portal siswa | `/student/dashboard`, `/student/wizard`, `/student/kartu-pendaftaran` |
+| Admin | `/admin/dashboard`, `/admin/siswa`, `/admin/gelombang`, `/admin/timeline`, `/admin/broadcast`, `/admin/admin-manajemen` |
+| Guru | `/guru/dashboard`, `/guru/daftarkan-siswa`, `/guru/formulir` |
+| MPLS | `/mpls/dashboard`, `/mpls/scan`, `/mpls/izin`, `/mpls/informasi` |
 
 ## Tech Stack
 
@@ -28,7 +39,7 @@ SPMB adalah aplikasi web **Single Page Application (SPA)** untuk pendaftaran mur
 SPMB/
 ├─ spmb-frontend/              # React + Vite SPA
 │  ├─ src/
-│  │  ├─ pages/                # login, student (wizard 5 langkah), admin, guru, mpls
+│  │  ├─ pages/                # login, student, admin, guru, dan mpls
 │  │  ├─ components/           # UI kit (Button, Card, StatCard, DonutChart, Toast, …)
 │  │  ├─ services/api.ts       # lapisan pemanggil API (action + session token)
 │  │  ├─ store/                # Zustand (authStore, studentStore)
@@ -59,22 +70,22 @@ SPMB/
 └─ RPD.md                      # dokumen rancangan teknis
 ```
 
-## Cara Menjalankan
+## Menjalankan Secara Lokal
 
 ### A. Prasyarat
 
 - **Node.js ≥ 18** dan **npm**
-- Akun Google (Gmail) sebagai pemilik spreadsheet & deployment
-- Kredensial **OAuth 2.0 Client** di [Google Cloud Console](https://console.cloud.google.com):
-  - Aktifkan Google Identity Services API
-  - Isi **Authorized JavaScript origins** dengan alamat frontend Anda
-    (saat lokal: `http://localhost:5173`)
+- Akun Google sebagai pemilik spreadsheet dan deployment Apps Script
+- OAuth Client ID dari [Google Cloud Console](https://console.cloud.google.com)
+- Google Apps Script Web App yang dapat diakses frontend
+
+> Frontend tidak dapat login atau memuat data tanpa `VITE_API_URL`, `VITE_GOOGLE_CLIENT_ID`, dan backend yang sudah dideploy.
 
 ### B. Setup Backend (Google Apps Script)
 
 > Petunjuk lengkap termasuk daftar API per `action` tersedia di [`backend-gas/README.md`](backend-gas/README.md).
 
-1. **Buat project Apps Script** di https://script.google.com, beri nama mis. `SPMB-Backend`.
+1. **Buat project Apps Script** di https://script.google.com, misalnya `SPMB-Backend`.
 2. **Salin seluruh file `.gs`** dari folder `backend-gas/` ke project, serta `appsscript.json` ke **Project Settings > Show manifest file**.
 
    > `PhoneLib.gs` adalah **bundle generated** (esbuild + `google-libphonenumber`) untuk
@@ -123,6 +134,12 @@ npm run dev
 
 Buka `http://localhost:5173` dan login dengan akun Google.
 
+Di Windows PowerShell, perintah penyalinan template dapat dilakukan dengan:
+
+```powershell
+Copy-Item .env.example .env
+```
+
 ### D. Login Pertama
 
 1. **Calon murid baru** — email Google belum terdaftar → alur **registrasi siswa** (buat akun pendaftaran) → lanjut mengisi wizard 5 langkah.
@@ -136,7 +153,7 @@ Buka `http://localhost:5173` dan login dengan akun Google.
 | `VITE_API_URL` | URL Web App Apps Script (format `https://script.google.com/macros/s/.../exec`) |
 | `VITE_GOOGLE_CLIENT_ID` | OAuth Client ID aplikasi Google (divalidasi sebagai `aud` token di backend) |
 
-## Deployment
+## Deployment Produksi
 
 ### Backend
 
@@ -174,7 +191,7 @@ npx firebase deploy --only hosting
 
 > Pastikan **Authorized JavaScript origins** pada OAuth Client di Cloud Console memuat URL hosting produksi Anda (mis. `https://<project-id>.web.app`).
 
-### Cek Kualitas Kode
+### Validasi dan Pengujian
 
 ```bash
 cd spmb-frontend

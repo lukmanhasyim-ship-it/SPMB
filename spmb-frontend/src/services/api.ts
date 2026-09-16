@@ -8,13 +8,17 @@ const RETRY_BACKOFF_MS = 800
 const MAX_ATTEMPTS = 2
 
 const HEAVY_ACTIONS = new Set(['upload', 'register', 'adminRegisterSiswa', 'auth'])
-const NO_RETRY_ACTIONS = new Set(['register', 'adminRegisterSiswa'])
+// Aksi non-idempoten / sensitif kuota: JANGAN di-retry otomatis.
+// auth & upload masuk sini agar 1 klik = 1 hit (mencegah percepatan rate-limit).
+const NO_RETRY_ACTIONS = new Set(['register', 'adminRegisterSiswa', 'auth', 'upload'])
 
 type FailureKind = 'network' | 'timeout' | 'http'
 
 interface RequestFailure extends Error {
   kind?: FailureKind
   statusCode?: number
+  code?: string
+  retryAfterSec?: number
 }
 
 export const _internals = {
@@ -24,10 +28,12 @@ export const _internals = {
   },
 }
 
-function makeFailure(message: string, kind?: FailureKind, statusCode?: number): RequestFailure {
+function makeFailure(message: string, kind?: FailureKind, statusCode?: number, code?: string, retryAfterSec?: number): RequestFailure {
   const err = new Error(message) as RequestFailure
   if (kind) err.kind = kind
   if (statusCode !== undefined) err.statusCode = statusCode
+  if (code) err.code = code
+  if (retryAfterSec !== undefined) err.retryAfterSec = retryAfterSec
   return err
 }
 
@@ -36,16 +42,31 @@ function isRetryable(err: unknown): boolean {
   const failure = err as RequestFailure
   if (failure.kind === 'network') return true
   if (failure.kind === 'timeout') return false
+  // 404 TIDAK di-retry: hampir selalu URL basi / deployment non-aktif, bukan transient.
+  // Retry hanya untuk 429 (rate-limit) dan 5xx.
   const status = failure.statusCode
-  return status === 404 || status === 429 || (typeof status === 'number' && status >= 500 && status < 600)
+  return status === 429 || (typeof status === 'number' && status >= 500 && status < 600)
 }
 
 interface ApiResponse {
   status: 'ok' | 'error'
   message?: string
   code?: string
+  scope?: string
+  retryAfterSec?: number
+  serverBuild?: string
   data?: unknown
   [key: string]: unknown
+}
+
+export function getRetryAfterSec(err: unknown): number {
+  if (err instanceof Error) {
+    const r = (err as RequestFailure).retryAfterSec
+    if (typeof r === 'number' && r > 0) return Math.min(r, 3600)
+  }
+  const m = /dalam (\d+) detik/i.exec(err instanceof Error ? err.message : String(err || ''))
+  if (m) return Math.min(Number(m[1]), 3600)
+  return 0
 }
 
 export function getSessionToken(): string {
@@ -104,9 +125,44 @@ const FRIENDLY_ERROR_PATTERNS: Array<[RegExp, string]> = [
   [/sesi tidak valid|sesi berakhir/i, 'Sesi Anda berakhir. Silakan login kembali.'],
   [/token google/i, 'Verifikasi Google gagal. Silakan coba login ulang.'],
   [/akses ditolak/i, 'Anda tidak memiliki izin untuk melakukan aksi ini.'],
-  [/terlalu banyak/i, 'Terlalu banyak percobaan. Silakan coba lagi nanti.'],
+  [/terlalu banyak.*pendaftaran/i, 'Terlalu banyak percobaan pendaftaran. Tunggu hitungan mundur lalu coba lagi.'],
+  [/terlalu banyak/i, 'Terlalu banyak percobaan login. Tunggu hitungan mundur lalu coba lagi.'],
+  [/UPLOAD_OK_SAVE_FAILED|gagal disimpan ke data/i, 'Foto berhasil diunggah tetapi gagal disimpan ke data. Tekan Simpan Ulang.'],
+  [/FILE_TOO_LARGE|maksimal 10MB/i, 'File terlalu besar. Gunakan foto lain atau tunggu kompresi selesai.'],
+  [/UNKNOWN_ACTION|frontend lebih baru/i, 'Aplikasi backend belum diperbarui setelah deploy. Hubungi admin untuk redeploy.'],
+  [/HTTP 404/i, 'Layanan backend tidak tersedia (404). Kemungkinan URL backend basi setelah deploy — hubungi admin.'],
+  [/HTTP 429/i, 'Terlalu banyak permintaan. Tunggu sebentar lalu coba lagi.'],
+  [/HTTP 5\d\d/i, 'Server sedang sibuk. Tunggu sebentar lalu coba lagi.'],
   [/failed to fetch|load failed|networkerror|network error/i, 'Koneksi bermasalah. Periksa internet Anda dan coba lagi.'],
 ]
+
+export function formatRetryCountdown(totalSec: number): string {
+  const s = Math.max(0, Math.ceil(totalSec))
+  const mm = String(Math.floor(s / 60)).padStart(2, '0')
+  const ss = String(s % 60).padStart(2, '0')
+  return `${mm}:${ss}`
+}
+
+// URL gambar Drive yang stabil untuk <img> (endpoint uc?export=view tidak stabil).
+export function driveImageUrl(fileIdOrUrl: string, size = 800): string {
+  if (!fileIdOrUrl) return ''
+  const m = /[?&]id=([^&]+)/.exec(fileIdOrUrl) || /\/d\/([^/]+)/.exec(fileIdOrUrl)
+  const id = m ? m[1] : fileIdOrUrl
+  if (/^https?:\/\//.test(fileIdOrUrl) && !m) return fileIdOrUrl
+  return `https://drive.google.com/thumbnail?id=${encodeURIComponent(id)}&sz=w${size}`
+}
+
+export async function checkBackendHealth(): Promise<{ ok: boolean; serverBuild?: string }> {
+  if (!API_URL) return { ok: false }
+  try {
+    const res = await fetch(API_URL, { method: 'GET' })
+    if (!res.ok) return { ok: false }
+    const body = (await res.json()) as { status?: string; serverBuild?: string }
+    return { ok: body.status === 'ok', serverBuild: body.serverBuild }
+  } catch {
+    return { ok: false }
+  }
+}
 
 export function getFriendlyAuthError(err: unknown): string {
   const raw = err instanceof Error ? err.message : String(err || '')
@@ -172,7 +228,7 @@ async function request(action: string, payload: Record<string, unknown> = {}): P
           writeStoredUser(null)
           _internals.authRedirect('/?session=expired')
         }
-        throw new Error(result.message || 'Unknown error')
+        throw makeFailure(result.message || 'Unknown error', undefined, undefined, result.code, typeof result.retryAfterSec === 'number' ? result.retryAfterSec : undefined)
       }
 
       return result
