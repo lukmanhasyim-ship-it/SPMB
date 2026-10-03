@@ -1,4 +1,4 @@
-import { LayoutDashboard, Users, Calendar, Image, FileText, Shield, UserPlus, Milestone, UserCheck } from 'lucide-react'
+import { LayoutDashboard, Users, Calendar, Image, FileText, Shield, UserPlus, Milestone, UserCheck, CreditCard } from 'lucide-react'
 import AppShell from '../../components/layout/AppShell'
 
 const navItems = [
@@ -10,6 +10,7 @@ const navItems = [
   { to: '/admin/timeline', icon: Milestone, label: 'Timeline' },
   { to: '/admin/broadcast', icon: Image, label: 'Postingan' },
   { to: '/admin/formulir', icon: FileText, label: 'Formulir' },
+  { to: '/admin/cetak-kartu', icon: CreditCard, label: 'Cetak Kartu' },
   { to: '/admin/admin-manajemen', icon: Shield, label: 'User' },
 ]
 

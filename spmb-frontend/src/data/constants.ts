@@ -22,6 +22,7 @@ export const DATA_TINGGAL_BERSAMA = [
 ]
 
 export const DATA_ESTIMASI_PENGHASILAN = [
+  'Tidak berpenghasilan',
   '< Rp. 500.000,-',
   'Rp. 500.000,- s/d Rp. 1.000.000,-',
   'Rp. 1.000.000,- s/d Rp. 5.000.000',

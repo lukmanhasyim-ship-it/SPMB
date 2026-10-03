@@ -1,22 +1,25 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { ArrowLeft, Download } from 'lucide-react'
-import { QRCodeSVG } from 'qrcode.react'
+import { ArrowLeft, Download, Printer, FileText } from 'lucide-react'
 import { isPendaftaranAwalLengkap, useStudentStore } from '../../store/studentStore'
 import { useAuthStore } from '../../store/authStore'
 import Card from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
 import Loader from '../../components/ui/Loader'
+import BuktiPendaftaranCard, { KartuData } from '../../components/kartu/BuktiPendaftaranCard'
 import { DATA_JURUSAN } from '../../data/constants'
 import { formatWIB } from '../../utils/dateUtils'
 import { api } from '../../services/api'
-import { findLinkGroupWa, WHATSAPP_LOGO_SRC } from '../../utils/waGroup'
+import { findLinkGroupWa } from '../../utils/waGroup'
+import { a4SinglePrintCss, kartuPrintCss } from '../../utils/kartuPrint'
+import { useKartuPrint } from '../../hooks/useKartuPrint'
 
 export default function KartuPendaftaran() {
   const navigate = useNavigate()
   const { data, loading, loadSiswa } = useStudentStore()
   const { user } = useAuthStore()
   const [linkGroupWa, setLinkGroupWa] = useState('')
+  const { mode: printMode, print: handlePrint } = useKartuPrint()
 
   useEffect(() => {
     if (!data.idPendaftaran && user?.email) loadSiswa(user.email)
@@ -71,131 +74,77 @@ export default function KartuPendaftaran() {
 
   const jurusanLabel = DATA_JURUSAN.find((j) => j.value === data.pilihanJurusan)?.label || data.pilihanJurusan
 
-  const qrData = data.idPendaftaran || '-'
-  const hasWaLink = linkGroupWa !== ''
-  const qrHeaderValue = hasWaLink ? linkGroupWa : qrData
-
-  const handleDownload = () => {
-    window.print()
+  const kartuData: KartuData = {
+    nama: data.namaLengkap || '-',
+    email: user?.email || '-',
+    idPendaftaran: data.idPendaftaran,
+    jurusanLabel,
+    gelombang: data.gelombang,
+    tahunAjaran: data.tahunAjaran || '-',
+    waktuDaftar: formatWIB(data.waktuDaftar),
+    status: 'Terdaftar',
+    fotoUrl: data.fotoProfilBase64 || user?.fotoUrl,
+    initials: data.namaLengkap || '?',
+    linkGroupWA: linkGroupWa,
   }
 
+  const css = printMode === 'kartu' ? kartuPrintCss() : a4SinglePrintCss()
+
   return (
-    <div className="min-h-screen bg-slate-50 p-4 sm:p-8">
-      <div className="max-w-md mx-auto space-y-6">
-        <div className="flex items-center justify-between">
-          <button
-            onClick={() => navigate('/student/dashboard')}
-            className="flex items-center gap-1.5 text-sm text-brand-green hover:text-brand-green-dark font-medium transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Kembali
-          </button>
-          <h2 className="text-lg font-bold text-slate-800">Bukti Pendaftaran</h2>
-          <div className="w-20" />
-        </div>
+    <div className="min-h-screen bg-slate-50">
+      {printMode && <style>{css}</style>}
 
-        <Card className="p-0 overflow-hidden">
-          <div className="bg-slate-800 p-6 text-white">
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-3">
-                <img src="/logo.svg" alt="Logo" className="w-10 h-10 brightness-0 invert" />
-                <div>
-                  <p className="text-[10px] text-brand-green-light uppercase tracking-widest font-medium">
-                    SMKS AL AZHAR SEMPU
-                  </p>
-                  <p className="text-sm font-bold mt-0.5">Bukti Pendaftaran Resmi</p>
-                </div>
-              </div>
-              <QRCodeSVG
-                value={qrHeaderValue}
-                size={56}
-                level={hasWaLink ? 'H' : 'L'}
-                bgColor="transparent"
-                fgColor="#ffffff"
-                title={
-                  hasWaLink
-                    ? `Scan untuk masuk grup WhatsApp ${data.gelombang}`
-                    : 'ID Pendaftaran'
-                }
-                imageSettings={
-                  hasWaLink
-                    ? { src: WHATSAPP_LOGO_SRC, width: 20, height: 20, excavate: true }
-                    : undefined
-                }
-                className="shrink-0"
-              />
-            </div>
-
-            <div className="flex items-center gap-4 mb-6">
-              <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-white/20 shrink-0 bg-slate-700 flex items-center justify-center">
-                {(data.fotoProfilBase64 || user?.fotoUrl) ? (
-                  <img src={data.fotoProfilBase64 || user?.fotoUrl} alt="Foto" loading="lazy" referrerPolicy="no-referrer" className="w-full h-full object-cover" />
-                ) : (
-                  <span className="text-xl font-bold text-slate-400">
-                    {data.namaLengkap?.charAt(0) || '?'}
-                  </span>
-                )}
-              </div>
-              <div>
-                <p className="text-base font-bold">{data.namaLengkap || '-'}</p>
-                <p className="text-xs text-slate-400">{user?.email}</p>
-                <p className="text-xs text-brand-green-light mt-0.5 font-medium">
-                  {data.idPendaftaran}
-                </p>
-              </div>
-            </div>
-
-            <div className="space-y-2 text-xs">
-              <div className="flex justify-between border-b border-white/10 pb-1.5">
-                <span className="text-slate-400">Program Keahlian</span>
-                <span className="font-medium text-right">{jurusanLabel || '-'}</span>
-              </div>
-              <div className="flex justify-between border-b border-white/10 pb-1.5">
-                <span className="text-slate-400">Gelombang</span>
-                <span className="font-medium">{data.gelombang || '-'}</span>
-              </div>
-              <div className="flex justify-between border-b border-white/10 pb-1.5">
-                <span className="text-slate-400">Tahun Ajaran</span>
-                <span className="font-medium">{data.tahunAjaran || '-'}</span>
-              </div>
-              <div className="flex justify-between border-b border-white/10 pb-1.5">
-                <span className="text-slate-400">Waktu Daftar</span>
-                <span className="font-medium">
-                  {formatWIB(data.waktuDaftar)}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-slate-400">Status</span>
-                <span className="font-medium text-brand-green-light">Terdaftar</span>
-              </div>
-            </div>
-
-            <div className="mt-6 flex flex-col items-center">
-              <div className="bg-white p-3 rounded-xl">
-                <QRCodeSVG value={qrData} size={120} />
-              </div>
-              <p className="text-[10px] text-slate-500 mt-2">
-                Scan untuk verifikasi data pendaftaran
-              </p>
-            </div>
+      <div className="kartu-screen-shell min-h-screen p-4 sm:p-8">
+        <div className="mx-auto max-w-md space-y-6">
+          <div className="flex items-center justify-between">
+            <button
+              onClick={() => navigate('/student/dashboard')}
+              className="flex items-center gap-1.5 text-sm text-brand-green hover:text-brand-green-dark font-medium transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Kembali
+            </button>
+            <h2 className="text-lg font-bold text-slate-800">Bukti Pendaftaran</h2>
+            <div className="w-20" />
           </div>
-        </Card>
 
-        <div className="flex gap-3">
-          <Button onClick={handleDownload} fullWidth variant="primary">
-            <Download className="w-4 h-4" />
-            Cetak / Download Bukti
-          </Button>
-          <Link
-            to="/student/wizard?mode=final"
-            className="flex-1"
-          >
-            <Button fullWidth variant="secondary">
-              Finalisasi Profile
-            </Button>
-          </Link>
+          <div className="flex justify-center">
+            <BuktiPendaftaranCard data={kartuData} />
+          </div>
+
+          <div className="flex flex-col gap-3">
+            <div className="flex gap-3">
+              <Button onClick={() => handlePrint('kartu')} fullWidth variant="primary">
+                <Printer className="w-4 h-4" />
+                Cetak Kartu 65x95mm
+              </Button>
+              <Button onClick={() => handlePrint('a4')} fullWidth variant="secondary">
+                <FileText className="w-4 h-4" />
+                Cetak A4
+              </Button>
+            </div>
+            <Link to="/student/wizard?mode=final">
+              <Button fullWidth variant="secondary">
+                <Download className="w-4 h-4" />
+                Finalisasi Profile
+              </Button>
+            </Link>
+          </div>
+
+          <p className="text-[11px] text-slate-400 text-center">
+            Ukuran kartu 65 x 95 mm. Pilih &quot;Cetak Kartu&quot; bila printer mendukung kertas custom,
+            atau &quot;Cetak A4&quot; untuk printer biasa.
+          </p>
         </div>
       </div>
+
+      {printMode && (
+        <div className="kartu-print-root">
+          <div className="a4-sheet">
+            <BuktiPendaftaranCard data={kartuData} />
+          </div>
+        </div>
+      )}
     </div>
   )
 }

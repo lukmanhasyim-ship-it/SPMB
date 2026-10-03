@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Users, FileCheck, Clock, AlertTriangle, Calendar, Milestone, Image, FileText, ArrowUpRight } from 'lucide-react'
+import { Users, FileCheck, Clock, AlertTriangle, Calendar, Milestone, Image, FileText, ArrowUpRight, CreditCard } from 'lucide-react'
 import Card from '../../components/ui/Card'
 import Loader from '../../components/ui/Loader'
 import StatCard from '../../components/ui/StatCard'
@@ -117,6 +117,7 @@ export default function AdminDashboard() {
     { to: '/admin/gelombang', icon: Calendar, label: 'Gelombang', tone: 'bg-gradient-to-br from-amber-400 to-orange-500' },
     { to: '/admin/broadcast', icon: Image, label: 'Postingan', tone: 'bg-gradient-to-br from-fuchsia-400 to-purple-500' },
     { to: '/admin/formulir', icon: FileText, label: 'Formulir', tone: 'bg-gradient-to-br from-teal-400 to-brand-teal' },
+    { to: '/admin/cetak-kartu', icon: CreditCard, label: 'Cetak Kartu', tone: 'bg-gradient-to-br from-emerald-400 to-brand-green' },
   ]
 
   return (

@@ -8,6 +8,9 @@ import Toast from '../../components/ui/Toast'
 import { api } from '../../services/api'
 import { renderFormJpeg, printJpeg, downloadJpeg } from '../../utils/formImage'
 import { findLinkGroupWa } from '../../utils/waGroup'
+import { a4SinglePrintCss, kartuPrintCss } from '../../utils/kartuPrint'
+import { useKartuPrint } from '../../hooks/useKartuPrint'
+
 import FormulirPendaftaran from './components/FormulirPendaftaran'
 import KartuPendaftaranAdmin from './components/KartuPendaftaranAdmin'
 
@@ -29,6 +32,7 @@ export default function AdminFormulir() {
   const [selected, setSelected] = useState<Record<string, string> | null>(null)
   const [selectedKartu, setSelectedKartu] = useState<Record<string, string> | null>(null)
   const [linkGroupWa, setLinkGroupWa] = useState('')
+  const { mode: printMode, print: handlePrintKartu } = useKartuPrint()
   const [page, setPage] = useState(1)
   const [searchParams] = useSearchParams()
   const autoSelected = useRef(false)
@@ -160,29 +164,49 @@ export default function AdminFormulir() {
     }
   }
 
-  const handlePrintKartu = () => {
-    window.print()
-  }
-
   if (selectedKartu) {
     return (
       <div className="page-fade-in space-y-4">
+        {printMode && (
+          <style>{printMode === 'kartu' ? kartuPrintCss() : a4SinglePrintCss()}</style>
+        )}
         {toast && <Toast type={toast.type} message={toast.message} onClose={() => setToast(null)} />}
-        <div className="flex items-center justify-between print:hidden">
-          <button
-            onClick={() => setSelectedKartu(null)}
-            className="flex items-center gap-1.5 text-sm text-brand-green hover:text-brand-green-dark font-medium transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Kembali
-          </button>
-          <h1 className="text-lg font-bold text-slate-800">Bukti Pendaftaran</h1>
-          <Button variant="primary" onClick={handlePrintKartu} className="flex items-center gap-1.5">
-            <Printer className="w-4 h-4" />
-            Cetak / Download Bukti
-          </Button>
+        <div className="kartu-screen-shell space-y-4">
+          <div className="flex items-center justify-between print:hidden">
+            <button
+              onClick={() => setSelectedKartu(null)}
+              className="flex items-center gap-1.5 text-sm text-brand-green hover:text-brand-green-dark font-medium transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Kembali
+            </button>
+            <h1 className="text-lg font-bold text-slate-800">Bukti Pendaftaran</h1>
+            <div className="flex gap-2">
+              <Button variant="primary" onClick={() => handlePrintKartu('kartu')}>
+                <Printer className="w-4 h-4" />
+                Cetak Kartu 65x95mm
+              </Button>
+              <Button variant="secondary" onClick={() => handlePrintKartu('a4')}>
+                <FileText className="w-4 h-4" />
+                Cetak A4
+              </Button>
+            </div>
+          </div>
+          <div className="flex justify-center">
+            <KartuPendaftaranAdmin id="area-cetak" data={selectedKartu} linkGroupWA={linkGroupWa} />
+          </div>
+          <p className="text-center text-[11px] text-slate-400">
+            Ukuran kartu 65 x 95 mm. Untuk cetak massal sekaligus, gunakan menu
+            &quot;Cetak Kartu&quot; di sidebar.
+          </p>
         </div>
-        <KartuPendaftaranAdmin data={selectedKartu} linkGroupWA={linkGroupWa} />
+        {printMode && (
+          <div className="kartu-print-root">
+            <div className="a4-sheet">
+              <KartuPendaftaranAdmin data={selectedKartu} linkGroupWA={linkGroupWa} />
+            </div>
+          </div>
+        )}
       </div>
     )
   }

@@ -18,6 +18,7 @@ const AdminGelombang = lazy(() => import('./pages/admin/AdminGelombang'))
 const AdminTimeline = lazy(() => import('./pages/admin/AdminTimeline'))
 const AdminBroadcast = lazy(() => import('./pages/admin/AdminBroadcast'))
 const AdminFormulir = lazy(() => import('./pages/admin/AdminFormulir'))
+const AdminCetakKartu = lazy(() => import('./pages/admin/AdminCetakKartu'))
 const AdminManajemen = lazy(() => import('./pages/admin/AdminManajemen'))
 const GuruLayout = lazy(() => import('./pages/guru/GuruLayout'))
 const GuruDashboard = lazy(() => import('./pages/guru/GuruDashboard'))
@@ -100,6 +101,7 @@ function App() {
         <Route path="timeline" element={<SuspenseWrapper><AdminTimeline /></SuspenseWrapper>} />
         <Route path="broadcast" element={<SuspenseWrapper><AdminBroadcast /></SuspenseWrapper>} />
         <Route path="formulir" element={<SuspenseWrapper><AdminFormulir /></SuspenseWrapper>} />
+        <Route path="cetak-kartu" element={<SuspenseWrapper><AdminCetakKartu /></SuspenseWrapper>} />
         <Route path="admin-manajemen" element={<SuspenseWrapper><AdminManajemen /></SuspenseWrapper>} />
       </Route>
       <Route

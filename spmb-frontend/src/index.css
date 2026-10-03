@@ -210,6 +210,12 @@ body {
   }
 }
 
+/* Area cetak kartu pendaftaran: hanya tampil saat print.
+   Dibuka lewat style yang disuntikkan kartuPrint.ts saat tombol cetak ditekan. */
+.kartu-print-root {
+  display: none;
+}
+
 @media print {
   @page {
     size: 210mm 330mm;
