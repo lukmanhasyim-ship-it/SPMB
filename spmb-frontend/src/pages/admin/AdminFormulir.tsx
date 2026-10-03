@@ -7,6 +7,7 @@ import Loader from '../../components/ui/Loader'
 import Toast from '../../components/ui/Toast'
 import { api } from '../../services/api'
 import { renderFormJpeg, printJpeg, downloadJpeg } from '../../utils/formImage'
+import { findLinkGroupWa } from '../../utils/waGroup'
 import FormulirPendaftaran from './components/FormulirPendaftaran'
 import KartuPendaftaranAdmin from './components/KartuPendaftaranAdmin'
 
@@ -27,6 +28,7 @@ export default function AdminFormulir() {
   const [search, setSearch] = useState('')
   const [selected, setSelected] = useState<Record<string, string> | null>(null)
   const [selectedKartu, setSelectedKartu] = useState<Record<string, string> | null>(null)
+  const [linkGroupWa, setLinkGroupWa] = useState('')
   const [page, setPage] = useState(1)
   const [searchParams] = useSearchParams()
   const autoSelected = useRef(false)
@@ -73,6 +75,25 @@ export default function AdminFormulir() {
       if (found) setSelected(found.raw)
     }
   }, [searchParams, siswaList])
+
+  useEffect(() => {
+    const target = selectedKartu?.gelombang
+    if (!selectedKartu || !target) {
+      setLinkGroupWa('')
+      return
+    }
+    let cancelled = false
+    api.gelombang
+      .get()
+      .then((res) => {
+        if (cancelled || res.status !== 'ok') return
+        setLinkGroupWa(findLinkGroupWa(res.data as Array<Record<string, string>>, target))
+      })
+      .catch(() => {})
+    return () => {
+      cancelled = true
+    }
+  }, [selectedKartu])
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase()
@@ -161,7 +182,7 @@ export default function AdminFormulir() {
             Cetak / Download Bukti
           </Button>
         </div>
-        <KartuPendaftaranAdmin data={selectedKartu} />
+        <KartuPendaftaranAdmin data={selectedKartu} linkGroupWA={linkGroupWa} />
       </div>
     )
   }

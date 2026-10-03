@@ -1,14 +1,18 @@
 import { QRCodeSVG } from 'qrcode.react'
 import { DATA_JURUSAN } from '../../../data/constants'
 import { formatWIB } from '../../../utils/dateUtils'
+import { WHATSAPP_LOGO_SRC } from '../../../utils/waGroup'
 
 interface KartuPendaftaranAdminProps {
   data: Record<string, string>
+  linkGroupWA?: string
 }
 
-export default function KartuPendaftaranAdmin({ data }: KartuPendaftaranAdminProps) {
+export default function KartuPendaftaranAdmin({ data, linkGroupWA = '' }: KartuPendaftaranAdminProps) {
   const jurusanLabel = DATA_JURUSAN.find((j) => j.value === data.pilihan_jurusan)?.label || data.pilihan_jurusan
   const qrData = data.id_pendaftaran || '-'
+  const hasWaLink = linkGroupWA !== ''
+  const qrHeaderValue = hasWaLink ? linkGroupWA : qrData
 
   return (
     <div
@@ -26,7 +30,22 @@ export default function KartuPendaftaranAdmin({ data }: KartuPendaftaranAdminPro
               <p className="text-sm font-bold mt-0.5">Bukti Pendaftaran Resmi</p>
             </div>
           </div>
-          <QRCodeSVG value={qrData} size={40} bgColor="transparent" fgColor="#ffffff" />
+          <QRCodeSVG
+            value={qrHeaderValue}
+            size={56}
+            level={hasWaLink ? 'H' : 'L'}
+            bgColor="transparent"
+            fgColor="#ffffff"
+            title={
+              hasWaLink ? `Scan untuk masuk grup WhatsApp ${data.gelombang}` : 'ID Pendaftaran'
+            }
+            imageSettings={
+              hasWaLink
+                ? { src: WHATSAPP_LOGO_SRC, width: 20, height: 20, excavate: true }
+                : undefined
+            }
+            className="shrink-0"
+          />
         </div>
 
         <div className="flex items-center gap-4 mb-6">

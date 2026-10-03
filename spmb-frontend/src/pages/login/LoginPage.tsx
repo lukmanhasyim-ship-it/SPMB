@@ -289,7 +289,7 @@ export default function LoginPage() {
               className="w-full flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl border-2 border-brand-green/30 bg-brand-green-light/20 hover:bg-brand-green-light/40 active:scale-[0.98] transition-all text-sm font-semibold text-brand-green-dark"
             >
               <Info className="w-4 h-4" />
-              Cara Daftar Pendaftaran
+              Cara Daftar
             </button>
           </div>
 

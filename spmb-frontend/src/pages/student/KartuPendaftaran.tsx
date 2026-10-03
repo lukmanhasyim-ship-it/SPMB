@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { ArrowLeft, Download } from 'lucide-react'
 import { QRCodeSVG } from 'qrcode.react'
@@ -9,11 +9,14 @@ import Button from '../../components/ui/Button'
 import Loader from '../../components/ui/Loader'
 import { DATA_JURUSAN } from '../../data/constants'
 import { formatWIB } from '../../utils/dateUtils'
+import { api } from '../../services/api'
+import { findLinkGroupWa, WHATSAPP_LOGO_SRC } from '../../utils/waGroup'
 
 export default function KartuPendaftaran() {
   const navigate = useNavigate()
   const { data, loading, loadSiswa } = useStudentStore()
   const { user } = useAuthStore()
+  const [linkGroupWa, setLinkGroupWa] = useState('')
 
   useEffect(() => {
     if (!data.idPendaftaran && user?.email) loadSiswa(user.email)
@@ -24,6 +27,25 @@ export default function KartuPendaftaran() {
       navigate('/student/dashboard', { replace: true })
     }
   }, [data, loading, navigate])
+
+  useEffect(() => {
+    const target = data.gelombang
+    if (!target) {
+      setLinkGroupWa('')
+      return
+    }
+    let cancelled = false
+    api.gelombang
+      .get()
+      .then((res) => {
+        if (cancelled || res.status !== 'ok') return
+        setLinkGroupWa(findLinkGroupWa(res.data as Array<Record<string, string>>, target))
+      })
+      .catch(() => {})
+    return () => {
+      cancelled = true
+    }
+  }, [data.gelombang])
 
   if (loading) {
     return (
@@ -50,6 +72,8 @@ export default function KartuPendaftaran() {
   const jurusanLabel = DATA_JURUSAN.find((j) => j.value === data.pilihanJurusan)?.label || data.pilihanJurusan
 
   const qrData = data.idPendaftaran || '-'
+  const hasWaLink = linkGroupWa !== ''
+  const qrHeaderValue = hasWaLink ? linkGroupWa : qrData
 
   const handleDownload = () => {
     window.print()
@@ -82,7 +106,24 @@ export default function KartuPendaftaran() {
                   <p className="text-sm font-bold mt-0.5">Bukti Pendaftaran Resmi</p>
                 </div>
               </div>
-              <QRCodeSVG value={qrData} size={40} bgColor="transparent" fgColor="#ffffff" />
+              <QRCodeSVG
+                value={qrHeaderValue}
+                size={56}
+                level={hasWaLink ? 'H' : 'L'}
+                bgColor="transparent"
+                fgColor="#ffffff"
+                title={
+                  hasWaLink
+                    ? `Scan untuk masuk grup WhatsApp ${data.gelombang}`
+                    : 'ID Pendaftaran'
+                }
+                imageSettings={
+                  hasWaLink
+                    ? { src: WHATSAPP_LOGO_SRC, width: 20, height: 20, excavate: true }
+                    : undefined
+                }
+                className="shrink-0"
+              />
             </div>
 
             <div className="flex items-center gap-4 mb-6">
