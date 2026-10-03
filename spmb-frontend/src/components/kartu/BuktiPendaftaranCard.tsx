@@ -1,6 +1,6 @@
 import { QRCodeSVG } from 'qrcode.react'
 import { QR_MODULE_COLOR, WHATSAPP_LOGO_SRC } from '../../utils/waGroup'
-import { KARTU_H_MM, KARTU_W_MM } from '../../utils/kartuPrint'
+import { KARTU_H_MM, KARTU_W_MM, QR_GAP_MM, QR_LABEL_MAX_W_MM, QR_PLATE_PAD_MM, QR_SIZE_MM } from '../../utils/kartuPrint'
 
 export interface KartuData {
   nama: string
@@ -107,9 +107,15 @@ export default function BuktiPendaftaranCard({
         ))}
       </div>
 
-      <div className="mt-auto flex items-start justify-center gap-[15mm] pt-[2mm]">
+      <div
+        className="mt-auto flex items-start justify-center pt-[2mm]"
+        style={{ gap: `${QR_GAP_MM}mm` }}
+      >
         <div className="flex flex-col items-center gap-[1mm]">
-          <div className="rounded-[1.5mm] bg-white p-[1.2mm]">
+          <div
+            className="rounded-[1.5mm] bg-white"
+            style={{ padding: `${QR_PLATE_PAD_MM}mm` }}
+          >
             <QRCodeSVG
               value={hasWaLink ? linkGroupWa : data.idPendaftaran || '-'}
               size={QR_SIZE_PX}
@@ -131,16 +137,23 @@ export default function BuktiPendaftaranCard({
                     }
                   : undefined
               }
-              className="w-[22mm] h-[22mm] shrink-0"
+              className="shrink-0"
+              style={{ width: `${QR_SIZE_MM}mm`, height: `${QR_SIZE_MM}mm` }}
             />
           </div>
-          <p className="max-w-[22mm] text-center text-[5pt] leading-[1.3] text-slate-300">
+          <p
+            className="text-center text-[5pt] leading-[1.3] text-slate-300"
+            style={{ maxWidth: `${QR_LABEL_MAX_W_MM}mm` }}
+          >
             {hasWaLink ? `Grup WhatsApp ${data.gelombang || ''}`.trim() : 'ID Pendaftaran'}
           </p>
         </div>
 
         <div className="flex flex-col items-center gap-[1mm]">
-          <div className="rounded-[1.5mm] bg-white p-[1.2mm]">
+          <div
+            className="rounded-[1.5mm] bg-white"
+            style={{ padding: `${QR_PLATE_PAD_MM}mm` }}
+          >
             <QRCodeSVG
               value={data.idPendaftaran || '-'}
               size={QR_SIZE_PX}
@@ -148,10 +161,14 @@ export default function BuktiPendaftaranCard({
               bgColor="transparent"
               fgColor={QR_MODULE_COLOR}
               title="Scan untuk verifikasi data pendaftaran"
-              className="w-[22mm] h-[22mm] shrink-0"
+              className="shrink-0"
+              style={{ width: `${QR_SIZE_MM}mm`, height: `${QR_SIZE_MM}mm` }}
             />
           </div>
-          <p className="max-w-[22mm] text-center text-[5pt] leading-[1.3] text-slate-300">
+          <p
+            className="text-center text-[5pt] leading-[1.3] text-slate-300"
+            style={{ maxWidth: `${QR_LABEL_MAX_W_MM}mm` }}
+          >
             Verifikasi Data
           </p>
         </div>

@@ -2,6 +2,32 @@ export const KARTU_W_MM = 65
 export const KARTU_H_MM = 95
 export const KARTU_PADDING_MM = 3
 
+/**
+ * Lebar area isi kartu setelah dikurangi padding kiri/kanan.
+ */
+export const KARTU_CONTENT_W_MM = KARTU_W_MM - KARTU_PADDING_MM * 2
+
+/** Ukur sisi QR, tetap 22 mm agar densitas modul tetap di atas ambang scan. */
+export const QR_SIZE_MM = 22
+/** Padding putih pada pelat QR (mel supplementing quiet zone bawaan QR). */
+export const QR_PLATE_PAD_MM = 1.2
+/**
+ * Jarak antar dua QR. Nilai ini tidak boleh melebihi QR_MAX_GAP_MM, kalau tidak
+ * baris QR keluar dari kartu dan ikut terpotong garis potong pada batch A4.
+ */
+export const QR_GAP_MM = 8
+/** Lebar maksimum label QR; harus <= lebar pelat agar tidak menambah kolom. */
+export const QR_LABEL_MAX_W_MM = QR_SIZE_MM
+
+/** Lebar satu kolom QR termasuk pelatnya. */
+export const QR_COL_W_MM = QR_SIZE_MM + QR_PLATE_PAD_MM * 2
+/** Total lebar baris dua QR beserta jaraknya. */
+export const QR_ROW_W_MM = QR_COL_W_MM * 2 + QR_GAP_MM
+/** Jarak maksimum yang masih muat di dalam area isi kartu. */
+export const QR_MAX_GAP_MM = KARTU_CONTENT_W_MM - QR_COL_W_MM * 2
+/** Margin efektif dari tepi kartu ke tepi pelat QR setelah baris dipusatkan. */
+export const QR_SIDE_MARGIN_MM = KARTU_PADDING_MM + (KARTU_CONTENT_W_MM - QR_ROW_W_MM) / 2
+
 export const A4_W_MM = 210
 export const A4_H_MM = 297
 
@@ -192,3 +218,4 @@ ${SCREEN_HIDDEN}
 }
 `
 }
+

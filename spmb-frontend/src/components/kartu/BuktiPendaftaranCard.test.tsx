@@ -12,9 +12,18 @@ import {
   A4_SHEET_OFFSET_X_MM,
   A4_SHEET_OFFSET_Y_MM,
   A4_W_MM,
+  KARTU_CONTENT_W_MM,
   KARTU_H_MM,
   KARTU_PADDING_MM,
   KARTU_W_MM,
+  QR_COL_W_MM,
+  QR_GAP_MM,
+  QR_LABEL_MAX_W_MM,
+  QR_MAX_GAP_MM,
+  QR_PLATE_PAD_MM,
+  QR_ROW_W_MM,
+  QR_SIDE_MARGIN_MM,
+  QR_SIZE_MM,
   a4PrintCss,
   a4SheetCss,
   a4SinglePrintCss,
@@ -192,11 +201,67 @@ describe('BuktiPendaftaranCard', () => {
     const codes = container.querySelectorAll('svg[viewBox]')
     expect(codes).toHaveLength(2)
     codes.forEach((code) => {
-      expect((code as HTMLElement).getAttribute('height')).toBe('83')
-      expect(code.classList.contains('w-[22mm]')).toBe(true)
-      expect(code.classList.contains('h-[22mm]')).toBe(true)
+      const el = code as HTMLElement
+      expect(el.getAttribute('height')).toBe('83')
+      expect(el.style.width).toBe(`${QR_SIZE_MM}mm`)
+      expect(el.style.height).toBe(`${QR_SIZE_MM}mm`)
     })
     expect(22 * MM_TO_PX).toBeCloseTo(83.15, 2)
+  })
+
+  it('baris QR muat di area isi kartu dan tidak keluar dari kartu', () => {
+    const { container } = render(<BuktiPendaftaranCard data={base} />)
+
+    const row = container.querySelector<HTMLElement>('div[style*="gap"]')
+    const plates = container.querySelectorAll<HTMLElement>('div[style*="padding"]')
+    expect(row).not.toBeNull()
+    expect(plates).toHaveLength(2)
+
+    // Nilai diambil dari DOM, bukan dari konstanta, supaya test ini benar-benar
+    // mengukur apa yang dirender dan bukan sekadar mengulang definisinya.
+    const gap = parseFloat(row!.style.gap)
+    const pad = parseFloat(plates[0].style.padding)
+    const qr = parseFloat(
+      container.querySelector<HTMLElement>('svg[viewBox]')!.style.width
+    )
+
+    expect(gap).toBeGreaterThan(0)
+    expect(pad).toBeGreaterThan(0)
+    expect(qr).toBe(22)
+    plates.forEach((plate) => expect(parseFloat(plate.style.padding)).toBe(pad))
+
+    const rowWidth = 2 * (qr + pad * 2) + gap
+    expect(rowWidth).toBeLessThanOrEqual(KARTU_CONTENT_W_MM)
+    // Margin efektif harus tetap minimal sebesar padding kartu, kalau tidak QR
+    // bisa menyentuh tepi kartu dan ikut terpotong garis potong pada batch A4.
+    const sideMargin = KARTU_PADDING_MM + (KARTU_CONTENT_W_MM - rowWidth) / 2
+    expect(sideMargin).toBeGreaterThanOrEqual(KARTU_PADDING_MM)
+    // Beri buffer supaya tidak pas-pas dengan toleransi pembulatan px.
+    expect(KARTU_CONTENT_W_MM - rowWidth).toBeGreaterThan(0.5)
+  })
+
+  it('jarak antar QR tidak mungkin diperlebar sampai keluar kartu', () => {
+    // nilai desain, dikunci supaya tidak ikut bergeser
+    expect(QR_SIZE_MM).toBe(22)
+    expect(QR_PLATE_PAD_MM).toBe(1.2)
+    expect(QR_GAP_MM).toBeGreaterThan(0)
+    expect(QR_GAP_MM).toBeLessThanOrEqual(QR_MAX_GAP_MM)
+    expect(QR_ROW_W_MM).toBeLessThanOrEqual(KARTU_CONTENT_W_MM)
+    // nilai turunan harus konsisten dengan definisinya
+    expect(KARTU_CONTENT_W_MM).toBe(59)
+    expect(QR_ROW_W_MM).toBeCloseTo(56.8, 5)
+    expect(QR_MAX_GAP_MM).toBeCloseTo(10.2, 5)
+    expect(QR_SIDE_MARGIN_MM).toBeCloseTo(4.1, 5)
+  })
+
+  it('label QR tidak pernah membuat kolom lebih lebar dari pelat', () => {
+    expect(QR_LABEL_MAX_W_MM).toBeLessThanOrEqual(QR_COL_W_MM)
+    const { container } = render(<BuktiPendaftaranCard data={base} />)
+    const labels = container.querySelectorAll<HTMLElement>('p[style*="max-width"]')
+    expect(labels).toHaveLength(2)
+    labels.forEach((label) => {
+      expect(parseFloat(label.style.maxWidth)).toBeLessThanOrEqual(QR_COL_W_MM)
+    })
   })
 
   it('densitas QR di atas ambang 0,5 mm per modul', () => {
