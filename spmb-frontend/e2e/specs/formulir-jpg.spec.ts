@@ -89,7 +89,11 @@ async function renderForm(page: import('@playwright/test').Page) {
   })
 
   await page.goto('/admin/formulir')
-  await expect(page.getByText(STUDENT.nama_lengkap)).toBeVisible()
+  // ResponsiveTable merender kartu mobile dan tabel desktop sekaligus; batasi
+  // ke tabel agar locator tidak ambigu (strict mode) dan tunggu data termuat.
+  await expect(
+    page.getByRole('table').getByText(STUDENT.nama_lengkap, { exact: true }),
+  ).toBeVisible({ timeout: 15_000 })
   await page.getByRole('button', { name: /Generate Formulir/i }).click()
   await expect(page.locator('#area-cetak .form-page')).toBeVisible()
   await page.waitForLoadState('load')

@@ -1,8 +1,10 @@
 import { useMemo, useState } from 'react'
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
-import { GraduationCap, LogOut, Menu, X, PanelLeftClose, PanelLeftOpen } from 'lucide-react'
+import { GraduationCap, LogOut, PanelLeftClose, PanelLeftOpen } from 'lucide-react'
 import type { ComponentType } from 'react'
 import { useAuthStore } from '../../store/authStore'
+import Modal from '../ui/Modal'
+import BottomNavBar from './BottomNavBar'
 
 export interface NavItem {
   to: string
@@ -14,6 +16,8 @@ interface AppShellProps {
   navItems: NavItem[]
   brandTitle: string
   brandSubtitle: string
+  /** Aksi utama di bottom bar mobile; biasanya navItems[1]. */
+  primaryAction?: NavItem
 }
 
 const HARI = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu']
@@ -27,7 +31,7 @@ function formatTanggalWIB(): string {
   return `${HARI[now.getDay()]}, ${now.getDate()} ${BULAN[now.getMonth()]} ${now.getFullYear()}`
 }
 
-export default function AppShell({ navItems, brandTitle, brandSubtitle }: AppShellProps) {
+export default function AppShell({ navItems, brandTitle, brandSubtitle, primaryAction }: AppShellProps) {
   const navigate = useNavigate()
   const { user, logout } = useAuthStore()
   const location = useLocation()
@@ -88,32 +92,42 @@ export default function AppShell({ navItems, brandTitle, brandSubtitle }: AppShe
     </div>
   )
 
-  const nav = (
-    <nav className="flex-1 space-y-1 px-3 overflow-y-auto dash-scroll">
+  const renderNav = (light: boolean) => (
+    <nav className="dash-scroll flex-1 space-y-1 overflow-y-auto px-3">
       {navItems.map((item) => (
         <NavLink
           key={item.to}
           to={item.to}
           onClick={() => setDrawerOpen(false)}
           className={({ isActive }) =>
-            `relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
+            `relative flex min-h-touch items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 ${
               isActive
-                ? 'text-white'
-                : 'text-white/65 hover:text-white hover:bg-white/10'
+                ? light
+                  ? 'bg-brand-green-light text-brand-green-dark'
+                  : 'text-white'
+                : light
+                  ? 'text-slate-600 hover:bg-slate-100 hover:text-brand-green'
+                  : 'text-white/65 hover:bg-white/10 hover:text-white'
             }`
           }
         >
           {({ isActive }) => (
             <>
               {isActive && (
-                <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded-r-full bg-brand-orange" />
+                <span
+                  className={`absolute left-0 top-1/2 h-6 w-1 -translate-y-1/2 rounded-r-full ${
+                    light ? 'bg-brand-green' : 'bg-brand-orange'
+                  }`}
+                />
               )}
               <span
-                className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-xl ${
-                  isActive ? 'bg-white/10 shadow-inner' : ''
+                className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 ${
+                  isActive ? (light ? 'bg-brand-green-light' : 'bg-white/10 shadow-inner') : ''
                 }`}
               >
-                <item.icon className={`w-5 h-5 ${isActive ? 'text-brand-orange' : ''}`} />
+                <item.icon
+                  className={`h-5 w-5 ${isActive ? (light ? 'text-brand-green' : 'text-brand-orange') : ''}`}
+                />
                 {item.label}
               </span>
             </>
@@ -134,7 +148,7 @@ export default function AppShell({ navItems, brandTitle, brandSubtitle }: AppShe
       </div>
       <button
         onClick={handleLogout}
-        className="flex items-center gap-2 w-full px-3 py-2 rounded-xl text-sm text-white/60 hover:text-white hover:bg-white/10 transition-colors"
+        className="flex min-h-touch items-center gap-2 w-full px-3 py-2 rounded-xl text-sm text-white/60 hover:text-white hover:bg-white/10 transition-colors"
       >
         <LogOut className="w-4 h-4" />
         Keluar
@@ -158,7 +172,7 @@ export default function AppShell({ navItems, brandTitle, brandSubtitle }: AppShe
         >
           <div className="flex flex-col h-full w-64 shrink-0">
             <div className="p-5 border-b border-white/10">{brand}</div>
-            {nav}
+            {renderNav(false)}
             {userFooter}
           </div>
         </aside>
@@ -170,7 +184,7 @@ export default function AppShell({ navItems, brandTitle, brandSubtitle }: AppShe
                 onClick={toggleCollapsed}
                 aria-label={collapsed ? 'Tampilkan sidebar' : 'Sembunyikan sidebar'}
                 title={collapsed ? 'Tampilkan sidebar' : 'Sembunyikan sidebar'}
-                className="p-2 rounded-xl text-slate-500 hover:bg-white/80 hover:text-brand-green transition-colors"
+                className="flex h-touch w-touch items-center justify-center rounded-xl text-slate-500 transition-colors hover:bg-white/80 hover:text-brand-green"
               >
                 {collapsed ? <PanelLeftOpen className="w-5 h-5" /> : <PanelLeftClose className="w-5 h-5" />}
               </button>
@@ -193,13 +207,7 @@ export default function AppShell({ navItems, brandTitle, brandSubtitle }: AppShe
           </header>
 
           <div className="lg:hidden sticky top-0 z-40 flex items-center justify-between gap-3 px-4 py-3 bg-white/70 backdrop-blur-md border-b border-white/70 print:hidden">
-            <button
-              onClick={() => setDrawerOpen(true)}
-              aria-label="Buka menu"
-              className="p-2 rounded-xl text-slate-600 hover:bg-white/80 transition-colors"
-            >
-              <Menu className="w-5 h-5" />
-            </button>
+            <div className="w-touch shrink-0" aria-hidden="true" />
             <div className="flex items-center gap-2 min-w-0 flex-1 justify-center">
               <GraduationCap className="w-4 h-4 text-brand-green shrink-0" />
               <span className="text-sm font-bold text-slate-800 truncate">{activeLabel}</span>
@@ -207,36 +215,45 @@ export default function AppShell({ navItems, brandTitle, brandSubtitle }: AppShe
             {avatar}
           </div>
 
-          <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full">
+          <main className="flex-1 p-4 pb-24 sm:p-6 sm:pb-24 lg:p-8 lg:pb-8 max-w-7xl mx-auto w-full">
             <Outlet />
           </main>
         </div>
       </div>
 
-      {drawerOpen && (
-        <div
-          className="lg:hidden fixed inset-0 bg-black/40 backdrop-blur-sm z-50 animate-backdrop-in"
-          onClick={() => setDrawerOpen(false)}
-        >
-          <div
-            className="absolute left-0 top-0 bottom-0 w-72 bg-gradient-to-b from-brand-green via-brand-green-dark to-brand-teal flex flex-col animate-modal-pop"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="p-5 border-b border-white/10 flex items-center justify-between">
-              {brand}
-              <button
-                onClick={() => setDrawerOpen(false)}
-                aria-label="Tutup menu"
-                className="p-1.5 rounded-lg text-white/70 hover:bg-white/10 transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            {nav}
-            {userFooter}
+      <BottomNavBar
+        homeTo={navItems[0].to}
+        primaryAction={primaryAction}
+        onMenuClick={() => setDrawerOpen(true)}
+        menuOpen={drawerOpen}
+        className="lg:hidden"
+      />
+
+      <Modal
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        title="Menu navigasi"
+        size="sm"
+      >
+        <p className="px-3 pb-2 text-[11px] font-bold uppercase tracking-widest text-brand-green">
+          {brandTitle}
+        </p>
+        {renderNav(true)}
+        <div className="mt-4 border-t border-slate-100 pt-3">
+          <div className="flex items-center gap-2 px-3 text-xs text-slate-500">
+            <span className="truncate font-semibold text-slate-700">{user?.nama}</span>
+            <span className="truncate">· {user?.email}</span>
           </div>
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="flex min-h-touch w-full items-center gap-2 rounded-xl px-3 text-sm text-slate-600 transition-colors hover:bg-slate-100 hover:text-red-600"
+          >
+            <LogOut className="h-4 w-4" />
+            Keluar
+          </button>
         </div>
-      )}
+      </Modal>
     </div>
   )
 }

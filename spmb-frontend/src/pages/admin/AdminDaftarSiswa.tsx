@@ -5,6 +5,7 @@ import { UserPlus, GraduationCap, MapPin, Users, Award, Mail, CheckCircle2, Prin
 import Card from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
 import InputField from '../../components/ui/InputField'
+import Modal from '../../components/ui/Modal'
 import { useAuthStore } from '../../store/authStore'
 import type { User } from '../../types'
 import { api } from '../../services/api'
@@ -207,7 +208,7 @@ export default function AdminDaftarSiswa({ cetakPath = '/admin/formulir' }: Admi
         </div>
       </div>
 
-      <Card className="p-4 sm:p-5">
+      <Card className="p-4 sm:p-6">
         <div className="flex items-center gap-3 mb-4">
           {sectionIcon('bg-brand-green-light', Mail)}
           <div>
@@ -237,7 +238,7 @@ export default function AdminDaftarSiswa({ cetakPath = '/admin/formulir' }: Admi
         </div>
       </Card>
 
-      <Card className="p-4 sm:p-5">
+      <Card className="p-4 sm:p-6">
         <div className="flex items-center gap-3 mb-4">
           {sectionIcon('bg-brand-green-light', GraduationCap)}
           <div>
@@ -297,7 +298,7 @@ export default function AdminDaftarSiswa({ cetakPath = '/admin/formulir' }: Admi
         </div>
       </Card>
 
-      <Card className="p-4 sm:p-5">
+      <Card className="p-4 sm:p-6">
         <div className="flex items-center gap-3 mb-4">
           {sectionIcon('bg-blue-50', Users)}
           <div>
@@ -440,7 +441,7 @@ export default function AdminDaftarSiswa({ cetakPath = '/admin/formulir' }: Admi
         </div>
       </Card>
 
-      <Card className="p-4 sm:p-5">
+      <Card className="p-4 sm:p-6">
         <div className="flex items-center gap-3 mb-4">
           {sectionIcon('bg-orange-50', MapPin)}
           <div>
@@ -467,7 +468,7 @@ export default function AdminDaftarSiswa({ cetakPath = '/admin/formulir' }: Admi
               placeholder="Contoh: 001/002"
             />
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <InputField
               label="Desa/Kelurahan"
               name="desa"
@@ -515,7 +516,7 @@ export default function AdminDaftarSiswa({ cetakPath = '/admin/formulir' }: Admi
         </div>
       </Card>
 
-      <Card className="p-4 sm:p-5">
+      <Card className="p-4 sm:p-6">
         <div className="flex items-center gap-3 mb-4">
           {sectionIcon('bg-purple-50', Users)}
           <div>
@@ -544,7 +545,7 @@ export default function AdminDaftarSiswa({ cetakPath = '/admin/formulir' }: Admi
               error={errors.namaPondok}
             />
           )}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <InputField
               label="Nama Ayah"
               name="namaAyah"
@@ -584,7 +585,7 @@ export default function AdminDaftarSiswa({ cetakPath = '/admin/formulir' }: Admi
             onChange={handleChange}
             placeholder="Pekerjaan ayah"
           />
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <InputField
               label="Nama Ibu"
               name="namaIbu"
@@ -627,7 +628,7 @@ export default function AdminDaftarSiswa({ cetakPath = '/admin/formulir' }: Admi
           {form.tinggalBersama === 'Wali' && (
           <div className="border-t border-slate-100 pt-4">
             <p className="text-sm font-semibold text-slate-700 mb-3">Data Wali</p>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               <InputField
                 label="Nama Wali"
                 name="namaWali"
@@ -675,7 +676,7 @@ export default function AdminDaftarSiswa({ cetakPath = '/admin/formulir' }: Admi
         </div>
       </Card>
 
-      <Card className="p-4 sm:p-5">
+      <Card className="p-4 sm:p-6">
         <div className="flex items-center gap-3 mb-4">
           {sectionIcon('bg-amber-50', Award)}
           <div>
@@ -693,45 +694,58 @@ export default function AdminDaftarSiswa({ cetakPath = '/admin/formulir' }: Admi
         />
       </Card>
 
-      <div className="flex justify-end">
-        <Button onClick={handleSubmit} loading={submitting} className="text-base py-3 px-8">
+      <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
+        <Button
+          onClick={handleSubmit}
+          loading={submitting}
+          fullWidth
+          className="text-base py-3 px-8 sm:w-auto"
+        >
           <UserPlus className="w-4 h-4" />
           {submitting ? 'Menyimpan...' : 'Daftarkan Siswa'}
         </Button>
       </div>
 
       {result && (
-        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
-          <Card className="w-full max-w-md p-6 text-center">
-            <div className="mx-auto mb-4 w-14 h-14 bg-brand-green-light rounded-full flex items-center justify-center">
-              <CheckCircle2 className="w-7 h-7 text-brand-green" />
-            </div>
-            <h2 className="text-lg font-bold text-slate-800">Siswa Berhasil Didaftarkan</h2>
-            <p className="text-sm text-slate-500 mt-1">{result.namaLengkap}</p>
-            <div className="mt-5 bg-slate-50 rounded-xl p-4">
-              <p className="text-xs text-slate-400 mb-1">ID Pendaftaran</p>
-              <p className="font-mono text-lg font-bold text-brand-green-dark tracking-wide">
-                {result.idPendaftaran || '-'}
-              </p>
-            </div>
-            <p className="text-xs text-slate-400 mt-3">
-              Salin ID ini untuk pencatatan. Formulir pendaftaran dapat langsung dicetak.
-            </p>
-            <div className="flex flex-col gap-2 mt-6">
+        <Modal
+          open
+          onClose={handleReset}
+          dismissible={false}
+          size="sm"
+          title="Siswa Berhasil Didaftarkan"
+          footer={
+            <>
               <Button
+                fullWidth
+                className="sm:w-auto"
                 onClick={() => navigate(`${cetakPath}?id=${encodeURIComponent(result.idPendaftaran)}`)}
-                className="w-full"
               >
                 <Printer className="w-4 h-4" />
                 Cetak Formulir
               </Button>
-              <Button variant="secondary" onClick={handleReset} className="w-full">
+              <Button variant="secondary" fullWidth className="sm:w-auto" onClick={handleReset}>
                 <FileText className="w-4 h-4" />
                 Daftarkan Siswa Lain
               </Button>
+            </>
+          }
+        >
+          <div className="text-center">
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-brand-green-light">
+              <CheckCircle2 className="h-7 w-7 text-brand-green" />
             </div>
-          </Card>
-        </div>
+            <p className="text-sm text-slate-500">{result.namaLengkap}</p>
+            <div className="mt-5 rounded-xl bg-slate-50 p-4">
+              <p className="mb-1 text-xs text-slate-400">ID Pendaftaran</p>
+              <p className="font-mono text-lg font-bold tracking-wide text-brand-green-dark">
+                {result.idPendaftaran || '-'}
+              </p>
+            </div>
+            <p className="mt-3 text-xs text-slate-400">
+              Salin ID ini untuk pencatatan. Formulir pendaftaran dapat langsung dicetak.
+            </p>
+          </div>
+        </Modal>
       )}
     </div>
   )

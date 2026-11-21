@@ -20,6 +20,7 @@ export default function AdminLayout() {
       navItems={navItems}
       brandTitle="Admin SPMB"
       brandSubtitle="Panel Administrasi"
+      primaryAction={navItems[1]}
     />
   )
 }

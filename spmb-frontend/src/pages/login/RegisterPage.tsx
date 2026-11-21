@@ -118,7 +118,7 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
-      <Card className="w-full max-w-md p-8">
+      <Card className="w-full max-w-md p-5 sm:p-8">
         <div className="text-center mb-8">
           <div className="mx-auto mb-4 w-20 h-20 flex items-center justify-center">
             <img src="/logo.svg" alt="Logo SMKS Al Azhar Sempu" className="w-full h-full object-contain" />

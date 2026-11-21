@@ -2,6 +2,13 @@ export const KARTU_W_MM = 65
 export const KARTU_H_MM = 95
 export const KARTU_PADDING_MM = 3
 
+/** css px per mm (96 dpi). Dipakai untuk menghitung ukuran pratinjau di layar. */
+export const MM_TO_CSS_PX = 96 / 25.4
+
+export function mmToPx(mm: number): number {
+  return mm * MM_TO_CSS_PX
+}
+
 /**
  * Lebar area isi kartu setelah dikurangi padding kiri/kanan.
  */

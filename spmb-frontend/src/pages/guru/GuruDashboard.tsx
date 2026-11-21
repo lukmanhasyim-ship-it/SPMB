@@ -80,9 +80,9 @@ export default function GuruDashboard() {
   if (isGuruSmp) {
     return (
       <div className="space-y-6">
-        <Card glass className="p-5 sm:p-6 relative overflow-hidden">
+        <Card glass className="p-4 sm:p-6 relative overflow-hidden">
           <div className="absolute -right-16 -top-16 w-56 h-56 rounded-full bg-brand-orange/15 blur-2xl pointer-events-none" />
-          <div className="relative flex flex-wrap items-center justify-between gap-4">
+          <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-xs font-semibold text-brand-green">{getSapaanWIB()}</p>
               <h1 className="text-xl sm:text-2xl font-extrabold text-slate-800 mt-1">
@@ -109,7 +109,7 @@ export default function GuruDashboard() {
         {loading ? (
           <Loader />
         ) : (
-          <Card glass className="p-5">
+          <Card glass className="p-4 sm:p-6">
             <h3 className="text-sm font-bold text-slate-800 mb-1">Pendaftar per Asal Sekolah</h3>
             <p className="text-xs text-slate-400 mb-4">
               Distribusi pendaftar dari setiap sekolah asal — total {totalSiswa} pendaftar
@@ -141,9 +141,9 @@ export default function GuruDashboard() {
 
   return (
     <div className="space-y-6">
-      <Card glass className="p-5 sm:p-6 relative overflow-hidden">
+      <Card glass className="p-4 sm:p-6 relative overflow-hidden">
         <div className="absolute -right-16 -top-16 w-56 h-56 rounded-full bg-brand-orange/15 blur-2xl pointer-events-none" />
-        <div className="relative flex flex-wrap items-center justify-between gap-4">
+        <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-xs font-semibold text-brand-green">{getSapaanWIB()}</p>
             <h1 className="text-xl sm:text-2xl font-extrabold text-slate-800 mt-1">
@@ -164,7 +164,7 @@ export default function GuruDashboard() {
         <Loader />
       ) : (
         <>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <StatCard icon={Users} label="Total Pendaftar" value={totalSiswa} tone="blue" hint="Seluruh calon siswa" />
             <StatCard icon={FileCheck} label="Terverifikasi" value={statusCounts['Terverifikasi'] || 0} tone="green" />
             <StatCard icon={Clock} label="Selesai" value={statusCounts['Selesai'] || 0} tone="amber" />
@@ -172,7 +172,7 @@ export default function GuruDashboard() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card glass className="p-5">
+            <Card glass className="p-4 sm:p-6">
               <h3 className="text-sm font-bold text-slate-800 mb-1">Jumlah per Program Keahlian</h3>
               <p className="text-xs text-slate-400 mb-4">Distribusi pendaftar antar program keahlian</p>
               {donutData.length > 0 ? (
@@ -182,18 +182,18 @@ export default function GuruDashboard() {
               )}
             </Card>
 
-            <Card glass className="p-5">
+            <Card glass className="p-4 sm:p-6">
               <h3 className="text-sm font-bold text-slate-800 mb-4">Jumlah per Gelombang</h3>
               {Object.entries(gelombangCounts).length > 0 ? (
                 <>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-5">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-5">
                     {Object.entries(gelombangCounts).map(([gelombang, count]) => (
                       <div
                         key={gelombang}
                         className="glass-card-hover p-4 rounded-2xl glass-badge text-center"
                       >
                         <p className="text-xl font-extrabold text-slate-800 tabular-nums">{count}</p>
-                        <p className="text-[11px] font-semibold text-slate-500 mt-0.5">{gelombang}</p>
+                        <p className="text-xs font-semibold text-slate-500 mt-0.5">{gelombang}</p>
                       </div>
                     ))}
                   </div>

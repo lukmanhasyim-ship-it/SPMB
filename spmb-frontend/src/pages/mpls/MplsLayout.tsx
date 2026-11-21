@@ -14,6 +14,7 @@ export default function MplsLayout() {
       navItems={navItems}
       brandTitle="Panitia MPLS"
       brandSubtitle="Panel Panitia"
+      primaryAction={navItems[1]}
     />
   )
 }

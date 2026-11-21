@@ -3,6 +3,7 @@ import { ImagePlus, Trash2, X, Loader2, Send, Calendar, Clock, MapPin } from 'lu
 import Card from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
 import Loader from '../../components/ui/Loader'
+import Modal from '../../components/ui/Modal'
 import { api } from '../../services/api'
 import { compressAndCropImage } from '../../utils/imageCompress'
 import { formatWIBShort, formatWIBTime } from '../../utils/dateUtils'
@@ -37,6 +38,7 @@ export default function MplsInformasi() {
   const [sending, setSending] = useState(false)
   const [sent, setSent] = useState(false)
   const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [formOpen, setFormOpen] = useState(false)
   const [tanggalPelaksanaan, setTanggalPelaksanaan] = useState('')
   const [waktuPelaksanaan, setWaktuPelaksanaan] = useState('')
   const [tempatPelaksanaan, setTempatPelaksanaan] = useState('')
@@ -160,131 +162,14 @@ export default function MplsInformasi() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 items-start">
       <Card className="p-5">
-        <h3 className="text-sm font-semibold text-slate-700 mb-4">Buat Informasi Baru</h3>
-        <div className="space-y-3">
-          <div>
-            <label className="text-xs font-medium text-slate-600 mb-1 block">Judul</label>
-            <input
-              type="text"
-              value={judul}
-              onChange={(e) => setJudul(e.target.value)}
-              placeholder="Contoh: Jadwal MPLS Hari Pertama"
-              className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green/30"
-            />
-          </div>
-          <div>
-            <label className="text-xs font-medium text-slate-600 mb-1 block">Deskripsi</label>
-            <textarea
-              value={deskripsi}
-              onChange={(e) => setDeskripsi(e.target.value)}
-              rows={3}
-              placeholder="Tuliskan detail informasi yang ingin disampaikan..."
-              className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green/30"
-            />
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div>
-              <label className="text-xs font-medium text-slate-600 mb-1 block">Target Gelombang</label>
-              <select
-                value={target}
-                onChange={(e) => setTarget(e.target.value)}
-                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green/30"
-              >
-                <option value="Semua">Semua</option>
-                {gelombangList.map((g) => (
-                  <option key={g.gelombang} value={g.gelombang}>{g.gelombang}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="text-xs font-medium text-slate-600 mb-1 block flex items-center gap-1">
-                <Calendar className="w-3.5 h-3.5" />
-                Tanggal Kegiatan
-              </label>
-              <input
-                type="date"
-                value={tanggalPelaksanaan}
-                onChange={(e) => setTanggalPelaksanaan(e.target.value)}
-                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green/30"
-              />
-            </div>
-            <div>
-              <label className="text-xs font-medium text-slate-600 mb-1 block flex items-center gap-1">
-                <Clock className="w-3.5 h-3.5" />
-                Waktu
-              </label>
-              <input
-                type="time"
-                value={waktuPelaksanaan}
-                onChange={(e) => setWaktuPelaksanaan(e.target.value)}
-                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green/30"
-              />
-            </div>
-          </div>
-          <div>
-            <label className="text-xs font-medium text-slate-600 mb-1 block flex items-center gap-1">
-              <MapPin className="w-3.5 h-3.5" />
-              Tempat Kegiatan
-            </label>
-            <input
-              type="text"
-              value={tempatPelaksanaan}
-              onChange={(e) => setTempatPelaksanaan(e.target.value)}
-              placeholder="Contoh: Aula SMKS Al Azhar Sempu"
-              className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green/30"
-            />
-          </div>
-
-          <div>
-            <label className="text-xs font-medium text-slate-600 mb-1 block">Gambar (Opsional)</label>
-            {imagePreview ? (
-              <div className="relative w-full max-w-[300px]">
-                <img src={imagePreview} alt="Preview" className="w-full h-40 object-cover rounded-xl" />
-                <button
-                  onClick={handleRemoveImage}
-                  className="absolute top-2 right-2 p-1.5 rounded-full bg-black/50 text-white hover:bg-black/70"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-            ) : (
-              <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-xl cursor-pointer transition-colors border-slate-200 hover:border-brand-green hover:bg-brand-green-light/30">
-                {compressing ? (
-                  <div className="flex flex-col items-center gap-2">
-                    <Loader2 className="w-6 h-6 text-brand-green animate-spin" />
-                    <span className="text-xs text-slate-500">Memproses gambar...</span>
-                  </div>
-                ) : (
-                  <div className="flex flex-col items-center gap-1">
-                    <ImagePlus className="w-6 h-6 text-slate-400" />
-                    <span className="text-xs text-slate-500">Klik untuk memilih gambar</span>
-                  </div>
-                )}
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageSelect}
-                  className="hidden"
-                  disabled={compressing}
-                />
-              </label>
-            )}
-          </div>
-
-          <div className="flex items-center gap-3">
-            <Button onClick={handleSend} loading={sending}>
-              <Send className="w-4 h-4" />
-              Kirim Informasi
-            </Button>
-            {sent && (
-              <span className="text-xs font-medium text-brand-green flex items-center gap-1">
-                <Loader2 className="w-3.5 h-3.5" />
-                Informasi berhasil diposting!
-              </span>
-            )}
-          </div>
-        </div>
+        <h3 className="text-sm font-semibold text-slate-700 mb-1">Buat Informasi Baru</h3>
+        <p className="text-sm text-slate-500 mb-4">
+          Susun pengumuman lengkap dengan tanggal, waktu, tempat, dan gambar dalam satu form.
+        </p>
+        <Button fullWidth onClick={() => setFormOpen(true)}>
+          <ImagePlus className="w-4 h-4" />
+          Buat Informasi
+        </Button>
       </Card>
 
       <Card className="p-5">
@@ -312,7 +197,8 @@ export default function MplsInformasi() {
                 <button
                   onClick={() => handleDelete(event.id_event)}
                   disabled={deletingId === event.id_event}
-                  className="p-1.5 text-slate-400 hover:text-red-500 transition-colors shrink-0"
+                  aria-label={`Hapus informasi ${event.judul}`}
+                  className="flex min-h-touch min-w-touch shrink-0 items-center justify-center rounded-xl text-slate-400 transition-colors hover:text-red-500"
                 >
                   {deletingId === event.id_event ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
@@ -326,6 +212,151 @@ export default function MplsInformasi() {
         )}
       </Card>
       </div>
+
+      <Modal
+        open={formOpen}
+        onClose={() => setFormOpen(false)}
+        title="Buat Informasi Baru"
+        size="lg"
+        footer={
+          <>
+            <Button variant="secondary" className="sm:w-auto" onClick={() => setFormOpen(false)}>
+              Batal
+            </Button>
+            <Button className="sm:w-auto" onClick={handleSend} loading={sending}>
+              <Send className="w-4 h-4" />
+              Kirim Informasi
+            </Button>
+          </>
+        }
+      >
+        <div className="space-y-3">
+          <div>
+            <label className="text-sm font-medium text-slate-600 mb-1 block">Judul</label>
+            <input
+              type="text"
+              value={judul}
+              onChange={(e) => setJudul(e.target.value)}
+              placeholder="Contoh: Jadwal MPLS Hari Pertama"
+              aria-label="Judul informasi"
+              className="w-full min-h-touch px-4 py-2.5 rounded-xl border border-slate-200 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-green/30"
+            />
+          </div>
+          <div>
+            <label className="text-sm font-medium text-slate-600 mb-1 block">Deskripsi</label>
+            <textarea
+              value={deskripsi}
+              onChange={(e) => setDeskripsi(e.target.value)}
+              rows={3}
+              placeholder="Tuliskan detail informasi yang ingin disampaikan..."
+              aria-label="Deskripsi informasi"
+              className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-green/30"
+            />
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label className="text-sm font-medium text-slate-600 mb-1 block">Target Gelombang</label>
+              <select
+                value={target}
+                onChange={(e) => setTarget(e.target.value)}
+                aria-label="Target gelombang"
+                className="w-full min-h-touch px-4 py-2.5 rounded-xl border border-slate-200 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-green/30"
+              >
+                <option value="Semua">Semua</option>
+                {gelombangList.map((g) => (
+                  <option key={g.gelombang} value={g.gelombang}>{g.gelombang}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="text-sm font-medium text-slate-600 mb-1 block flex items-center gap-1">
+                <Calendar className="w-3.5 h-3.5" />
+                Tanggal Kegiatan
+              </label>
+              <input
+                type="date"
+                value={tanggalPelaksanaan}
+                onChange={(e) => setTanggalPelaksanaan(e.target.value)}
+                aria-label="Tanggal kegiatan"
+                className="w-full min-h-touch px-4 py-2.5 rounded-xl border border-slate-200 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-green/30"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-slate-600 mb-1 block flex items-center gap-1">
+                <Clock className="w-3.5 h-3.5" />
+                Waktu
+              </label>
+              <input
+                type="time"
+                value={waktuPelaksanaan}
+                onChange={(e) => setWaktuPelaksanaan(e.target.value)}
+                aria-label="Waktu kegiatan"
+                className="w-full min-h-touch px-4 py-2.5 rounded-xl border border-slate-200 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-green/30"
+              />
+            </div>
+          </div>
+          <div>
+            <label className="text-sm font-medium text-slate-600 mb-1 block flex items-center gap-1">
+              <MapPin className="w-3.5 h-3.5" />
+              Tempat Kegiatan
+            </label>
+            <input
+              type="text"
+              value={tempatPelaksanaan}
+              onChange={(e) => setTempatPelaksanaan(e.target.value)}
+              placeholder="Contoh: Aula SMKS Al Azhar Sempu"
+              aria-label="Tempat kegiatan"
+              className="w-full min-h-touch px-4 py-2.5 rounded-xl border border-slate-200 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-green/30"
+            />
+          </div>
+
+          <div>
+            <label className="text-sm font-medium text-slate-600 mb-1 block">Gambar (Opsional)</label>
+            {imagePreview ? (
+              <div className="relative w-full">
+                <img src={imagePreview} alt="Preview gambar informasi" className="w-full h-40 object-cover rounded-xl" />
+                <button
+                  type="button"
+                  onClick={handleRemoveImage}
+                  aria-label="Hapus gambar yang dipilih"
+                  className="absolute right-2 top-2 flex min-h-touch min-w-touch items-center justify-center rounded-full bg-black/50 text-white transition-colors hover:bg-black/70"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            ) : (
+              <label className="flex flex-col items-center justify-center w-full min-h-touch h-32 border-2 border-dashed rounded-xl cursor-pointer transition-colors border-slate-200 hover:border-brand-green hover:bg-brand-green-light/30">
+                {compressing ? (
+                  <div className="flex flex-col items-center gap-2">
+                    <Loader2 className="w-6 h-6 text-brand-green animate-spin" />
+                    <span className="text-sm text-slate-500">Memproses gambar...</span>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center gap-1">
+                    <ImagePlus className="w-6 h-6 text-slate-400" />
+                    <span className="text-sm text-slate-500">Klik untuk memilih gambar</span>
+                  </div>
+                )}
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageSelect}
+                  className="hidden"
+                  disabled={compressing}
+                />
+              </label>
+            )}
+          </div>
+
+          {sent && (
+            <span className="flex items-center gap-1 text-sm font-medium text-brand-green">
+              <Loader2 className="w-3.5 h-3.5" />
+              Informasi berhasil diposting!
+            </span>
+          )}
+        </div>
+      </Modal>
     </div>
   )
 }

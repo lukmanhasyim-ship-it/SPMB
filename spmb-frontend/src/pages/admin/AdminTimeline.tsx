@@ -3,6 +3,7 @@ import { Plus, Edit3, Trash2, Check, X, ListOrdered, Calendar } from 'lucide-rea
 import Card from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
 import Loader from '../../components/ui/Loader'
+import Modal from '../../components/ui/Modal'
 import { api } from '../../services/api'
 import { formatWIBShort, formatWIBDateInput } from '../../utils/dateUtils'
 
@@ -233,99 +234,92 @@ export default function AdminTimeline() {
         </div>
       </Card>
 
-      {modalOpen && (
-        <div className="fixed inset-0 bg-black/30 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-bold text-slate-800">
-                {editingId ? 'Edit Tahapan' : 'Tambah Tahapan'}
-              </h3>
-              <button onClick={closeModal}>
-                <X className="w-5 h-5 text-slate-400" />
-              </button>
+      <Modal
+        open={modalOpen}
+        onClose={closeModal}
+        dismissible={!saving}
+        title={editingId ? 'Edit Tahapan' : 'Tambah Tahapan'}
+        footer={
+          <>
+            <Button variant="ghost" fullWidth className="sm:w-auto" onClick={closeModal} disabled={saving}>
+              Batal
+            </Button>
+            <Button variant="primary" fullWidth className="sm:w-auto" onClick={handleSave} loading={saving}>
+              Simpan
+            </Button>
+          </>
+        }
+      >
+        <div className="space-y-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            <div>
+              <label className="text-xs font-medium text-slate-600 mb-1 block">Urutan</label>
+              <input
+                type="number"
+                min={1}
+                value={form.urutan}
+                onChange={(e) => setForm({ ...form, urutan: e.target.value })}
+                placeholder="1"
+                className="w-full min-h-touch px-4 py-2.5 rounded-xl border border-slate-200 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-green/30"
+              />
             </div>
-
-            <div className="space-y-3">
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div>
-                  <label className="text-xs font-medium text-slate-600 mb-1 block">Urutan</label>
-                  <input
-                    type="number"
-                    min={1}
-                    value={form.urutan}
-                    onChange={(e) => setForm({ ...form, urutan: e.target.value })}
-                    placeholder="1"
-                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green/30"
-                  />
-                </div>
-                <div className="col-span-2">
-                  <label className="text-xs font-medium text-slate-600 mb-1 block">Nama Tahapan</label>
-                  <input
-                    type="text"
-                    value={form.nama_tahapan}
-                    onChange={(e) => setForm({ ...form, nama_tahapan: e.target.value })}
-                    placeholder="Contoh: Pendaftaran Online"
-                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green/30"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="text-xs font-medium text-slate-600 mb-1 block">Deskripsi</label>
-                <textarea
-                  value={form.deskripsi}
-                  onChange={(e) => setForm({ ...form, deskripsi: e.target.value })}
-                  rows={3}
-                  placeholder="Penjelasan singkat tahapan ini..."
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green/30 resize-none"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-xs font-medium text-slate-600 mb-1 block">Tanggal Mulai</label>
-                  <input
-                    type="date"
-                    value={form.tanggal_mulai}
-                    onChange={(e) => setForm({ ...form, tanggal_mulai: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green/30"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs font-medium text-slate-600 mb-1 block">Tanggal Selesai</label>
-                  <input
-                    type="date"
-                    value={form.tanggal_selesai}
-                    onChange={(e) => setForm({ ...form, tanggal_selesai: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green/30"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="text-xs font-medium text-slate-600 mb-1 block">Status</label>
-                <select
-                  value={form.status}
-                  onChange={(e) => setForm({ ...form, status: e.target.value })}
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green/30"
-                >
-                  <option value="Aktif">Aktif (ditampilkan ke siswa)</option>
-                  <option value="Non-Aktif">Non-Aktif (disembunyikan)</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="flex gap-2 mt-6">
-              <Button variant="ghost" className="flex-1" onClick={closeModal}>
-                Batal
-              </Button>
-              <Button variant="primary" className="flex-1" onClick={handleSave} loading={saving}>
-                Simpan
-              </Button>
+            <div className="sm:col-span-2">
+              <label className="text-xs font-medium text-slate-600 mb-1 block">Nama Tahapan</label>
+              <input
+                type="text"
+                value={form.nama_tahapan}
+                onChange={(e) => setForm({ ...form, nama_tahapan: e.target.value })}
+                placeholder="Contoh: Pendaftaran Online"
+                className="w-full min-h-touch px-4 py-2.5 rounded-xl border border-slate-200 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-green/30"
+              />
             </div>
           </div>
+
+          <div>
+            <label className="text-xs font-medium text-slate-600 mb-1 block">Deskripsi</label>
+            <textarea
+              value={form.deskripsi}
+              onChange={(e) => setForm({ ...form, deskripsi: e.target.value })}
+              rows={3}
+              placeholder="Penjelasan singkat tahapan ini..."
+              className="w-full min-h-touch px-4 py-2.5 rounded-xl border border-slate-200 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-green/30 resize-none"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="text-xs font-medium text-slate-600 mb-1 block">Tanggal Mulai</label>
+              <input
+                type="date"
+                value={form.tanggal_mulai}
+                onChange={(e) => setForm({ ...form, tanggal_mulai: e.target.value })}
+                className="w-full min-h-touch px-4 py-2.5 rounded-xl border border-slate-200 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-green/30"
+              />
+            </div>
+            <div>
+              <label className="text-xs font-medium text-slate-600 mb-1 block">Tanggal Selesai</label>
+              <input
+                type="date"
+                value={form.tanggal_selesai}
+                onChange={(e) => setForm({ ...form, tanggal_selesai: e.target.value })}
+                className="w-full min-h-touch px-4 py-2.5 rounded-xl border border-slate-200 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-green/30"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="text-xs font-medium text-slate-600 mb-1 block">Status</label>
+            <select
+              value={form.status}
+              onChange={(e) => setForm({ ...form, status: e.target.value })}
+              className="w-full min-h-touch px-4 py-2.5 rounded-xl border border-slate-200 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-green/30"
+            >
+              <option value="Aktif">Aktif (ditampilkan ke siswa)</option>
+              <option value="Non-Aktif">Non-Aktif (disembunyikan)</option>
+            </select>
+          </div>
         </div>
-      )}
+      </Modal>
     </div>
   )
 }

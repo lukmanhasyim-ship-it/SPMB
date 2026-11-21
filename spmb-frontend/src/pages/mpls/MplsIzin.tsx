@@ -5,7 +5,10 @@ import {
 import { useAuthStore } from '../../store/authStore'
 import Card from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
+import Modal from '../../components/ui/Modal'
 import Toast from '../../components/ui/Toast'
+import ResponsiveTable from '../../components/ui/ResponsiveTable'
+import type { ResponsiveColumn } from '../../components/ui/ResponsiveTable'
 import { api } from '../../services/api'
 import { DATA_JENIS_IZIN } from '../../data/constants'
 import type { IzinMpls } from '../../types'
@@ -37,6 +40,7 @@ export default function MplsIzin() {
   const [jenisIzin, setJenisIzin] = useState(DATA_JENIS_IZIN[0])
   const [catatanIzin, setCatatanIzin] = useState('')
   const [saving, setSaving] = useState(false)
+  const [izinModalOpen, setIzinModalOpen] = useState(false)
   const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
   const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -141,6 +145,7 @@ export default function MplsIzin() {
         const data = res.data as IzinMpls
         setSelectedIzin((prev) => [...prev, data])
         setCatatanIzin('')
+        setIzinModalOpen(false)
         showToast('success', `Izin dicatat — ${selected.nama_lengkap} (${jenisIzin})`)
         await loadIzinList()
       }
@@ -183,6 +188,49 @@ export default function MplsIzin() {
     }
   }
 
+  const izinColumns: ResponsiveColumn<IzinMpls>[] = [
+    { key: 'no', header: 'No', cellClassName: 'text-slate-500', render: (_izin, i) => i + 1 },
+    {
+      key: 'nama',
+      header: 'Nama',
+      render: (izin) => (
+        <div className="min-w-0">
+          <p className="font-medium text-slate-700">{izin.nama_lengkap}</p>
+          <p className="text-xs text-slate-400">{izin.id_pendaftaran}</p>
+        </div>
+      ),
+    },
+    {
+      key: 'jenis',
+      header: 'Jenis',
+      render: (izin) => (
+        <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">
+          <ClipboardX className="h-3 w-3" />
+          {izin.jenis_izin}
+        </span>
+      ),
+    },
+    {
+      key: 'jam',
+      header: 'Jam',
+      cellClassName: 'text-slate-600',
+      render: (izin) => String(izin.created_at).slice(0, 5),
+    },
+    {
+      key: 'aksi',
+      header: 'Aksi',
+      render: (izin) => (
+        <button
+          onClick={() => hapusIzin(izin.id_izin)}
+          aria-label={`Hapus izin ${izin.nama_lengkap}`}
+          className="flex min-h-touch min-w-touch items-center justify-center rounded-xl text-slate-400 transition-colors hover:text-red-500"
+        >
+          <Trash2 className="h-4 w-4" />
+        </button>
+      ),
+    },
+  ]
+
   return (
     <div className="space-y-5">
       {toast && (
@@ -198,7 +246,8 @@ export default function MplsIzin() {
         </div>
         <button
           onClick={reload}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-sm font-medium text-slate-600 hover:bg-slate-50 transition-all"
+          aria-label="Muat ulang data izin"
+          className="flex min-h-touch items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-sm font-medium text-slate-600 hover:bg-slate-50 transition-all"
         >
           <RefreshCw className="w-4 h-4" />
           Muat Ulang
@@ -227,16 +276,17 @@ export default function MplsIzin() {
               Cari Siswa
             </h3>
 
-            <div className="flex gap-2">
+            <div className="flex flex-col gap-2 sm:flex-row">
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                 placeholder="ID pendaftaran / nama / email"
-                className="flex-1 px-3 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green/30"
+                aria-label="Cari siswa berdasarkan ID, nama, atau email"
+                className="min-h-touch w-full min-w-0 flex-1 px-3 py-2 rounded-xl border border-slate-200 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-green/30"
               />
-              <Button variant="secondary" onClick={handleSearch}>
+              <Button variant="secondary" fullWidth className="sm:w-auto" onClick={handleSearch}>
                 <Search className="w-4 h-4" />
                 Cari
               </Button>
@@ -251,7 +301,7 @@ export default function MplsIzin() {
                     className="w-full text-left px-3 py-2.5 hover:bg-brand-green-light/40 transition-colors"
                   >
                     <p className="text-sm font-medium text-slate-800">{s.nama_lengkap || '-'}</p>
-                    <p className="text-xs text-brand-green">{s.id_pendaftaran} · {s.email}</p>
+                    <p className="break-all text-xs text-brand-green">{s.id_pendaftaran} · {s.email}</p>
                     <p className="text-xs text-slate-500">Program Keahlian: {s.pilihan_jurusan || '-'}</p>
                   </button>
                 ))}
@@ -279,14 +329,15 @@ export default function MplsIzin() {
                   </h4>
                   <button
                     onClick={() => setSelected(null)}
-                    className="text-xs text-slate-400 hover:text-brand-green transition-colors"
+                    aria-label="Ganti siswa yang dipilih"
+                    className="flex min-h-touch shrink-0 items-center px-2 text-sm text-slate-400 transition-colors hover:text-brand-green"
                   >
                     Ganti Siswa
                   </button>
                 </div>
                 <div className="space-y-1.5 text-xs text-slate-600 mb-4">
                   <p><span className="text-slate-400">ID:</span> {selected.id_pendaftaran}</p>
-                  <p><span className="text-slate-400">Email:</span> {selected.email || '-'}</p>
+                  <p className="break-all"><span className="text-slate-400">Email:</span> {selected.email || '-'}</p>
                   <p><span className="text-slate-400">Program Keahlian:</span> {selected.pilihan_jurusan || '-'}</p>
                   <p><span className="text-slate-400">Gelombang:</span> {selected.gelombang || '-'}</p>
                 </div>
@@ -316,7 +367,8 @@ export default function MplsIzin() {
                         </div>
                         <button
                           onClick={() => hapusIzin(izin.id_izin)}
-                          className="text-slate-400 hover:text-red-500 transition-colors shrink-0"
+                          aria-label={`Hapus izin ${izin.jenis_izin}`}
+                          className="flex min-h-touch min-w-touch shrink-0 items-center justify-center rounded-xl text-slate-400 transition-colors hover:text-red-500"
                           title="Hapus izin"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -325,45 +377,10 @@ export default function MplsIzin() {
                     ))}
                   </div>
                 ) : (
-                  <div className="space-y-4">
-                    <div>
-                      <label className="text-xs font-medium text-slate-600 mb-1.5 block">
-                        Jenis Izin
-                      </label>
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                        {DATA_JENIS_IZIN.map((j) => (
-                          <button
-                            key={j}
-                            type="button"
-                            onClick={() => setJenisIzin(j)}
-                            className={`px-3 py-2 rounded-xl border text-sm font-medium transition-all ${
-                              jenisIzin === j
-                                ? 'border-brand-green bg-brand-green-light text-brand-green-dark'
-                                : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
-                            }`}
-                          >
-                            {j}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                    <div>
-                      <label className="text-xs font-medium text-slate-600 mb-1.5 block">
-                        Catatan <span className="text-slate-400">(opsional)</span>
-                      </label>
-                      <textarea
-                        value={catatanIzin}
-                        onChange={(e) => setCatatanIzin(e.target.value)}
-                        rows={3}
-                        placeholder="Lama izin, surat keterangan, dll."
-                        className="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green/30 resize-none"
-                      />
-                    </div>
-                    <Button fullWidth onClick={submitIzin} disabled={saving}>
-                      {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <ClipboardX className="w-4 h-4" />}
-                      Simpan Izin
-                    </Button>
-                  </div>
+                  <Button fullWidth onClick={() => setIzinModalOpen(true)}>
+                    <ClipboardX className="w-4 h-4" />
+                    Tambah Izin
+                  </Button>
                 )}
               </div>
             )}
@@ -381,52 +398,95 @@ export default function MplsIzin() {
             {izinList.length === 0 ? (
               <p className="text-sm text-slate-400 text-center py-8">Belum ada siswa izin hari ini</p>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="text-left text-xs text-slate-400 border-b border-slate-100">
-                      <th className="pb-2 pr-3 font-medium">No</th>
-                      <th className="pb-2 pr-3 font-medium">Nama</th>
-                      <th className="pb-2 pr-3 font-medium">Jenis</th>
-                      <th className="pb-2 pr-3 font-medium">Jam</th>
-                      <th className="pb-2 font-medium">Aksi</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {izinList.map((izin, i) => (
-                      <tr key={izin.id_izin} className="border-b border-slate-50">
-                        <td className="py-2.5 pr-3 text-slate-500">{i + 1}</td>
-                        <td className="py-2.5 pr-3">
-                          <p className="text-slate-700 font-medium">{izin.nama_lengkap}</p>
-                          <p className="text-xs text-slate-400">{izin.id_pendaftaran}</p>
-                        </td>
-                        <td className="py-2.5 pr-3">
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 text-xs font-medium">
-                            <ClipboardX className="w-3 h-3" />
-                            {izin.jenis_izin}
-                          </span>
-                        </td>
-                        <td className="py-2.5 pr-3 text-slate-600">
-                          {String(izin.created_at).slice(0, 5)}
-                        </td>
-                        <td className="py-2.5">
-                          <button
-                            onClick={() => hapusIzin(izin.id_izin)}
-                            className="text-slate-400 hover:text-red-500 transition-colors"
-                            title="Hapus izin"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+              <ResponsiveTable
+                columns={izinColumns}
+                data={izinList}
+                getRowId={(izin) => izin.id_izin}
+                mobileCard={(izin) => (
+                  <div className="flex items-start gap-2 rounded-xl border border-slate-100 bg-white p-4">
+                    <div className="min-w-0 flex-1">
+                      <p className="font-medium text-slate-700">{izin.nama_lengkap}</p>
+                      <p className="text-xs text-slate-400">{izin.id_pendaftaran}</p>
+                      <span className="mt-2 inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">
+                        <ClipboardX className="h-3 w-3" />
+                        {izin.jenis_izin}
+                      </span>
+                      <p className="mt-1 text-xs text-slate-500">
+                        Jam {String(izin.created_at).slice(0, 5)}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => hapusIzin(izin.id_izin)}
+                      aria-label={`Hapus izin ${izin.nama_lengkap}`}
+                      title="Hapus izin"
+                      className="flex min-h-touch min-w-touch shrink-0 items-center justify-center rounded-xl text-slate-400 transition-colors hover:text-red-500"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                )}
+                caption="Daftar izin MPLS hari ini"
+                minWidth={520}
+              />
             )}
           </Card>
         </div>
       )}
+
+      <Modal
+        open={izinModalOpen}
+        onClose={() => setIzinModalOpen(false)}
+        title={`Catat Izin — ${selected?.nama_lengkap || '-'}`}
+        footer={
+          <>
+            <Button variant="secondary" className="sm:w-auto" onClick={() => setIzinModalOpen(false)}>
+              Batal
+            </Button>
+            <Button className="sm:w-auto" onClick={submitIzin} disabled={saving}>
+              {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <ClipboardX className="h-4 w-4" />}
+              Simpan Izin
+            </Button>
+          </>
+        }
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-slate-500">
+            ID Pendaftaran:{' '}
+            <span className="font-mono text-brand-green">{selected?.id_pendaftaran || '-'}</span>
+          </p>
+          <div>
+            <label className="mb-1.5 block text-sm font-medium text-slate-600">Jenis Izin</label>
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+              {DATA_JENIS_IZIN.map((j) => (
+                <button
+                  key={j}
+                  type="button"
+                  onClick={() => setJenisIzin(j)}
+                  className={`min-h-touch px-3 py-2 rounded-xl border text-sm font-medium transition-all ${
+                    jenisIzin === j
+                      ? 'border-brand-green bg-brand-green-light text-brand-green-dark'
+                      : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
+                  }`}
+                >
+                  {j}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div>
+            <label className="mb-1.5 block text-sm font-medium text-slate-600">
+              Catatan <span className="text-slate-400">(opsional)</span>
+            </label>
+            <textarea
+              value={catatanIzin}
+              onChange={(e) => setCatatanIzin(e.target.value)}
+              rows={3}
+              placeholder="Lama izin, surat keterangan, dll."
+              className="w-full min-h-touch px-3 py-2 rounded-xl border border-slate-200 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-green/30 resize-none"
+            />
+          </div>
+        </div>
+      </Modal>
     </div>
   )
 }

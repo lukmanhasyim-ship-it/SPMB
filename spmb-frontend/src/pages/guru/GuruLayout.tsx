@@ -14,6 +14,7 @@ export default function GuruLayout() {
       navItems={navItems}
       brandTitle="Guru SPMB"
       brandSubtitle={role === 'guru_smp' ? 'Panel Guru SMP/MTs' : 'Panel Guru'}
+      primaryAction={navItems[1]}
     />
   )
 }

@@ -7,8 +7,8 @@ interface ProgressBarProps {
 
 export default function ProgressBar({ steps, currentStep }: ProgressBarProps) {
   return (
-    <div className="w-full max-w-2xl mx-auto px-4">
-      <div className="flex items-center justify-between mb-8 relative">
+    <div className="mx-auto w-full max-w-2xl px-1 sm:px-4">
+      <ol className="relative flex items-start justify-between">
         {steps.map((step, index) => {
           const isActive = step.nomor === currentStep
           const isCompleted = step.selesai
@@ -16,37 +16,39 @@ export default function ProgressBar({ steps, currentStep }: ProgressBarProps) {
           const isLast = index === steps.length - 1
 
           return (
-            <div key={step.nomor} className={`flex items-center ${isLast ? '' : 'flex-1'}`}>
-              <div className="flex flex-col items-center relative">
-                <div
-                  className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-300 
+            <li key={step.nomor} className={`flex items-start ${isLast ? '' : 'flex-1'}`}>
+              <div className="flex w-12 flex-col items-center sm:w-24">
+                <span
+                  aria-current={isActive ? 'step' : undefined}
+                  className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold transition-all duration-300 sm:h-10 sm:w-10 sm:text-sm
                     ${isCompleted ? 'bg-brand-green text-white shadow-sm' : ''}
-                    ${isActive ? 'bg-brand-green-dark text-white ring-4 ring-brand-green-light shadow-sm' : ''}
+                    ${isActive ? 'bg-brand-green-dark text-white ring-2 ring-brand-green-light shadow-sm sm:ring-4' : ''}
                     ${isFuture ? 'bg-slate-200 text-slate-400' : ''}
                   `}
                 >
                   {isCompleted ? '✓' : step.nomor}
-                </div>
+                </span>
                 <span
-                  className={`absolute top-12 whitespace-nowrap text-[10px] font-medium text-center hidden sm:block
+                  className={`mt-1.5 w-full break-words text-center text-[10px] font-medium leading-tight sm:text-[11px]
                     ${isActive ? 'text-brand-green-dark' : ''}
                     ${isCompleted ? 'text-brand-green' : ''}
                     ${isFuture ? 'text-slate-400' : ''}
                   `}
-                  style={{ left: '50%', transform: 'translateX(-50%)' }}
                 >
-                  {step.label}
+                  <span className="sm:hidden">{step.shortLabel ?? step.label}</span>
+                  <span className="hidden sm:inline">{step.label}</span>
                 </span>
               </div>
               {!isLast && (
-                <div
-                  className={`flex-1 h-0.5 mx-2 ${isCompleted ? 'bg-brand-green' : 'bg-slate-200'}`}
+                <span
+                  aria-hidden="true"
+                  className={`mt-4 h-0.5 flex-1 sm:mx-2 ${isCompleted ? 'bg-brand-green' : 'bg-slate-200'}`}
                 />
               )}
-            </div>
+            </li>
           )
         })}
-      </div>
+      </ol>
     </div>
   )
 }

@@ -1,10 +1,13 @@
 import { useEffect, useState, useMemo } from 'react'
 import type { ChangeEvent } from 'react'
-import { Search, Filter, ChevronDown, Download, Trash2, AlertTriangle, X, Pencil } from 'lucide-react'
+import { Search, Filter, ChevronDown, Download, Trash2, AlertTriangle, Pencil, Loader2 } from 'lucide-react'
 import Card from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
 import Loader from '../../components/ui/Loader'
 import InputField from '../../components/ui/InputField'
+import Modal from '../../components/ui/Modal'
+import ResponsiveTable from '../../components/ui/ResponsiveTable'
+import ReferralFields from '../student/components/ReferralFields'
 import { api } from '../../services/api'
 import { DATA_JURUSAN, DATA_AGAMA, DATA_TINGGAL_BERSAMA, DATA_ESTIMASI_PENGHASILAN } from '../../data/constants'
 import type { StatusPendaftaran } from '../../types'
@@ -15,6 +18,58 @@ const statusColors: Record<string, string> = {
   Selesai: 'bg-blue-50 text-blue-600',
   Terverifikasi: 'bg-brand-green-light text-brand-green-dark',
 }
+
+const FIELD_LABELS: Record<string, string> = {
+  pilihanJurusan: 'Program Keahlian',
+  alasanPilihJurusan: 'Alasan Memilih Program Keahlian',
+  namaLengkap: 'Nama Lengkap',
+  jenisKelamin: 'Jenis Kelamin',
+  nisn: 'NISN',
+  nik: 'NIK',
+  tempatLahir: 'Tempat Lahir',
+  tanggalLahir: 'Tanggal Lahir',
+  agama: 'Agama',
+  asalSekolah: 'Asal Sekolah',
+  dusun: 'Dusun/Jalan',
+  rtRw: 'RT/RW',
+  desa: 'Desa/Kelurahan',
+  kecamatan: 'Kecamatan',
+  kabupaten: 'Kabupaten/Kota',
+  kodePos: 'Kode Pos',
+  koordinatMaps: 'Koordinat Maps',
+  tinggalBersama: 'Tinggal Bersama',
+  namaPondok: 'Nama Pondok Pesantren',
+  namaAyah: 'Nama Ayah',
+  kerjaAyah: 'Pekerjaan Ayah',
+  namaIbu: 'Nama Ibu',
+  kerjaIbu: 'Pekerjaan Ibu',
+  teleponOrtu: 'Telepon Orang Tua/Wali',
+  teleponSiswa: 'No. HP Siswa',
+  anakKe: 'Anak Ke-',
+  jumlahSaudara: 'Jumlah Saudara',
+  tinggiBadan: 'Tinggi Badan',
+  beratBadan: 'Berat Badan',
+  tahunLahirAyah: 'Tahun Lahir Ayah',
+  tahunLahirIbu: 'Tahun Lahir Ibu',
+  namaWali: 'Nama Wali',
+  tahunLahirWali: 'Tahun Lahir Wali',
+  estimasiPenghasilanAyah: 'Estimasi Penghasilan Ayah',
+  estimasiPenghasilanIbu: 'Estimasi Penghasilan Ibu',
+  estimasiPenghasilanWali: 'Estimasi Penghasilan Wali',
+  prestasi: 'Prestasi',
+  statusPendaftaran: 'Status Pendaftaran',
+  referralKategori: 'Referral (Kategori)',
+  referralNama: 'Referral (Nama)',
+}
+
+const SENSITIVE_FIELDS = new Set([
+  'referralKategori',
+  'referralNama',
+  'statusPendaftaran',
+  'nik',
+  'nisn',
+  'namaLengkap',
+])
 
 interface SiswaRow {
   idPendaftaran: string
@@ -78,6 +133,8 @@ export default function AdminSiswa() {
   const [editForm, setEditForm] = useState<Record<string, string>>({})
   const [editErrors, setEditErrors] = useState<Record<string, string>>({})
   const [savingEdit, setSavingEdit] = useState(false)
+  const [saveConfirmOpen, setSaveConfirmOpen] = useState(false)
+  const [confirmSaveText, setConfirmSaveText] = useState('')
 
   const fetchData = async () => {
     try {
@@ -155,6 +212,20 @@ export default function AdminSiswa() {
       return matchSearch && matchStatus
     })
   }, [siswaList, search, filterStatus])
+
+  const pendingChanges = useMemo(() => {
+    if (!editingSiswa) return []
+    const before = editingSiswa as unknown as Record<string, string>
+    return Object.keys(FIELD_LABELS)
+      .filter((key) => String(before[key] ?? '') !== String(editForm[key] ?? ''))
+      .map((key) => ({
+        key,
+        label: FIELD_LABELS[key],
+        from: String(before[key] ?? '') || '-',
+        to: String(editForm[key] ?? '') || '-',
+        sensitive: SENSITIVE_FIELDS.has(key),
+      }))
+  }, [editingSiswa, editForm])
 
   const handleExport = async () => {
     // Lazy-load xlsx agar bundle awal ringan (hanya dimuat saat klik Export).
@@ -322,15 +393,21 @@ export default function AdminSiswa() {
       estimasiPenghasilanIbu: siswa.estimasiPenghasilanIbu,
       estimasiPenghasilanWali: siswa.estimasiPenghasilanWali,
       prestasi: siswa.prestasi,
+      referralKategori: siswa.referralKategori,
+      referralNama: siswa.referralNama,
       statusPendaftaran: siswa.statusPendaftaran,
     })
     setEditErrors({})
+    setConfirmSaveText('')
+    setSaveConfirmOpen(false)
   }
 
   const closeEdit = () => {
     setEditingSiswa(null)
     setEditForm({})
     setEditErrors({})
+    setConfirmSaveText('')
+    setSaveConfirmOpen(false)
   }
 
   const handleEditChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -339,6 +416,11 @@ export default function AdminSiswa() {
       setEditForm((prev) => ({ ...prev, tinggalBersama: value, namaWali: '', tahunLahirWali: '', estimasiPenghasilanWali: '' }))
       return
     }
+    setEditForm((prev) => ({ ...prev, [name]: value }))
+    setEditErrors((prev) => ({ ...prev, [name]: '' }))
+  }
+
+  const handleReferralChange = (name: 'referralKategori' | 'referralNama', value: string) => {
     setEditForm((prev) => ({ ...prev, [name]: value }))
     setEditErrors((prev) => ({ ...prev, [name]: '' }))
   }
@@ -377,8 +459,15 @@ export default function AdminSiswa() {
     return Object.keys(errs).length === 0
   }
 
-  const handleSaveEdit = async () => {
+  const handleSaveEdit = () => {
     if (!editingSiswa || !validateEdit()) return
+    if (pendingChanges.length === 0) return
+    setConfirmSaveText('')
+    setSaveConfirmOpen(true)
+  }
+
+  const confirmSaveEdit = async () => {
+    if (!editingSiswa || confirmSaveText.trim().toUpperCase() !== 'SIMPAN') return
     setSavingEdit(true)
     try {
       await api.siswa.update(editingSiswa.email, {
@@ -419,8 +508,12 @@ export default function AdminSiswa() {
         estimasi_penghasilan_ibu: editForm.estimasiPenghasilanIbu,
         estimasi_penghasilan_wali: editForm.estimasiPenghasilanWali,
         prestasi: editForm.prestasi,
+        referral_kategori: editForm.referralKategori,
+        referral_nama: editForm.referralNama,
         status_pendaftaran: editForm.statusPendaftaran,
       })
+      setSaveConfirmOpen(false)
+      setConfirmSaveText('')
       closeEdit()
       fetchData()
       alert(`Data ${editingSiswa.namaLengkap} berhasil diperbarui`)
@@ -485,99 +578,110 @@ export default function AdminSiswa() {
       {loading ? (
         <Loader />
       ) : (
-        <div className="overflow-x-auto">
-          <Card className="p-0 overflow-hidden">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-slate-100 bg-slate-50/50">
-                  <th className="text-left px-4 py-3 font-semibold text-slate-600 text-xs uppercase">No</th>
-                  <th className="text-left px-4 py-3 font-semibold text-slate-600 text-xs uppercase">ID</th>
-                  <th className="text-left px-4 py-3 font-semibold text-slate-600 text-xs uppercase">Nama</th>
-                  <th className="text-left px-4 py-3 font-semibold text-slate-600 text-xs uppercase">Program Keahlian</th>
-                  <th className="text-left px-4 py-3 font-semibold text-slate-600 text-xs uppercase">Gelombang</th>
-                  <th className="text-left px-4 py-3 font-semibold text-slate-600 text-xs uppercase">Referral</th>
-                  <th className="text-left px-4 py-3 font-semibold text-slate-600 text-xs uppercase">Status</th>
-                  <th className="text-left px-4 py-3 font-semibold text-slate-600 text-xs uppercase">Aksi</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.length === 0 ? (
-                  <tr>
-                    <td colSpan={8} className="px-4 py-8 text-center text-slate-400">
-                      Tidak ada data yang cocok
-                    </td>
-                  </tr>
-                ) : (
-                  filtered.map((siswa, index) => (
-                    <tr key={siswa.idPendaftaran} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
-                      <td className="px-4 py-3 text-slate-500">{index + 1}</td>
-                      <td className="px-4 py-3 font-mono text-xs text-slate-700">{siswa.idPendaftaran}</td>
-                      <td className="px-4 py-3">
-                        <p className="font-medium text-slate-800">{siswa.namaLengkap}</p>
-                        <p className="text-xs text-slate-400">{siswa.email}</p>
-                      </td>
-                      <td className="px-4 py-3 text-slate-700">{siswa.pilihanJurusan}</td>
-                      <td className="px-4 py-3 text-slate-700">{siswa.gelombang}</td>
-                      <td className="px-4 py-3">
-                        {siswa.referralNama ? (
-                          <>
-                            <p className="font-medium text-slate-800">{siswa.referralNama}</p>
-                            <p className="text-xs text-slate-400">{siswa.referralKategori || '-'}</p>
-                          </>
-                        ) : (
-                          <span className="text-xs text-slate-400">-</span>
-                        )}
-                      </td>
-                      <td className="px-4 py-3">
-                        <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${statusColors[siswa.statusPendaftaran]}`}>
-                          {siswa.statusPendaftaran}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-1">
-                          <button
-                            onClick={() => openEdit(siswa)}
-                            className="p-1.5 rounded-lg text-slate-400 hover:text-brand-green hover:bg-brand-green-light/50 transition-colors"
-                            title="Edit data siswa"
-                          >
-                            <Pencil className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => handleDeleteOne(siswa)}
-                            disabled={deletingId !== null}
-                            className="p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors disabled:opacity-50"
-                            title="Hapus data siswa"
-                          >
-                            {deletingId === siswa.idPendaftaran ? (
-                              <svg className="animate-spin w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                              </svg>
-                            ) : (
-                              <Trash2 className="w-4 h-4" />
-                            )}
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </Card>
-        </div>
+        <ResponsiveTable
+          caption="Daftar pendaftar"
+          emptyMessage="Tidak ada data yang cocok"
+          minWidth={960}
+          data={filtered}
+          getRowId={(siswa) => siswa.idPendaftaran}
+          columns={[
+            { key: 'no', header: 'No', render: (_, i) => <span className="text-slate-500">{i + 1}</span> },
+            { key: 'id', header: 'ID', render: (s) => <span className="font-mono text-xs text-slate-700">{s.idPendaftaran}</span> },
+            {
+              key: 'nama', header: 'Nama',
+              render: (s) => (
+                <div>
+                  <p className="font-medium text-slate-800">{s.namaLengkap}</p>
+                  <p className="text-xs text-slate-400">{s.email}</p>
+                </div>
+              ),
+            },
+            { key: 'jurusan', header: 'Program Keahlian', render: (s) => s.pilihanJurusan },
+            { key: 'gelombang', header: 'Gelombang', render: (s) => s.gelombang },
+            {
+              key: 'referral', header: 'Referral',
+              render: (s) => s.referralNama ? (
+                <div>
+                  <p className="font-medium text-slate-800">{s.referralNama}</p>
+                  <p className="text-xs text-slate-400">{s.referralKategori || '-'}</p>
+                </div>
+              ) : <span className="text-xs text-slate-400">-</span>,
+            },
+            {
+              key: 'status', header: 'Status',
+              render: (s) => (
+                <span className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${statusColors[s.statusPendaftaran]}`}>
+                  {s.statusPendaftaran}
+                </span>
+              ),
+            },
+            {
+              key: 'aksi', header: 'Aksi',
+              render: (s) => (
+                <div className="flex items-center gap-1">
+                  <button onClick={() => openEdit(s)} aria-label="Edit data siswa" title="Edit data siswa" className="flex min-h-touch min-w-touch items-center justify-center rounded-lg text-slate-400 transition-colors hover:text-brand-green hover:bg-brand-green-light/50">
+                    <Pencil className="h-4 w-4" />
+                  </button>
+                  <button onClick={() => handleDeleteOne(s)} disabled={deletingId !== null} aria-label="Hapus data siswa" title="Hapus data siswa" className="flex min-h-touch min-w-touch items-center justify-center rounded-lg text-slate-400 transition-colors hover:text-red-500 hover:bg-red-50 disabled:opacity-50">
+                    {deletingId === s.idPendaftaran ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                  </button>
+                </div>
+              ),
+            },
+          ]}
+          mobileCard={(siswa, index) => (
+            <Card className="p-4">
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0">
+                  <p className="truncate font-semibold text-slate-800">{index + 1}. {siswa.namaLengkap}</p>
+                  <p className="truncate font-mono text-[11px] text-slate-400">{siswa.idPendaftaran}</p>
+                </div>
+                <span className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-medium ${statusColors[siswa.statusPendaftaran]}`}>
+                  {siswa.statusPendaftaran}
+                </span>
+              </div>
+              <dl className="mt-3 space-y-1 text-xs">
+                <div className="flex justify-between gap-3"><dt className="text-slate-400">Program</dt><dd className="min-w-0 truncate text-right font-medium text-slate-700">{siswa.pilihanJurusan}</dd></div>
+                <div className="flex justify-between gap-3"><dt className="text-slate-400">Gelombang</dt><dd className="font-medium text-slate-700">{siswa.gelombang}</dd></div>
+                <div className="flex justify-between gap-3"><dt className="text-slate-400">Referral</dt><dd className="min-w-0 truncate text-right font-medium text-slate-700">{siswa.referralNama || '-'}</dd></div>
+              </dl>
+              <div className="mt-3 flex items-center justify-end gap-2 border-t border-slate-100 pt-3">
+                <Button variant="secondary" onClick={() => openEdit(siswa)} className="px-4 text-xs">
+                  <Pencil className="h-4 w-4" /> Edit
+                </Button>
+                <Button variant="danger" onClick={() => handleDeleteOne(siswa)} disabled={deletingId !== null} loading={deletingId === siswa.idPendaftaran} className="px-4 text-xs">
+                  <Trash2 className="h-4 w-4" /> Hapus
+                </Button>
+              </div>
+            </Card>
+          )}
+        />
       )}
 
-      {confirmModalOpen && (
-        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-base font-bold text-slate-800">Hapus Semua Data Siswa</h3>
-              <button onClick={() => setConfirmModalOpen(false)} disabled={deletingAll}>
-                <X className="w-5 h-5 text-slate-400" />
-              </button>
-            </div>
-
+      <Modal
+        open={confirmModalOpen}
+        onClose={() => setConfirmModalOpen(false)}
+        dismissible={!deletingAll}
+        title="Hapus Semua Data Siswa"
+        footer={
+          <>
+            <Button variant="ghost" fullWidth className="sm:w-auto" onClick={() => setConfirmModalOpen(false)} disabled={deletingAll}>
+              Batal
+            </Button>
+            <Button
+              variant="danger"
+              fullWidth
+              className="sm:w-auto"
+              onClick={handleDeleteAll}
+              disabled={confirmText.trim().toUpperCase() !== 'HAPUS'}
+              loading={deletingAll}
+            >
+              <Trash2 className="h-4 w-4" />
+              Hapus Semua
+            </Button>
+          </>
+        }
+      >
             <div className="p-4 rounded-xl bg-red-50 border border-red-100 mb-4">
               <div className="flex items-center gap-2 text-sm font-semibold text-red-600 mb-1">
                 <AlertTriangle className="w-4 h-4" />
@@ -599,44 +703,40 @@ export default function AdminSiswa() {
               onChange={(e) => setConfirmText(e.target.value)}
               disabled={deletingAll}
               placeholder="HAPUS"
-              className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-red-500/30 focus:border-red-500"
+              className="min-h-touch w-full rounded-xl border border-slate-200 px-4 py-2.5 text-base focus:outline-none focus:ring-2 focus:ring-red-500/30 focus:border-red-500 sm:text-sm"
             />
 
-            <div className="flex gap-2 mt-6">
-              <Button variant="ghost" className="flex-1" onClick={() => setConfirmModalOpen(false)} disabled={deletingAll}>
+      </Modal>
+
+      {editingSiswa && (
+        <Modal
+          open
+          onClose={closeEdit}
+          dismissible={!savingEdit}
+          size="xl"
+          title="Edit Data Siswa"
+          footer={
+            <>
+              <Button variant="ghost" fullWidth className="sm:w-auto" onClick={closeEdit} disabled={savingEdit}>
                 Batal
               </Button>
               <Button
-                variant="danger"
-                className="flex-1"
-                onClick={handleDeleteAll}
-                disabled={confirmText.trim().toUpperCase() !== 'HAPUS'}
-                loading={deletingAll}
+                variant="primary"
+                fullWidth
+                className="sm:w-auto"
+                onClick={handleSaveEdit}
+                disabled={pendingChanges.length === 0}
+                loading={savingEdit}
               >
-                <Trash2 className="w-4 h-4" />
-                Hapus Semua
+                Simpan Perubahan
               </Button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {editingSiswa && (
-        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl p-6 w-full max-w-2xl shadow-xl max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h3 className="text-base font-bold text-slate-800">Edit Data Siswa</h3>
-                <p className="text-xs text-slate-500">
-                  {editingSiswa.namaLengkap} · <span className="font-mono">{editingSiswa.idPendaftaran}</span>
-                </p>
-              </div>
-              <button onClick={closeEdit} disabled={savingEdit}>
-                <X className="w-5 h-5 text-slate-400" />
-              </button>
-            </div>
-
-            <div className="space-y-5">
+            </>
+          }
+        >
+          <p className="mb-4 text-xs text-slate-500">
+            {editingSiswa.namaLengkap} · <span className="font-mono">{editingSiswa.idPendaftaran}</span>
+          </p>
+          <div className="space-y-5">
               <div className="bg-slate-50 rounded-xl p-4">
                 <p className="text-sm font-semibold text-slate-700 mb-3">Status Pendaftaran</p>
                 <InputField
@@ -1033,18 +1133,98 @@ export default function AdminSiswa() {
                   placeholder="Contoh: Juara 1 OSN Matematika tingkat Kabupaten..."
                 />
               </div>
+
+              <ReferralFields
+                kategori={editForm.referralKategori}
+                nama={editForm.referralNama}
+                onChange={handleReferralChange}
+              />
             </div>
 
-            <div className="flex gap-2 mt-6">
-              <Button variant="ghost" className="flex-1" onClick={closeEdit} disabled={savingEdit}>
+          {pendingChanges.length === 0 && (
+            <p className="mt-4 text-center text-xs text-slate-400">Belum ada perubahan pada data.</p>
+          )}
+        </Modal>
+      )}
+
+      {saveConfirmOpen && editingSiswa && (
+        <Modal
+          open
+          onClose={() => setSaveConfirmOpen(false)}
+          dismissible={!savingEdit}
+          title="Konfirmasi Perubahan Data Siswa"
+          footer={
+            <>
+              <Button variant="ghost" fullWidth className="sm:w-auto" onClick={() => setSaveConfirmOpen(false)} disabled={savingEdit}>
                 Batal
               </Button>
-              <Button variant="primary" className="flex-1" onClick={handleSaveEdit} loading={savingEdit}>
-                Simpan Perubahan
+              <Button
+                variant="primary"
+                fullWidth
+                className="sm:w-auto"
+                onClick={confirmSaveEdit}
+                disabled={confirmSaveText.trim().toUpperCase() !== 'SIMPAN'}
+                loading={savingEdit}
+              >
+                Ya, Simpan Perubahan
               </Button>
+            </>
+          }
+        >
+            <div className="p-4 rounded-xl bg-amber-50 border border-amber-100 mb-4">
+              <div className="flex items-center gap-2 text-sm font-semibold text-amber-700 mb-1">
+                <AlertTriangle className="w-4 h-4" />
+                Periksa kembali sebelum menyimpan
+              </div>
+              <p className="text-xs text-amber-600">
+                Anda akan mengubah data <span className="font-semibold">{editingSiswa.namaLengkap}</span>{' '}
+                (<span className="font-mono">{editingSiswa.idPendaftaran}</span>). Perubahan langsung
+                tersimpan dan berdampak pada formulir pendaftaran serta rekap referral.
+              </p>
             </div>
-          </div>
-        </div>
+
+            <p className="text-xs font-medium text-slate-600 mb-2">
+              {pendingChanges.length} field akan diubah:
+            </p>
+            <div className="space-y-2 mb-5 max-h-64 overflow-y-auto pr-1">
+              {pendingChanges.map((change) => (
+                <div
+                  key={change.key}
+                  className={`rounded-lg border px-3 py-2 text-xs ${
+                    change.sensitive
+                      ? 'bg-amber-50/60 border-amber-200'
+                      : 'bg-slate-50 border-slate-100'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="font-semibold text-slate-700">{change.label}</span>
+                    {change.sensitive && (
+                      <span className="px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 font-medium">
+                        Perlu perhatian
+                      </span>
+                    )}
+                  </div>
+                  <div className="mt-1 break-words text-slate-500">
+                    <span className="line-through">{change.from}</span>
+                    <span className="mx-2 text-slate-400">→</span>
+                    <span className="font-medium text-slate-800">{change.to}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <label className="text-xs font-medium text-slate-600 mb-1 block">
+              Ketik <span className="font-bold tracking-wide">SIMPAN</span> untuk konfirmasi
+            </label>
+            <input
+              type="text"
+              value={confirmSaveText}
+              onChange={(e) => setConfirmSaveText(e.target.value)}
+              disabled={savingEdit}
+              placeholder="SIMPAN"
+              className="min-h-touch w-full rounded-xl border border-slate-200 px-4 py-2.5 text-base focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 sm:text-sm"
+            />
+        </Modal>
       )}
     </div>
   )

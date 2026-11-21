@@ -6,6 +6,8 @@ import Card from '../../components/ui/Card'
 import Loader from '../../components/ui/Loader'
 import StatCard from '../../components/ui/StatCard'
 import ProgressBar from '../../components/ui/ProgressBar'
+import ResponsiveTable from '../../components/ui/ResponsiveTable'
+import type { ResponsiveColumn } from '../../components/ui/ResponsiveTable'
 import { api } from '../../services/api'
 import type { KehadiranMpls, IzinMpls } from '../../types'
 import { formatWIBShort } from '../../utils/dateUtils'
@@ -105,6 +107,23 @@ function sheetNameFromTanggal(tanggal: string): string {
   return base.replace(/[\\/:?*[\]]/g, '-').slice(0, 31) || 'Tanggal'
 }
 
+function StatusBadge({ status }: { status: RekapRow['status'] }) {
+  if (status === 'Hadir') {
+    return (
+      <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-brand-green/10 px-2 py-0.5 text-[11px] font-semibold text-brand-green">
+        <CheckCircle2 className="h-3 w-3" />
+        Hadir
+      </span>
+    )
+  }
+  return (
+    <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-semibold text-amber-700">
+      <ClipboardX className="h-3 w-3" />
+      Izin
+    </span>
+  )
+}
+
 export default function MplsDashboard() {
   const { user } = useAuthStore()
   const [kehadiran, setKehadiran] = useState<KehadiranMpls[]>([])
@@ -201,6 +220,32 @@ export default function MplsDashboard() {
   const persenHadir = totalSiswa > 0 ? Math.round((kehadiran.length / totalSiswa) * 100) : 0
   const totalHadir = Object.values(jurusanCounts).reduce((a, b) => a + b, 0)
 
+  const rekapColumns: ResponsiveColumn<RekapRow>[] = [
+    { key: 'no', header: 'No', cellClassName: 'text-slate-400', render: (_row, i) => i + 1 },
+    { key: 'status', header: 'Status', render: (r) => <StatusBadge status={r.status} /> },
+    {
+      key: 'id_pendaftaran',
+      header: 'ID Pendaftaran',
+      cellClassName: 'font-mono text-xs text-brand-green',
+      render: (r) => r.id_pendaftaran,
+    },
+    {
+      key: 'nama_lengkap',
+      header: 'Nama',
+      cellClassName: 'font-medium text-slate-800',
+      render: (r) => r.nama_lengkap,
+    },
+    { key: 'jurusan', header: 'Program Keahlian', render: (r) => r.jurusan || '-' },
+    { key: 'waktu', header: 'Waktu', cellClassName: 'tabular-nums', render: (r) => r.waktu || '-' },
+    {
+      key: 'keterangan',
+      header: 'Keterangan',
+      cellClassName: 'max-w-[220px] truncate',
+      render: (r) => <span title={r.keterangan}>{r.keterangan || '-'}</span>,
+    },
+    { key: 'petugas', header: 'Petugas', render: (r) => r.petugas || '-' },
+  ]
+
   return (
     <div className="space-y-6">
       <Card glass className="p-5 sm:p-6 relative overflow-hidden">
@@ -218,14 +263,16 @@ export default function MplsDashboard() {
           <div className="flex flex-wrap items-center gap-2">
             <button
               onClick={() => fetchData()}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl glass-badge text-sm font-medium text-slate-600 hover:bg-white/80 transition-all"
+              aria-label="Muat ulang data kehadiran"
+              className="flex min-h-touch items-center gap-2 px-4 py-2.5 rounded-xl glass-badge text-sm font-medium text-slate-600 hover:bg-white/80 transition-all"
             >
               <RefreshCw className="w-4 h-4" />
               Muat Ulang
             </button>
             <Link
               to="/mpls/scan"
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-brand-green to-brand-green-dark hover:opacity-90 text-white text-sm font-medium shadow-lg shadow-brand-green/25 transition-all"
+              aria-label="Buka pemindai absen"
+              className="flex min-h-touch items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-brand-green to-brand-green-dark hover:opacity-90 text-white text-sm font-medium shadow-lg shadow-brand-green/25 transition-all"
             >
               <ScanLine className="w-4 h-4" />
               Scan Absen
@@ -283,12 +330,14 @@ export default function MplsDashboard() {
               type="date"
               value={tanggal}
               onChange={(e) => setTanggal(e.target.value || todayWIB())}
-              className="px-3 py-2 rounded-xl glass-badge border border-slate-200/70 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green/30"
+              aria-label="Pilih tanggal rekap"
+              className="min-h-touch px-3 py-2 rounded-xl glass-badge border border-slate-200/70 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-green/30"
             />
             <button
               onClick={handleExport}
               disabled={rekapRows.length === 0}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-brand-green to-brand-green-dark hover:opacity-90 text-white text-sm font-medium shadow-lg shadow-brand-green/25 transition-all disabled:bg-slate-200 disabled:text-slate-400 disabled:shadow-none disabled:cursor-not-allowed"
+              aria-label="Ekspor rekap hari ini ke Excel"
+              className="flex min-h-touch items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-brand-green to-brand-green-dark hover:opacity-90 text-white text-sm font-medium shadow-lg shadow-brand-green/25 transition-all disabled:bg-slate-200 disabled:text-slate-400 disabled:shadow-none disabled:cursor-not-allowed"
             >
               <FileSpreadsheet className="w-4 h-4" />
               Export Hari Ini
@@ -296,7 +345,8 @@ export default function MplsDashboard() {
             <button
               onClick={handleExportAll}
               disabled={exporting}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl glass-badge text-sm font-medium text-slate-600 hover:bg-white/80 transition-all disabled:opacity-50"
+              aria-label="Ekspor seluruh rekap ke Excel"
+              className="flex min-h-touch items-center gap-2 px-4 py-2 rounded-xl glass-badge text-sm font-medium text-slate-600 hover:bg-white/80 transition-all disabled:opacity-50"
             >
               <FileSpreadsheet className="w-4 h-4" />
               Export Semua
@@ -306,51 +356,45 @@ export default function MplsDashboard() {
 
         {loading ? (
           <Loader className="min-h-[20vh]" />
-        ) : rekapRows.length === 0 ? (
-          <p className="text-sm text-slate-400 text-center py-10">Belum ada siswa hadir atau izin pada tanggal {formatWIBShort(tanggal)}</p>
         ) : (
-          <div className="overflow-x-auto dash-scroll">
-            <table className="dash-table">
-              <thead>
-                <tr>
-                  <th>No</th>
-                  <th>Status</th>
-                  <th>ID Pendaftaran</th>
-                  <th>Nama</th>
-                  <th>Program Keahlian</th>
-                  <th>Waktu</th>
-                  <th>Keterangan</th>
-                  <th>Petugas</th>
-                </tr>
-              </thead>
-              <tbody>
-                {rekapRows.map((r, i) => (
-                  <tr key={r.id}>
-                    <td className="text-slate-400">{i + 1}</td>
-                    <td>
-                      {r.status === 'Hadir' ? (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-brand-green/10 text-brand-green text-[11px] font-semibold">
-                          <CheckCircle2 className="w-3 h-3" />
-                          Hadir
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 text-[11px] font-semibold">
-                          <ClipboardX className="w-3 h-3" />
-                          Izin
-                        </span>
-                      )}
-                    </td>
-                    <td className="font-mono text-xs text-brand-green">{r.id_pendaftaran}</td>
-                    <td className="font-medium text-slate-800">{r.nama_lengkap}</td>
-                    <td>{r.jurusan || '-'}</td>
-                    <td className="tabular-nums">{r.waktu || '-'}</td>
-                    <td className="max-w-[220px] truncate" title={r.keterangan}>{r.keterangan || '-'}</td>
-                    <td>{r.petugas || '-'}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <ResponsiveTable
+            columns={rekapColumns}
+            data={rekapRows}
+            getRowId={(r) => r.id}
+            mobileCard={(r, i) => (
+              <div className="rounded-2xl border border-slate-100 bg-white p-4">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <p className="truncate font-medium text-slate-800">{r.nama_lengkap}</p>
+                    <p className="truncate font-mono text-xs text-brand-green">{r.id_pendaftaran}</p>
+                  </div>
+                  <StatusBadge status={r.status} />
+                </div>
+                <div className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2 text-xs">
+                  <div className="min-w-0">
+                    <p className="text-slate-400">Program Keahlian</p>
+                    <p className="break-words text-slate-700">{r.jurusan || '-'}</p>
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-slate-400">Waktu</p>
+                    <p className="tabular-nums text-slate-700">{r.waktu || '-'}</p>
+                  </div>
+                  <div className="col-span-2 min-w-0">
+                    <p className="text-slate-400">Keterangan</p>
+                    <p className="break-words text-slate-700">{r.keterangan || '-'}</p>
+                  </div>
+                  <div className="col-span-2 min-w-0">
+                    <p className="text-slate-400">Petugas</p>
+                    <p className="break-words text-slate-700">{r.petugas || '-'}</p>
+                  </div>
+                </div>
+                <p className="mt-2 text-[11px] text-slate-400">Data ke-{i + 1}</p>
+              </div>
+            )}
+            emptyMessage={`Belum ada siswa hadir atau izin pada tanggal ${formatWIBShort(tanggal)}`}
+            caption="Rekap kehadiran dan izin MPLS"
+            minWidth={880}
+          />
         )}
       </Card>
     </div>

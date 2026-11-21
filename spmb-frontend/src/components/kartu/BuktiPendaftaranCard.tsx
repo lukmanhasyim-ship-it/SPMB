@@ -20,6 +20,12 @@ export interface BuktiPendaftaranCardProps {
   data: KartuData
   id?: string
   className?: string
+  /**
+   * `print` (default) memakai ukuran mm & tipografi asli -- hasil cetak identik.
+   * `screen` hanya dipakai untuk pratinjau di layar kecil: lebar fluida dan teks
+   * yang masih terbaca tanpa zoom.
+   */
+  mode?: 'screen' | 'print'
 }
 
 const QR_SIZE_PX = 83
@@ -29,7 +35,12 @@ export default function BuktiPendaftaranCard({
   data,
   id,
   className = '',
+  mode = 'print',
 }: BuktiPendaftaranCardProps) {
+  const screen = mode === 'screen'
+  // Fungsi ini menjaga string kelas mode `print` tetap persis seperti sebelumnya.
+  const cls = (print: string, onScreen: string) => (screen ? onScreen : print)
+
   const linkGroupWa = (data.linkGroupWA || '').trim()
   const hasWaLink = linkGroupWa !== ''
 
@@ -44,31 +55,43 @@ export default function BuktiPendaftaranCard({
   return (
     <div
       id={id}
-      style={{
-        width: `${KARTU_W_MM}mm`,
-        height: `${KARTU_H_MM}mm`,
-        printColorAdjust: 'exact',
-        WebkitPrintColorAdjust: 'exact',
-      }}
-      className={`kartu flex flex-col overflow-hidden rounded-2xl bg-slate-800 text-white shadow-xl print:rounded-none print:shadow-none p-[3mm] ${className}`}
+      style={
+        screen
+          ? { printColorAdjust: 'exact', WebkitPrintColorAdjust: 'exact' }
+          : {
+              width: `${KARTU_W_MM}mm`,
+              height: `${KARTU_H_MM}mm`,
+              printColorAdjust: 'exact',
+              WebkitPrintColorAdjust: 'exact',
+            }
+      }
+      className={cls(
+        `kartu flex flex-col overflow-hidden rounded-2xl bg-slate-800 text-white shadow-xl print:rounded-none print:shadow-none p-[3mm] ${className}`,
+        `kartu flex w-full max-w-[17rem] flex-col overflow-hidden rounded-2xl bg-slate-800 p-4 text-white shadow-lg print:rounded-none print:shadow-none print:p-[3mm] ${className}`,
+      )}
     >
-      <div className="flex items-start justify-between gap-[2mm]">
-        <div className="flex items-center gap-[2mm]">
+      <div className={cls('flex items-start justify-between gap-[2mm]', 'flex items-start justify-between gap-3')}>
+        <div className={cls('flex items-center gap-[2mm]', 'flex items-center gap-3')}>
           <img
             src="/logo.svg"
             alt="Logo"
-            className="w-[7mm] h-[7mm] shrink-0 brightness-0 invert"
+            className={cls('h-[7mm] w-[7mm] shrink-0 brightness-0 invert', 'h-8 w-8 shrink-0 brightness-0 invert')}
           />
           <div className="min-w-0">
-            <p className="text-[5.5pt] font-medium uppercase tracking-[0.16em] text-brand-green-light leading-[1.4]">
+            <p className={cls(
+              'text-[5.5pt] font-medium uppercase tracking-[0.16em] leading-[1.4] text-brand-green-light',
+              'text-[10px] font-medium uppercase tracking-[0.12em] leading-tight text-brand-green-light',
+            )}>
               SMKS AL AZHAR SEMPU
             </p>
-            <p className="text-[8pt] font-bold leading-[1.3]">Bukti Pendaftaran Resmi</p>
+            <p className={cls('text-[8pt] font-bold leading-[1.3]', 'text-[15px] font-bold leading-tight')}>
+              Bukti Pendaftaran Resmi
+            </p>
           </div>
         </div>
       </div>
 
-      <div className="mt-[2mm] flex items-center gap-[2.5mm]">
+      <div className={cls('mt-[2mm] flex items-center gap-[2.5mm]', 'mt-4 flex items-center gap-3')}>
         <div className="flex h-[15mm] w-[15mm] shrink-0 items-center justify-center overflow-hidden rounded-full border-[0.4mm] border-white/20 bg-slate-700">
           {data.fotoUrl ? (
             <img
@@ -85,30 +108,42 @@ export default function BuktiPendaftaranCard({
           )}
         </div>
         <div className="min-w-0">
-          <p className="truncate text-[9pt] font-bold leading-[1.35]">{data.nama || '-'}</p>
-          <p className="truncate text-[6pt] leading-[1.4] text-slate-400">{data.email || '-'}</p>
-          <p className="truncate text-[6pt] font-medium leading-[1.4] text-brand-green-light">
+          <p className={cls('truncate text-[9pt] font-bold leading-[1.35]', 'truncate text-[17px] font-bold leading-tight')}>
+            {data.nama || '-'}
+          </p>
+          <p className={cls('truncate text-[6pt] leading-[1.4] text-slate-400', 'truncate text-[12px] leading-snug text-slate-400')}>
+            {data.email || '-'}
+          </p>
+          <p className={cls(
+            'truncate text-[6pt] font-medium leading-[1.4] text-brand-green-light',
+            'truncate text-[12px] font-medium leading-snug text-brand-green-light',
+          )}>
             {data.idPendaftaran || '-'}
           </p>
         </div>
       </div>
 
-      <div className="mt-[2mm] space-y-[1.2mm] text-[6pt]">
+      <div className={cls('mt-[2mm] space-y-[1.2mm] text-[6pt]', 'mt-4 space-y-2 text-[12px]')}>
         {rows.map((row, i) => (
           <div
             key={row.label}
-            className={`flex justify-between gap-[2mm] leading-[1.45] ${
-              i < rows.length - 1 ? 'border-b border-white/10 pb-[0.8mm]' : ''
-            }`}
+            className={cls(
+              `flex justify-between gap-[2mm] leading-[1.45] ${
+                i < rows.length - 1 ? 'border-b border-white/10 pb-[0.8mm]' : ''
+              }`,
+              `flex justify-between gap-3 leading-snug ${
+                i < rows.length - 1 ? 'border-b border-white/10 pb-1.5' : ''
+              }`,
+            )}
           >
-            <span className="shrink-0 text-slate-400">{row.label}</span>
-            <span className="text-right font-medium">{row.value}</span>
+            <span className={cls('shrink-0 text-slate-400', 'shrink-0 text-[11px] text-slate-400')}>{row.label}</span>
+            <span className={cls('text-right font-medium', 'min-w-0 text-right font-medium')}>{row.value}</span>
           </div>
         ))}
       </div>
 
       <div
-        className="mt-auto flex items-start justify-center pt-[2mm]"
+        className={cls('mt-auto flex items-start justify-center pt-[2mm]', 'mt-5 flex items-start justify-center pt-2')}
         style={{ gap: `${QR_GAP_MM}mm` }}
       >
         <div className="flex flex-col items-center gap-[1mm]">
@@ -142,7 +177,7 @@ export default function BuktiPendaftaranCard({
             />
           </div>
           <p
-            className="text-center text-[5pt] leading-[1.3] text-slate-300"
+            className={cls('text-center text-[5pt] leading-[1.3] text-slate-300', 'text-center text-[11px] leading-tight text-slate-300')}
             style={{ maxWidth: `${QR_LABEL_MAX_W_MM}mm` }}
           >
             {hasWaLink ? `Grup WhatsApp ${data.gelombang || ''}`.trim() : 'ID Pendaftaran'}
@@ -166,7 +201,7 @@ export default function BuktiPendaftaranCard({
             />
           </div>
           <p
-            className="text-center text-[5pt] leading-[1.3] text-slate-300"
+            className={cls('text-center text-[5pt] leading-[1.3] text-slate-300', 'text-center text-[11px] leading-tight text-slate-300')}
             style={{ maxWidth: `${QR_LABEL_MAX_W_MM}mm` }}
           >
             Verifikasi Data

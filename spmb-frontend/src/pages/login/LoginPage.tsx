@@ -209,7 +209,7 @@ export default function LoginPage() {
       </div>
 
       <div className="flex-1 flex items-center justify-center p-4 sm:p-8 bg-slate-50">
-        <Card className="w-full max-w-md p-8">
+        <Card className="w-full max-w-md p-5 sm:p-8">
           <div className="lg:hidden text-center mb-8 animate-fade-in-up">
             <div className="mx-auto mb-4 w-20 h-20 flex items-center justify-center">
               <img src="/logo.svg" alt="Logo SMKS Al Azhar Sempu" className="w-full h-full object-contain" />

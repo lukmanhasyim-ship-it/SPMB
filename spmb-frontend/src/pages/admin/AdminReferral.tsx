@@ -3,6 +3,7 @@ import { UserCheck, Users, ChevronDown, ChevronUp, Download } from 'lucide-react
 import Card from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
 import Loader from '../../components/ui/Loader'
+import ResponsiveTable from '../../components/ui/ResponsiveTable'
 import { api } from '../../services/api'
 
 const kategoriColors: Record<string, string> = {
@@ -95,7 +96,7 @@ export default function AdminReferral() {
 
   return (
     <div className="page-fade-in space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-xl font-bold text-slate-800">Rekap Referral</h1>
           <p className="text-sm text-slate-500">
@@ -103,7 +104,12 @@ export default function AdminReferral() {
           </p>
         </div>
         {stats.length > 0 && (
-          <Button variant="secondary" onClick={handleExport} className="flex items-center gap-1.5 whitespace-nowrap">
+          <Button
+            variant="secondary"
+            onClick={handleExport}
+            fullWidth
+            className="items-center gap-1.5 whitespace-nowrap sm:w-auto"
+          >
             <Download className="w-4 h-4" />
             Export Excel
           </Button>
@@ -114,22 +120,22 @@ export default function AdminReferral() {
         <Loader />
       ) : (
         <>
-          <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-            <Card className="p-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <Card className="p-4 sm:p-6">
               <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center mb-2">
                 <Users className="w-5 h-5" />
               </div>
               <p className="text-2xl font-bold text-slate-800">{totalPendaftar}</p>
               <p className="text-xs text-slate-500">Pendaftar dengan Referral</p>
             </Card>
-            <Card className="p-4">
+            <Card className="p-4 sm:p-6">
               <div className="w-10 h-10 rounded-xl bg-brand-green-light text-brand-green flex items-center justify-center mb-2">
                 <UserCheck className="w-5 h-5" />
               </div>
               <p className="text-2xl font-bold text-slate-800">{totalOrang}</p>
               <p className="text-xs text-slate-500">Orang yang Direferensikan</p>
             </Card>
-            <Card className="p-4">
+            <Card className="p-4 sm:p-6">
               <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center mb-2">
                 <Users className="w-5 h-5" />
               </div>
@@ -138,18 +144,19 @@ export default function AdminReferral() {
             </Card>
           </div>
 
-          <div className="relative max-w-md">
+          <div className="relative w-full max-w-md">
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Cari nama atau kategori..."
-              className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-brand-green/30 focus:border-brand-green"
+              aria-label="Cari nama atau kategori"
+              className="w-full min-h-touch px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-green/30 focus:border-brand-green"
             />
           </div>
 
           {filtered.length === 0 ? (
-            <Card className="p-10 text-center">
+            <Card className="p-8 text-center sm:p-10">
               <UserCheck className="w-10 h-10 text-slate-300 mx-auto mb-3" />
               <p className="text-sm text-slate-500">
                 {search ? 'Tidak ada hasil yang cocok' : 'Belum ada data referral. Data muncul saat calon siswa mengisi referral pada pendaftaran.'}
@@ -175,8 +182,11 @@ export default function AdminReferral() {
                       </div>
                     </div>
                     <button
+                      type="button"
                       onClick={() => toggleExpand(index)}
-                      className="flex items-center gap-1 text-xs text-brand-green hover:text-brand-green-dark font-medium transition-colors self-start sm:self-auto"
+                      aria-expanded={!!expanded[index]}
+                      aria-label={`${expanded[index] ? 'Sembunyikan' : 'Lihat'} detail pendaftar dari ${s.nama}`}
+                      className="inline-flex min-h-touch min-w-touch items-center justify-center gap-1 rounded-xl px-2 text-xs text-brand-green hover:text-brand-green-dark hover:bg-brand-green-light font-medium transition-colors self-start sm:self-auto"
                     >
                       {expanded[index] ? (
                         <>
@@ -191,42 +201,76 @@ export default function AdminReferral() {
                   </div>
 
                   {expanded[index] && (
-                    <div className="mt-4 overflow-x-auto">
-                      <table className="w-full text-sm">
-                        <thead>
-                          <tr className="border-b border-slate-100 bg-slate-50/50">
-                            <th className="text-left px-3 py-2 font-semibold text-slate-600 text-xs uppercase">No</th>
-                            <th className="text-left px-3 py-2 font-semibold text-slate-600 text-xs uppercase">Nama Pendaftar</th>
-                            <th className="text-left px-3 py-2 font-semibold text-slate-600 text-xs uppercase">Program Keahlian</th>
-                            <th className="text-left px-3 py-2 font-semibold text-slate-600 text-xs uppercase">Gelombang</th>
-                            <th className="text-left px-3 py-2 font-semibold text-slate-600 text-xs uppercase">Status</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {s.pendaftar.length === 0 ? (
-                            <tr>
-                              <td colSpan={5} className="px-3 py-4 text-center text-slate-400">Tidak ada data</td>
-                            </tr>
-                          ) : (
-                            s.pendaftar.map((p, i) => (
-                              <tr key={p.id_pendaftaran} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
-                                <td className="px-3 py-2 text-slate-500">{i + 1}</td>
-                                <td className="px-3 py-2">
-                                  <p className="font-medium text-slate-800">{p.nama_lengkap || '-'}</p>
-                                  <p className="text-xs font-mono text-slate-400">{p.id_pendaftaran}</p>
-                                </td>
-                                <td className="px-3 py-2 text-slate-700">{p.jurusan || '-'}</td>
-                                <td className="px-3 py-2 text-slate-700">{p.gelombang || '-'}</td>
-                                <td className="px-3 py-2">
-                                  <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${statusColors[p.status_pendaftaran]}`}>
-                                    {p.status_pendaftaran}
-                                  </span>
-                                </td>
-                              </tr>
-                            ))
-                          )}
-                        </tbody>
-                      </table>
+                    <div className="mt-4">
+                      <ResponsiveTable
+                        caption={`Daftar pendaftar dari ${s.nama}`}
+                        minWidth={640}
+                        columns={[
+                          {
+                            key: 'no',
+                            header: 'No',
+                            render: (_p, i) => i + 1,
+                          },
+                          {
+                            key: 'nama',
+                            header: 'Nama Pendaftar',
+                            render: (p) => (
+                              <div>
+                                <p className="font-medium text-slate-800">{p.nama_lengkap || '-'}</p>
+                                <p className="text-xs font-mono text-slate-400">{p.id_pendaftaran}</p>
+                              </div>
+                            ),
+                          },
+                          {
+                            key: 'jurusan',
+                            header: 'Program Keahlian',
+                            render: (p) => p.jurusan || '-',
+                          },
+                          {
+                            key: 'gelombang',
+                            header: 'Gelombang',
+                            render: (p) => p.gelombang || '-',
+                          },
+                          {
+                            key: 'status',
+                            header: 'Status',
+                            render: (p) => (
+                              <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${statusColors[p.status_pendaftaran]}`}>
+                                {p.status_pendaftaran}
+                              </span>
+                            ),
+                          },
+                        ]}
+                        data={s.pendaftar}
+                        getRowId={(p) => p.id_pendaftaran}
+                        emptyMessage="Tidak ada data"
+                        mobileCard={(p, i) => (
+                          <div className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="min-w-0">
+                                <p className="flex items-start gap-2 text-sm font-semibold text-slate-800">
+                                  <span className="shrink-0 text-slate-400">{i + 1}.</span>
+                                  <span className="min-w-0">{p.nama_lengkap || '-'}</span>
+                                </p>
+                                <p className="mt-0.5 font-mono text-xs text-slate-400">{p.id_pendaftaran}</p>
+                              </div>
+                              <span className={`inline-block shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${statusColors[p.status_pendaftaran]}`}>
+                                {p.status_pendaftaran}
+                              </span>
+                            </div>
+                            <div className="mt-3 space-y-1 text-xs text-slate-500">
+                              <p>
+                                Program Keahlian:{' '}
+                                <span className="font-medium text-slate-700">{p.jurusan || '-'}</span>
+                              </p>
+                              <p>
+                                Gelombang:{' '}
+                                <span className="font-medium text-slate-700">{p.gelombang || '-'}</span>
+                              </p>
+                            </div>
+                          </div>
+                        )}
+                      />
                     </div>
                   )}
                 </Card>

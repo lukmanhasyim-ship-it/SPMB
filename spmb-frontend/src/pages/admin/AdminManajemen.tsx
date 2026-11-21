@@ -1,8 +1,9 @@
 import { useEffect, useState, useRef } from 'react'
-import { Plus, Edit3, Trash2, Shield, School, X, Upload, FileSpreadsheet, CheckCircle2, AlertTriangle, Loader2, Download } from 'lucide-react'
+import { Plus, Edit3, Trash2, Shield, School, Upload, FileSpreadsheet, CheckCircle2, AlertTriangle, Loader2, Download } from 'lucide-react'
 import Card from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
 import Loader from '../../components/ui/Loader'
+import Modal from '../../components/ui/Modal'
 import { api } from '../../services/api'
 
 interface AdminItem {
@@ -298,181 +299,168 @@ export default function AdminManajemen() {
         </div>
       </div>
 
-      {importModalOpen && (
-        <div className="fixed inset-0 bg-black/30 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-bold text-slate-800">Import Pengguna dari Excel</h3>
-              <button onClick={() => setImportModalOpen(false)}>
-                <X className="w-5 h-5 text-slate-400" />
-              </button>
+      <Modal
+        open={importModalOpen}
+        onClose={() => setImportModalOpen(false)}
+        dismissible={!importing}
+        title="Import Pengguna dari Excel"
+        footer={!importResult ? (
+          <Button variant="ghost" fullWidth className="sm:w-auto" onClick={() => setImportModalOpen(false)} disabled={importing}>
+            Batal
+          </Button>
+        ) : (
+          <Button variant="primary" fullWidth className="sm:w-auto" onClick={() => setImportModalOpen(false)}>
+            Tutup
+          </Button>
+        )}
+      >
+        {!importResult ? (
+          <div className="space-y-4">
+            <div className="p-4 rounded-xl bg-slate-50 border border-slate-100">
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-xs text-slate-600 font-medium">Format kolom Excel:</p>
+                <button
+                  onClick={handleDownloadTemplate}
+                  className="flex min-h-touch items-center gap-1 text-[11px] text-brand-green hover:text-brand-green-dark font-medium transition-colors"
+                >
+                  <Download className="w-3 h-3" />
+                  Download Template
+                </button>
+              </div>
+              <div className="flex items-center gap-2 text-[11px] text-slate-500 font-mono">
+                <span className="px-1.5 py-0.5 bg-white rounded border border-slate-200">email</span>
+                <span className="px-1.5 py-0.5 bg-white rounded border border-slate-200">nama</span>
+                <span className="px-1.5 py-0.5 bg-white rounded border border-slate-200">role</span>
+                <span className="px-1.5 py-0.5 bg-white rounded border border-slate-200">no_telp</span>
+              </div>
+              <p className="text-[10px] text-slate-400 mt-2">
+                Kolom <span className="font-medium">role</span> opsional (default: guru, opsi lain: admin / guru_smp / panitia_mpls). Kolom <span className="font-medium">no_telp</span> juga opsional.
+              </p>
             </div>
 
-            {!importResult ? (
-              <div className="space-y-4">
-                <div className="p-4 rounded-xl bg-slate-50 border border-slate-100">
-                  <div className="flex items-center justify-between mb-2">
-                    <p className="text-xs text-slate-600 font-medium">Format kolom Excel:</p>
-                    <button
-                      onClick={handleDownloadTemplate}
-                      className="flex items-center gap-1 text-[11px] text-brand-green hover:text-brand-green-dark font-medium transition-colors"
-                    >
-                      <Download className="w-3 h-3" />
-                      Download Template
-                    </button>
-                  </div>
-                  <div className="flex items-center gap-2 text-[11px] text-slate-500 font-mono">
-                    <span className="px-1.5 py-0.5 bg-white rounded border border-slate-200">email</span>
-                    <span className="px-1.5 py-0.5 bg-white rounded border border-slate-200">nama</span>
-                    <span className="px-1.5 py-0.5 bg-white rounded border border-slate-200">role</span>
-                    <span className="px-1.5 py-0.5 bg-white rounded border border-slate-200">no_telp</span>
-                  </div>
-                  <p className="text-[10px] text-slate-400 mt-2">
-                    Kolom <span className="font-medium">role</span> opsional (default: guru, opsi lain: admin / guru_smp / panitia_mpls). Kolom <span className="font-medium">no_telp</span> juga opsional.
-                  </p>
+            <label
+              className={`flex flex-col items-center justify-center w-full h-32 min-h-touch border-2 border-dashed rounded-xl cursor-pointer transition-colors ${
+                importing
+                  ? 'border-brand-green bg-brand-green-light/50'
+                  : 'border-slate-200 hover:border-brand-green hover:bg-brand-green-light/30'
+              }`}
+            >
+              {importing ? (
+                <div className="flex flex-col items-center gap-2">
+                  <Loader2 className="w-6 h-6 text-brand-green animate-spin" />
+                  <span className="text-xs text-slate-500">Mengimport...</span>
                 </div>
-
-                <label
-                  className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-xl cursor-pointer transition-colors ${
-                    importing
-                      ? 'border-brand-green bg-brand-green-light/50'
-                      : 'border-slate-200 hover:border-brand-green hover:bg-brand-green-light/30'
-                  }`}
-                >
-                  {importing ? (
-                    <div className="flex flex-col items-center gap-2">
-                      <Loader2 className="w-6 h-6 text-brand-green animate-spin" />
-                      <span className="text-xs text-slate-500">Mengimport...</span>
-                    </div>
-                  ) : (
-                    <div className="flex flex-col items-center gap-1">
-                      <FileSpreadsheet className="w-6 h-6 text-slate-400" />
-                      <span className="text-xs text-slate-500">Klik untuk memilih file Excel</span>
-                      <span className="text-[10px] text-slate-400">Format .xlsx</span>
-                    </div>
-                  )}
-                  <input
-                    ref={importFileRef}
-                    type="file"
-                    accept=".xlsx,.xls"
-                    onChange={handleImport}
-                    className="hidden"
-                    disabled={importing}
-                  />
-                </label>
-
-                <Button variant="ghost" className="w-full" onClick={() => setImportModalOpen(false)} disabled={importing}>
-                  Batal
-                </Button>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                <div className="text-center py-2">
-                  {importResult.success > 0 && (
-                    <div className="flex items-center justify-center gap-2 text-sm text-brand-green mb-2">
-                      <CheckCircle2 className="w-4 h-4" />
-                      {importResult.success} pengguna berhasil ditambahkan
-                    </div>
-                  )}
-                  {importResult.skipped > 0 && (
-                    <div className="flex items-center justify-center gap-2 text-sm text-amber-600 mb-2">
-                      <AlertTriangle className="w-4 h-4" />
-                      {importResult.skipped} dilewati (duplikat/tidak valid)
-                    </div>
-                  )}
-                  {importResult.failed > 0 && (
-                    <div className="flex items-center justify-center gap-2 text-sm text-red-500 mb-2">
-                      <AlertTriangle className="w-4 h-4" />
-                      {importResult.failed} gagal
-                    </div>
-                  )}
+              ) : (
+                <div className="flex flex-col items-center gap-1">
+                  <FileSpreadsheet className="w-6 h-6 text-slate-400" />
+                  <span className="text-xs text-slate-500">Klik untuk memilih file Excel</span>
+                  <span className="text-[10px] text-slate-400">Format .xlsx</span>
                 </div>
+              )}
+              <input
+                ref={importFileRef}
+                type="file"
+                accept=".xlsx,.xls"
+                onChange={handleImport}
+                className="hidden"
+                disabled={importing}
+              />
+            </label>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <div className="text-center py-2">
+              {importResult.success > 0 && (
+                <div className="flex items-center justify-center gap-2 text-sm text-brand-green mb-2">
+                  <CheckCircle2 className="w-4 h-4" />
+                  {importResult.success} pengguna berhasil ditambahkan
+                </div>
+              )}
+              {importResult.skipped > 0 && (
+                <div className="flex items-center justify-center gap-2 text-sm text-amber-600 mb-2">
+                  <AlertTriangle className="w-4 h-4" />
+                  {importResult.skipped} dilewati (duplikat/tidak valid)
+                </div>
+              )}
+              {importResult.failed > 0 && (
+                <div className="flex items-center justify-center gap-2 text-sm text-red-500 mb-2">
+                  <AlertTriangle className="w-4 h-4" />
+                  {importResult.failed} gagal
+                </div>
+              )}
+            </div>
 
-                {importResult.errors.length > 0 && (
-                  <div className="max-h-40 overflow-y-auto p-3 rounded-xl bg-slate-50 border border-slate-100">
-                    {importResult.errors.map((err, i) => (
-                      <p key={i} className="text-[11px] text-slate-500">{err}</p>
-                    ))}
-                  </div>
-                )}
-
-                <Button variant="primary" className="w-full" onClick={() => setImportModalOpen(false)}>
-                  Tutup
-                </Button>
+            {importResult.errors.length > 0 && (
+              <div className="max-h-40 overflow-y-auto p-3 rounded-xl bg-slate-50 border border-slate-100">
+                {importResult.errors.map((err, i) => (
+                  <p key={i} className="text-[11px] text-slate-500">{err}</p>
+                ))}
               </div>
             )}
           </div>
-        </div>
-      )}
+        )}
+      </Modal>
 
-      {modalOpen && (
-        <div className="fixed inset-0 bg-black/30 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-bold text-slate-800">
-                {editingEmail ? 'Edit Pengguna' : 'Tambah Pengguna'}
-              </h3>
-              <button onClick={() => setModalOpen(false)}>
-                <X className="w-5 h-5 text-slate-400" />
-              </button>
-            </div>
-
-            <div className="space-y-3">
-              <div>
-                <label className="text-xs font-medium text-slate-600 mb-1 block">Email</label>
-                <input
-                  type="email"
-                  value={form.email}
-                  onChange={(e) => setForm({ ...form, email: e.target.value })}
-                  disabled={!!editingEmail}
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green/30"
-                />
-              </div>
-              <div>
-                <label className="text-xs font-medium text-slate-600 mb-1 block">Nama</label>
-                <input
-                  type="text"
-                  value={form.nama}
-                  onChange={(e) => setForm({ ...form, nama: e.target.value })}
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green/30"
-                />
-              </div>
-              <div>
-                <label className="text-xs font-medium text-slate-600 mb-1 block">Role</label>
-                <select
-                  value={form.role}
-                  onChange={(e) => setForm({ ...form, role: e.target.value })}
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green/30"
-                >
-                  <option value="admin">Admin</option>
-                  <option value="guru">Guru</option>
-                  <option value="guru_smp">Guru SMP/MTs</option>
-                  <option value="panitia_mpls">Panitia MPLS</option>
-                </select>
-              </div>
-              <div>
-                <label className="text-xs font-medium text-slate-600 mb-1 block">No. Telepon</label>
-                <input
-                  type="tel"
-                  value={form.no_telp}
-                  onChange={(e) => setForm({ ...form, no_telp: e.target.value })}
-                  placeholder="628xxxxxxxxxx"
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green/30"
-                />
-              </div>
-            </div>
-
-            <div className="flex gap-2 mt-6">
-              <Button variant="ghost" className="flex-1" onClick={() => setModalOpen(false)}>
-                Batal
-              </Button>
-              <Button variant="primary" className="flex-1" onClick={handleSave}>
-                Simpan
-              </Button>
-            </div>
+      <Modal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        title={editingEmail ? 'Edit Pengguna' : 'Tambah Pengguna'}
+        footer={
+          <>
+            <Button variant="ghost" fullWidth className="sm:w-auto" onClick={() => setModalOpen(false)}>
+              Batal
+            </Button>
+            <Button variant="primary" fullWidth className="sm:w-auto" onClick={handleSave}>
+              Simpan
+            </Button>
+          </>
+        }
+      >
+        <div className="space-y-3">
+          <div>
+            <label className="text-xs font-medium text-slate-600 mb-1 block">Email</label>
+            <input
+              type="email"
+              value={form.email}
+              onChange={(e) => setForm({ ...form, email: e.target.value })}
+              disabled={!!editingEmail}
+              className="w-full min-h-touch px-4 py-2.5 rounded-xl border border-slate-200 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-green/30"
+            />
+          </div>
+          <div>
+            <label className="text-xs font-medium text-slate-600 mb-1 block">Nama</label>
+            <input
+              type="text"
+              value={form.nama}
+              onChange={(e) => setForm({ ...form, nama: e.target.value })}
+              className="w-full min-h-touch px-4 py-2.5 rounded-xl border border-slate-200 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-green/30"
+            />
+          </div>
+          <div>
+            <label className="text-xs font-medium text-slate-600 mb-1 block">Role</label>
+            <select
+              value={form.role}
+              onChange={(e) => setForm({ ...form, role: e.target.value })}
+              className="w-full min-h-touch px-4 py-2.5 rounded-xl border border-slate-200 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-green/30"
+            >
+              <option value="admin">Admin</option>
+              <option value="guru">Guru</option>
+              <option value="guru_smp">Guru SMP/MTs</option>
+              <option value="panitia_mpls">Panitia MPLS</option>
+            </select>
+          </div>
+          <div>
+            <label className="text-xs font-medium text-slate-600 mb-1 block">No. Telepon</label>
+            <input
+              type="tel"
+              value={form.no_telp}
+              onChange={(e) => setForm({ ...form, no_telp: e.target.value })}
+              placeholder="628xxxxxxxxxx"
+              className="w-full min-h-touch px-4 py-2.5 rounded-xl border border-slate-200 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-green/30"
+            />
           </div>
         </div>
-      )}
+      </Modal>
     </div>
   )
 }

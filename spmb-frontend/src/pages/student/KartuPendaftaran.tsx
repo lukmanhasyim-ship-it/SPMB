@@ -96,24 +96,27 @@ export default function KartuPendaftaran() {
 
       <div className="kartu-screen-shell min-h-screen p-4 sm:p-8">
         <div className="mx-auto max-w-md space-y-6">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-2">
             <button
+              type="button"
               onClick={() => navigate('/student/dashboard')}
-              className="flex items-center gap-1.5 text-sm text-brand-green hover:text-brand-green-dark font-medium transition-colors"
+              className="flex min-h-touch items-center gap-1.5 rounded-xl px-2 text-sm font-medium text-brand-green transition-colors hover:bg-brand-green-light hover:text-brand-green-dark"
             >
-              <ArrowLeft className="w-4 h-4" />
+              <ArrowLeft className="h-4 w-4" />
               Kembali
             </button>
-            <h2 className="text-lg font-bold text-slate-800">Bukti Pendaftaran</h2>
-            <div className="w-20" />
+            <h2 className="min-w-0 text-center text-base font-bold text-slate-800 sm:text-lg">
+              Bukti Pendaftaran
+            </h2>
+            <div className="hidden w-20 sm:block" />
           </div>
 
           <div className="flex justify-center">
-            <BuktiPendaftaranCard data={kartuData} />
+            <BuktiPendaftaranCard data={kartuData} mode="screen" />
           </div>
 
           <div className="flex flex-col gap-3">
-            <div className="flex gap-3">
+            <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
               <Button onClick={() => handlePrint('kartu')} fullWidth variant="primary">
                 <Printer className="w-4 h-4" />
                 Cetak Kartu 65x95mm
@@ -131,7 +134,7 @@ export default function KartuPendaftaran() {
             </Link>
           </div>
 
-          <p className="text-[11px] text-slate-400 text-center">
+          <p className="text-center text-xs text-slate-400">
             Ukuran kartu 65 x 95 mm. Pilih &quot;Cetak Kartu&quot; bila printer mendukung kertas custom,
             atau &quot;Cetak A4&quot; untuk printer biasa.
           </p>

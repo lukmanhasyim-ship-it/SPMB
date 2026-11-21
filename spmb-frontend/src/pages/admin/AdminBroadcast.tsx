@@ -3,6 +3,7 @@ import { ImagePlus, CheckCircle2, Trash2, X, Loader2, Pencil, Calendar, Clock, M
 import Card from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
 import Loader from '../../components/ui/Loader'
+import Modal from '../../components/ui/Modal'
 import { api } from '../../services/api'
 import { compressAndCropImage } from '../../utils/imageCompress'
 import { formatWIBShort, formatWIBDateInput, formatWIBTime } from '../../utils/dateUtils'
@@ -508,153 +509,148 @@ export default function AdminBroadcast() {
       </Card>
       </div>
 
-      {editModalOpen && editingEvent && (
-        <div className="fixed inset-0 bg-black/30 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-bold text-slate-800">Edit Postingan</h3>
-              <button onClick={closeEdit}>
-                <X className="w-5 h-5 text-slate-400" />
-              </button>
+      <Modal
+        open={editModalOpen && !!editingEvent}
+        onClose={closeEdit}
+        dismissible={!saving}
+        title="Edit Postingan"
+        footer={
+          <>
+            <Button variant="ghost" fullWidth className="sm:w-auto" onClick={closeEdit} disabled={saving}>
+              Batal
+            </Button>
+            <Button variant="primary" fullWidth className="sm:w-auto" onClick={handleSaveEdit} loading={saving} disabled={editCompressing}>
+              Simpan
+            </Button>
+          </>
+        }
+      >
+        <div className="space-y-3">
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs font-medium text-slate-600">Target Gelombang</label>
+            <select
+              value={editTarget}
+              onChange={(e) => setEditTarget(e.target.value)}
+              className="w-full min-h-touch px-4 py-2.5 rounded-xl border border-slate-200 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-green/30"
+            >
+              <option value="Semua">Semua Gelombang</option>
+              {gelombangList.map((gel) => (
+                <option key={gel.gelombang} value={gel.gelombang}>
+                  {gel.gelombang}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs font-medium text-slate-600">Judul</label>
+            <input
+              type="text"
+              value={editJudul}
+              onChange={(e) => setEditJudul(e.target.value)}
+              className="w-full min-h-touch px-4 py-2.5 rounded-xl border border-slate-200 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-green/30"
+            />
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs font-medium text-slate-600">Deskripsi</label>
+            <textarea
+              value={editDeskripsi}
+              onChange={(e) => setEditDeskripsi(e.target.value)}
+              rows={4}
+              className="w-full min-h-touch px-4 py-2.5 rounded-xl border border-slate-200 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-green/30 resize-none"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-medium text-slate-600 flex items-center gap-1.5">
+                <Calendar className="w-3 h-3" />
+                Tanggal
+              </label>
+              <input
+                type="date"
+                value={editTanggalPelaksanaan}
+                onChange={(e) => setEditTanggalPelaksanaan(e.target.value)}
+                className="w-full min-h-touch px-4 py-2.5 rounded-xl border border-slate-200 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-green/30"
+              />
             </div>
-
-            <div className="space-y-3">
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-medium text-slate-600">Target Gelombang</label>
-                <select
-                  value={editTarget}
-                  onChange={(e) => setEditTarget(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green/30"
-                >
-                  <option value="Semua">Semua Gelombang</option>
-                  {gelombangList.map((gel) => (
-                    <option key={gel.gelombang} value={gel.gelombang}>
-                      {gel.gelombang}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-medium text-slate-600">Judul</label>
-                <input
-                  type="text"
-                  value={editJudul}
-                  onChange={(e) => setEditJudul(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green/30"
-                />
-              </div>
-
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-medium text-slate-600">Deskripsi</label>
-                <textarea
-                  value={editDeskripsi}
-                  onChange={(e) => setEditDeskripsi(e.target.value)}
-                  rows={4}
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green/30 resize-none"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-medium text-slate-600 flex items-center gap-1.5">
-                    <Calendar className="w-3 h-3" />
-                    Tanggal
-                  </label>
-                  <input
-                    type="date"
-                    value={editTanggalPelaksanaan}
-                    onChange={(e) => setEditTanggalPelaksanaan(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green/30"
-                  />
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-medium text-slate-600 flex items-center gap-1.5">
-                    <Clock className="w-3 h-3" />
-                    Waktu
-                  </label>
-                  <input
-                    type="time"
-                    value={editWaktuPelaksanaan}
-                    onChange={(e) => setEditWaktuPelaksanaan(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green/30"
-                  />
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-medium text-slate-600 flex items-center gap-1.5">
-                    <MapPin className="w-3 h-3" />
-                    Tempat
-                  </label>
-                  <input
-                    type="text"
-                    value={editTempatPelaksanaan}
-                    onChange={(e) => setEditTempatPelaksanaan(e.target.value)}
-                    placeholder="Aula Sekolah"
-                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green/30"
-                  />
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-medium text-slate-600">Gambar (Opsional)</label>
-                {editImagePreview ? (
-                  <div className="relative rounded-xl overflow-hidden border border-slate-200">
-                    <img
-                      src={editImagePreview}
-                      alt="Preview"
-                      className="w-full max-h-60 object-cover"
-                      style={{ aspectRatio: '4 / 5', objectFit: 'cover' }}
-                    />
-                    <button
-                      onClick={handleEditRemoveImage}
-                      className="absolute top-2 right-2 w-8 h-8 bg-black/50 rounded-full flex items-center justify-center text-white hover:bg-black/70 transition-colors"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-                  </div>
-                ) : (
-                  <label
-                    className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-xl cursor-pointer transition-colors ${
-                      editCompressing
-                        ? 'border-brand-green bg-brand-green-light/50'
-                        : 'border-slate-200 hover:border-brand-green hover:bg-brand-green-light/30'
-                    }`}
-                  >
-                    {editCompressing ? (
-                      <div className="flex flex-col items-center gap-2">
-                        <Loader2 className="w-6 h-6 text-brand-green animate-spin" />
-                        <span className="text-xs text-slate-500">Mengkompresi...</span>
-                      </div>
-                    ) : (
-                      <div className="flex flex-col items-center gap-1">
-                        <ImagePlus className="w-6 h-6 text-slate-400" />
-                        <span className="text-xs text-slate-500">Pilih gambar baru</span>
-                      </div>
-                    )}
-                    <input
-                      ref={editFileInputRef}
-                      type="file"
-                      accept="image/*"
-                      onChange={handleEditImageSelect}
-                      className="hidden"
-                      disabled={editCompressing}
-                    />
-                  </label>
-                )}
-              </div>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-medium text-slate-600 flex items-center gap-1.5">
+                <Clock className="w-3 h-3" />
+                Waktu
+              </label>
+              <input
+                type="time"
+                value={editWaktuPelaksanaan}
+                onChange={(e) => setEditWaktuPelaksanaan(e.target.value)}
+                className="w-full min-h-touch px-4 py-2.5 rounded-xl border border-slate-200 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-green/30"
+              />
             </div>
-
-            <div className="flex gap-2 mt-6">
-              <Button variant="ghost" className="flex-1" onClick={closeEdit}>
-                Batal
-              </Button>
-              <Button variant="primary" className="flex-1" onClick={handleSaveEdit} loading={saving} disabled={editCompressing}>
-                Simpan
-              </Button>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-medium text-slate-600 flex items-center gap-1.5">
+                <MapPin className="w-3 h-3" />
+                Tempat
+              </label>
+              <input
+                type="text"
+                value={editTempatPelaksanaan}
+                onChange={(e) => setEditTempatPelaksanaan(e.target.value)}
+                placeholder="Aula Sekolah"
+                className="w-full min-h-touch px-4 py-2.5 rounded-xl border border-slate-200 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-green/30"
+              />
             </div>
           </div>
+
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs font-medium text-slate-600">Gambar (Opsional)</label>
+            {editImagePreview ? (
+              <div className="relative rounded-xl overflow-hidden border border-slate-200">
+                <img
+                  src={editImagePreview}
+                  alt="Preview"
+                  className="w-full max-h-60 object-cover"
+                  style={{ aspectRatio: '4 / 5', objectFit: 'cover' }}
+                />
+                <button
+                  onClick={handleEditRemoveImage}
+                  className="absolute top-2 right-2 min-h-touch min-w-touch w-8 h-8 bg-black/50 rounded-full flex items-center justify-center text-white hover:bg-black/70 transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            ) : (
+              <label
+                className={`flex flex-col items-center justify-center w-full h-32 min-h-touch border-2 border-dashed rounded-xl cursor-pointer transition-colors ${
+                  editCompressing
+                    ? 'border-brand-green bg-brand-green-light/50'
+                    : 'border-slate-200 hover:border-brand-green hover:bg-brand-green-light/30'
+                }`}
+              >
+                {editCompressing ? (
+                  <div className="flex flex-col items-center gap-2">
+                    <Loader2 className="w-6 h-6 text-brand-green animate-spin" />
+                    <span className="text-xs text-slate-500">Mengkompresi...</span>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center gap-1">
+                    <ImagePlus className="w-6 h-6 text-slate-400" />
+                    <span className="text-xs text-slate-500">Pilih gambar baru</span>
+                  </div>
+                )}
+                <input
+                  ref={editFileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleEditImageSelect}
+                  className="hidden"
+                  disabled={editCompressing}
+                />
+              </label>
+            )}
+          </div>
         </div>
-      )}
+      </Modal>
     </div>
   )
 }

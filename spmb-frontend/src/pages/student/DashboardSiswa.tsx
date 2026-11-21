@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { LogOut, User, MessageCircle, FileText, UserCheck, MapPin, Award, Newspaper, Loader2 } from 'lucide-react'
+import { LogOut, User, MessageCircle, FileText, UserCheck, MapPin, Award, Newspaper, Loader2, Home, ClipboardList, CreditCard } from 'lucide-react'
 import { useAuthStore } from '../../store/authStore'
-import { useStudentStore } from '../../store/studentStore'
+import { isPendaftaranAwalLengkap, useStudentStore } from '../../store/studentStore'
+import ResponsiveHeader from '../../components/layout/ResponsiveHeader'
 import Card from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
 import { api } from '../../services/api'
@@ -80,30 +81,49 @@ export default function DashboardSiswa() {
     (e) => e.target_gelombang === 'Semua' || e.target_gelombang === data.gelombang
   )
 
+  const navItems = [
+    { to: '/student/dashboard', icon: Home, label: 'Dashboard' },
+    { to: '/student/wizard', icon: ClipboardList, label: 'Formulir' },
+    { to: '/student/kartu-pendaftaran', icon: CreditCard, label: 'Bukti Pendaftaran' },
+  ]
+
+  // Aksi utama mengikuti progres: calon yang belum lengkap diarahkan ke wizard,
+  // sedangkan yang sudah lengkap langsung ke bukti pendaftaran. Saat data masih
+  // dimuat, tombol disembunyikan agar label tidak berubah-ubah.
+  const primaryAction = initialLoading || loading
+    ? undefined
+    : isPendaftaranAwalLengkap(data)
+      ? { ...navItems[2], label: 'Lihat Kartu' }
+      : { ...navItems[1], label: 'Lanjut Daftar' }
+
   return (
     <div className="min-h-screen bg-slate-50">
-      <nav className="bg-white border-b border-slate-200 sticky top-0 z-50">
-        <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-3 min-w-0">
-            <div className="w-9 h-9 bg-brand-green-light rounded-full flex items-center justify-center shrink-0">
-              <User className="w-5 h-5 text-brand-green" />
+      <ResponsiveHeader
+        brandTitle="Portal Calon Siswa"
+        brandSubtitle="SMKS Al Azhar Sempu"
+        activeLabel="Dashboard"
+        navItems={navItems}
+        primaryAction={primaryAction}
+        rightSlot={
+          <div className="flex items-center gap-2">
+            <div className="hidden min-w-0 text-right sm:block">
+              <p className="truncate text-xs font-semibold text-slate-700">{user?.nama}</p>
+              <p className="truncate text-[11px] text-slate-400">{user?.email}</p>
             </div>
-            <div className="min-w-0">
-              <p className="text-xs sm:text-sm font-semibold text-slate-800 truncate">{user?.nama}</p>
-              <p className="text-[11px] sm:text-xs text-slate-500 truncate max-w-[140px] sm:max-w-none">{user?.email}</p>
-            </div>
+            <button
+              type="button"
+              onClick={handleLogout}
+              aria-label="Keluar"
+              className="flex min-h-touch min-w-touch items-center justify-center gap-1.5 rounded-xl px-2.5 text-xs font-medium text-slate-500 transition-colors hover:bg-red-50 hover:text-red-600"
+            >
+              <LogOut className="h-4 w-4" />
+              <span className="hidden sm:inline">Keluar</span>
+            </button>
           </div>
-          <button
-            onClick={handleLogout}
-            className="flex items-center gap-1.5 text-xs sm:text-sm text-slate-500 hover:text-red-500 transition-colors shrink-0 py-1 px-2"
-          >
-            <LogOut className="w-4 h-4" />
-            <span>Keluar</span>
-          </button>
-        </div>
-      </nav>
+        }
+      />
 
-      <div className="max-w-3xl mx-auto px-3.5 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-5">
+      <div className="max-w-3xl mx-auto px-3.5 sm:px-4 pt-4 pb-24 sm:pt-6 sm:pb-6 space-y-4 sm:space-y-5">
         {gelombangAktif && (
           <Card className="p-3.5 sm:p-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
