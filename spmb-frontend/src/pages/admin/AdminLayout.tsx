@@ -14,13 +14,20 @@ const navItems = [
   { to: '/admin/admin-manajemen', icon: Shield, label: 'User' },
 ]
 
+const shortcuts = [
+  { ...navItems[1], shortLabel: 'Siswa' },
+  { ...navItems[2], shortLabel: 'Daftar' },
+  { ...navItems[8], shortLabel: 'Kartu' },
+  { ...navItems[4], shortLabel: 'Gelombang' },
+]
+
 export default function AdminLayout() {
   return (
     <AppShell
       navItems={navItems}
       brandTitle="Admin SPMB"
       brandSubtitle="Panel Administrasi"
-      primaryAction={navItems[1]}
+      shortcuts={shortcuts}
     />
   )
 }

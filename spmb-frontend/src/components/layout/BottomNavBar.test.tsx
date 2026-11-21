@@ -26,27 +26,42 @@ describe('BottomNavBar', () => {
     expect(screen.getByRole('navigation', { name: 'Navigasi bawah' })).toBeInTheDocument()
   })
 
-  it('menampilkan Beranda dan Menu tanpa aksi utama', () => {
+  it('menampilkan Beranda dan Lainnya tanpa pintasan', () => {
     renderBar()
     expect(screen.getByRole('link', { name: 'Beranda' })).toHaveAttribute('href', '/admin/dashboard')
-    expect(screen.getByRole('button', { name: 'Buka menu' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Lainnya' })).toBeInTheDocument()
     expect(screen.queryByRole('link', { name: 'Data Siswa' })).not.toBeInTheDocument()
   })
 
-  it('menampilkan aksi utama sesuai role', () => {
+  it('memakai shortLabel di bar tanpa mengubah tujuan rute', () => {
     renderBar({
-      primaryAction: { to: '/admin/siswa', icon: FileText, label: 'Data Siswa' },
+      shortcuts: [{ to: '/admin/siswa', icon: FileText, label: 'Data Siswa', shortLabel: 'Siswa' }],
     })
-    expect(screen.getByRole('link', { name: 'Data Siswa' })).toHaveAttribute('href', '/admin/siswa')
+    expect(screen.getByRole('link', { name: 'Siswa' })).toHaveAttribute('href', '/admin/siswa')
+    expect(screen.queryByRole('link', { name: 'Data Siswa' })).not.toBeInTheDocument()
   })
 
-  it('tombol Menu membuka sheet dan melaporkan status expanded', async () => {
-    const { onMenuClick } = renderBar()
-    const menu = screen.getByRole('button', { name: 'Buka menu' })
-    expect(menu).toHaveAttribute('aria-haspopup', 'dialog')
-    expect(menu).toHaveAttribute('aria-expanded', 'false')
+  it('menampilkan empat pintasan dan memakai label rapat', () => {
+    renderBar({
+      shortcuts: [
+        { to: '/admin/siswa', icon: FileText, label: 'Data Siswa', shortLabel: 'Siswa' },
+        { to: '/admin/daftarkan-siswa', icon: FileText, label: 'Daftarkan Siswa', shortLabel: 'Daftar' },
+        { to: '/admin/cetak-kartu', icon: FileText, label: 'Cetak Kartu', shortLabel: 'Kartu' },
+        { to: '/admin/gelombang', icon: FileText, label: 'Gelombang' },
+      ],
+    })
+    expect(screen.getAllByRole('link')).toHaveLength(5)
+    expect(screen.getByRole('link', { name: 'Beranda' }).className).toContain('text-[10px]')
+    expect(screen.getByRole('button', { name: 'Lainnya' })).toBeInTheDocument()
+  })
 
-    await userEvent.click(menu)
+  it('tombol Lainnya membuka sheet dan melaporkan status expanded', async () => {
+    const { onMenuClick } = renderBar()
+    const more = screen.getByRole('button', { name: 'Lainnya' })
+    expect(more).toHaveAttribute('aria-haspopup', 'dialog')
+    expect(more).toHaveAttribute('aria-expanded', 'false')
+
+    await userEvent.click(more)
     expect(onMenuClick).toHaveBeenCalledOnce()
   })
 
@@ -55,10 +70,29 @@ describe('BottomNavBar', () => {
     expect(screen.getByRole('link', { name: 'Beranda' })).toHaveAttribute('aria-current', 'page')
   })
 
+  it('menandai tombol Lainnya sebagai terbuka saat sheet aktif', () => {
+    renderBar({ menuOpen: true })
+    const more = screen.getByRole('button', { name: 'Lainnya' })
+    expect(more).toHaveAttribute('aria-expanded', 'true')
+    expect(more.className).toContain('bg-brand-green-dark')
+  })
+
+  it('membedakan afordansi tombol Lainnya dari item navigasi', () => {
+    renderBar()
+    const more = screen.getByRole('button', { name: 'Lainnya' })
+    // Solid hijau + shadow + ikon 28px supaya tombol jelas dan mudah disentuh.
+    expect(more.className).toContain('bg-brand-green')
+    expect(more.className).toContain('text-white')
+    expect(more.className).toContain('shadow-md')
+    expect(more.className).toContain('font-semibold')
+    expect(more.querySelector('svg')).toHaveClass('h-7')
+  })
+
   it('memakai kelas target sentuh dan menyembunyikan bar saat cetak', () => {
     renderBar()
-    const menu = screen.getByRole('button', { name: 'Buka menu' })
-    expect(menu.className).toContain('min-h-touch')
+    const more = screen.getByRole('button', { name: 'Lainnya' })
+    expect(more.className).toContain('min-h-[3.25rem]')
+    expect(more.className).toContain('min-w-touch')
 
     const nav = screen.getByRole('navigation', { name: 'Navigasi bawah' })
     expect(nav.className).toContain('print:hidden')

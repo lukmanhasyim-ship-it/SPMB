@@ -4,7 +4,7 @@ import { GraduationCap, LogOut, PanelLeftClose, PanelLeftOpen } from 'lucide-rea
 import type { ComponentType } from 'react'
 import { useAuthStore } from '../../store/authStore'
 import Modal from '../ui/Modal'
-import BottomNavBar from './BottomNavBar'
+import BottomNavBar, { type BottomNavAction } from './BottomNavBar'
 
 export interface NavItem {
   to: string
@@ -16,8 +16,8 @@ interface AppShellProps {
   navItems: NavItem[]
   brandTitle: string
   brandSubtitle: string
-  /** Aksi utama di bottom bar mobile; biasanya navItems[1]. */
-  primaryAction?: NavItem
+  /** Halaman yang dipin ke bottom bar; sisanya tetap ada di sheet. */
+  shortcuts?: BottomNavAction[]
 }
 
 const HARI = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu']
@@ -31,7 +31,7 @@ function formatTanggalWIB(): string {
   return `${HARI[now.getDay()]}, ${now.getDate()} ${BULAN[now.getMonth()]} ${now.getFullYear()}`
 }
 
-export default function AppShell({ navItems, brandTitle, brandSubtitle, primaryAction }: AppShellProps) {
+export default function AppShell({ navItems, brandTitle, brandSubtitle, shortcuts = [] }: AppShellProps) {
   const navigate = useNavigate()
   const { user, logout } = useAuthStore()
   const location = useLocation()
@@ -63,6 +63,13 @@ export default function AppShell({ navItems, brandTitle, brandSubtitle, primaryA
     return parent?.label || brandTitle
   }, [navItems, location.pathname, brandTitle])
 
+  // Sheet hanya dibuka dari bottom bar (< lg), jadi home dan pintasan yang
+  // sudah tampil di bar tidak perlu diulang di dalam sheet.
+  const pinnedRoutes = useMemo(
+    () => new Set([navItems[0]?.to, ...shortcuts.map((item) => item.to)]),
+    [navItems, shortcuts],
+  )
+
   const handleLogout = () => {
     logout()
     navigate('/')
@@ -92,9 +99,11 @@ export default function AppShell({ navItems, brandTitle, brandSubtitle, primaryA
     </div>
   )
 
-  const renderNav = (light: boolean) => (
+  const renderNav = (light: boolean, hidePinned = false) => {
+    const items = hidePinned ? navItems.filter((item) => !pinnedRoutes.has(item.to)) : navItems
+    return (
     <nav className="dash-scroll flex-1 space-y-1 overflow-y-auto px-3">
-      {navItems.map((item) => (
+      {items.map((item) => (
         <NavLink
           key={item.to}
           to={item.to}
@@ -135,7 +144,8 @@ export default function AppShell({ navItems, brandTitle, brandSubtitle, primaryA
         </NavLink>
       ))}
     </nav>
-  )
+    )
+  }
 
   const userFooter = (
     <div className="p-3 border-t border-white/10">
@@ -223,7 +233,7 @@ export default function AppShell({ navItems, brandTitle, brandSubtitle, primaryA
 
       <BottomNavBar
         homeTo={navItems[0].to}
-        primaryAction={primaryAction}
+        shortcuts={shortcuts}
         onMenuClick={() => setDrawerOpen(true)}
         menuOpen={drawerOpen}
         className="lg:hidden"
@@ -238,7 +248,7 @@ export default function AppShell({ navItems, brandTitle, brandSubtitle, primaryA
         <p className="px-3 pb-2 text-[11px] font-bold uppercase tracking-widest text-brand-green">
           {brandTitle}
         </p>
-        {renderNav(true)}
+        {renderNav(true, true)}
         <div className="mt-4 border-t border-slate-100 pt-3">
           <div className="flex items-center gap-2 px-3 text-xs text-slate-500">
             <span className="truncate font-semibold text-slate-700">{user?.nama}</span>

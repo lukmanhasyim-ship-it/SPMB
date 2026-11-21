@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { LogOut, User, MessageCircle, FileText, UserCheck, MapPin, Award, Newspaper, Loader2, Home, ClipboardList, CreditCard } from 'lucide-react'
+import { User, MessageCircle, FileText, UserCheck, MapPin, Award, Newspaper, Loader2 } from 'lucide-react'
 import { useAuthStore } from '../../store/authStore'
-import { isPendaftaranAwalLengkap, useStudentStore } from '../../store/studentStore'
-import ResponsiveHeader from '../../components/layout/ResponsiveHeader'
+import { useStudentStore } from '../../store/studentStore'
+import StudentShell from './StudentShell'
 import Card from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
 import { api } from '../../services/api'
@@ -21,7 +21,7 @@ const statusStyle: Record<string, string> = {
 
 export default function DashboardSiswa() {
   const navigate = useNavigate()
-  const { user, logout } = useAuthStore()
+  const { user } = useAuthStore()
   const data = useStudentStore((s) => s.data)
   const steps = useStudentStore((s) => s.steps)
   const loadSiswa = useStudentStore((s) => s.loadSiswa)
@@ -70,60 +70,15 @@ export default function DashboardSiswa() {
     navigate('/student/wizard?mode=awal')
   }
 
-  const handleLogout = () => {
-    logout()
-    navigate('/')
-  }
-
   const stepIcons = [FileText, UserCheck, MapPin, User, Award]
   const stepLabels = ['Program Keahlian', 'Data Pribadi', 'Alamat & Peta', 'Orang Tua/Wali', 'Berkas & Prestasi']
   const filteredEvents = events.filter(
     (e) => e.target_gelombang === 'Semua' || e.target_gelombang === data.gelombang
   )
 
-  const navItems = [
-    { to: '/student/dashboard', icon: Home, label: 'Dashboard' },
-    { to: '/student/wizard', icon: ClipboardList, label: 'Formulir' },
-    { to: '/student/kartu-pendaftaran', icon: CreditCard, label: 'Bukti Pendaftaran' },
-  ]
-
-  // Aksi utama mengikuti progres: calon yang belum lengkap diarahkan ke wizard,
-  // sedangkan yang sudah lengkap langsung ke bukti pendaftaran. Saat data masih
-  // dimuat, tombol disembunyikan agar label tidak berubah-ubah.
-  const primaryAction = initialLoading || loading
-    ? undefined
-    : isPendaftaranAwalLengkap(data)
-      ? { ...navItems[2], label: 'Lihat Kartu' }
-      : { ...navItems[1], label: 'Lanjut Daftar' }
-
   return (
-    <div className="min-h-screen bg-slate-50">
-      <ResponsiveHeader
-        brandTitle="Portal Calon Siswa"
-        brandSubtitle="SMKS Al Azhar Sempu"
-        activeLabel="Dashboard"
-        navItems={navItems}
-        primaryAction={primaryAction}
-        rightSlot={
-          <div className="flex items-center gap-2">
-            <div className="hidden min-w-0 text-right sm:block">
-              <p className="truncate text-xs font-semibold text-slate-700">{user?.nama}</p>
-              <p className="truncate text-[11px] text-slate-400">{user?.email}</p>
-            </div>
-            <button
-              type="button"
-              onClick={handleLogout}
-              aria-label="Keluar"
-              className="flex min-h-touch min-w-touch items-center justify-center gap-1.5 rounded-xl px-2.5 text-xs font-medium text-slate-500 transition-colors hover:bg-red-50 hover:text-red-600"
-            >
-              <LogOut className="h-4 w-4" />
-              <span className="hidden sm:inline">Keluar</span>
-            </button>
-          </div>
-        }
-      />
-
-      <div className="max-w-3xl mx-auto px-3.5 sm:px-4 pt-4 pb-24 sm:pt-6 sm:pb-6 space-y-4 sm:space-y-5">
+    <StudentShell hideShortcuts={initialLoading}>
+      <div className="max-w-3xl mx-auto px-3.5 sm:px-4 pt-4 sm:pt-6 space-y-4 sm:space-y-5">
         {gelombangAktif && (
           <Card className="p-3.5 sm:p-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -372,6 +327,6 @@ export default function DashboardSiswa() {
           </div>
         )}
       </div>
-    </div>
+    </StudentShell>
   )
 }

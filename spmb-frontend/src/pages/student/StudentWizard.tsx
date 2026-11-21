@@ -7,6 +7,7 @@ import Step2Pribadi from './steps/Step2Pribadi'
 import Step3Alamat from './steps/Step3Alamat'
 import Step4Ortu from './steps/Step4Ortu'
 import Step5Berkas from './steps/Step5Berkas'
+import StudentShell from './StudentShell'
 
 export default function StudentWizard() {
   const navigate = useNavigate()
@@ -88,5 +89,9 @@ export default function StudentWizard() {
     }
   }
 
-  return <>{renderStep()}</>
+  return (
+    <StudentShell>
+      {renderStep()}
+    </StudentShell>
+  )
 }

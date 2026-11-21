@@ -7,71 +7,90 @@ export interface BottomNavAction {
   to: string
   icon: ComponentType<{ className?: string }>
   label: string
+  /** Label ringkas khusus bar; sheet dan breadcrumb tetap memakai `label`. */
+  shortLabel?: string
 }
 
 export interface BottomNavBarProps {
-  /** Rute beranda role (item pertama dari navItems). */
+  /** Rute beranda (selalu jadi item pertama). */
   homeTo: string
-  /** Aksi utama spesifik role. Bila kosong, bar hanya berisi Beranda + Menu. */
-  primaryAction?: BottomNavAction
+  /** Halaman yang dipin ke bar. Sisanya diakses lewat tombol Lainnya. */
+  shortcuts?: BottomNavAction[]
   onMenuClick: () => void
   menuOpen: boolean
-  /** Kontrol breakpoint: 'sm:hidden' untuk siswa, 'lg:hidden' untuk admin/guru/MPLS. */
+  /** Kontrol breakpoint: 'sm:hidden' untuk siswa, 'lg:hidden' untuk role lain. */
   className?: string
 }
 
-function itemClass(isActive: boolean): string {
-  return `flex min-h-touch min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-xl px-1 py-1.5 text-[11px] font-medium leading-tight transition-colors ${
+function itemClass(isActive: boolean, dense: boolean): string {
+  return `flex min-h-[3.25rem] min-w-touch flex-1 flex-col items-center justify-center gap-1 rounded-xl px-1 py-2 leading-tight transition-colors ${
+    dense ? 'text-[10px]' : 'text-[11px]'
+  } ${
     isActive
       ? 'bg-brand-green-light text-brand-green-dark'
       : 'text-slate-500 hover:bg-slate-50 hover:text-brand-green'
   }`
 }
 
+/** Tombol Lainnya sengaja dibedakan: solid hijau + ikon lebih besar + shadow. */
+function menuClass(open: boolean, dense: boolean): string {
+  return `flex min-h-[3.25rem] min-w-touch flex-1 flex-col items-center justify-center gap-1 rounded-xl px-1 py-2 font-semibold leading-tight shadow-md shadow-brand-green/20 transition-colors ${
+    dense ? 'text-[10px]' : 'text-xs'
+  } ${
+    open
+      ? 'bg-brand-green-dark text-white'
+      : 'bg-brand-green text-white hover:bg-brand-green-dark'
+  }`
+}
+
 /**
- * Bilah navigasi bawah untuk layar sempit. Semua target sentuh minimal 44px
- * dan area aman iPhone (home indicator) dihormati lewat safe-area-inset.
+ * Bilah navigasi bawah untuk layar sempit. Beranda + pintasan + Lainnya
+ * semuanya memiliki target sentuh 52px (di atas minimum 44px) dan menghormati
+ * safe-area iPhone. Ikon Lainnya diperbesar supaya jelas sebagai tombol.
  */
 export default function BottomNavBar({
   homeTo,
-  primaryAction,
+  shortcuts = [],
   onMenuClick,
   menuOpen,
   className = 'sm:hidden',
 }: BottomNavBarProps) {
-  const PrimaryIcon = primaryAction?.icon
-
   // Portal ke body supaya `fixed` tidak pernah ter-contained oleh ancestor yang
   // sedang beranimasi (mis. `.page-fade-in` memakai transform saat fade-in 300ms).
-  // Tanpa ini, bottom bar sempat menempel di bawah dokumen, bukan viewport.
+  const dense = shortcuts.length >= 4
+
   return createPortal(
     <nav
       aria-label="Navigasi bawah"
       className={`fixed inset-x-0 bottom-0 z-40 border-t border-slate-200/80 bg-white/95 pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_16px_rgba(15,23,42,0.06)] backdrop-blur-md print:hidden ${className}`}
     >
-      <div className="mx-auto flex w-full max-w-md items-stretch gap-1 px-2 pt-1">
-        <NavLink to={homeTo} end className={({ isActive }) => itemClass(isActive)}>
-          <Home className="h-5 w-5 shrink-0" />
+      <div
+        className={`mx-auto flex w-full max-w-md items-stretch pt-1 ${
+          dense ? 'gap-0.5 px-1' : 'gap-1 px-2'
+        }`}
+      >
+        <NavLink to={homeTo} end className={({ isActive }) => itemClass(isActive, dense)}>
+          <Home className="h-6 w-6 shrink-0" />
           <span className="w-full truncate text-center">Beranda</span>
         </NavLink>
 
-        {primaryAction && PrimaryIcon && (
-          <NavLink to={primaryAction.to} className={({ isActive }) => itemClass(isActive)}>
-            <PrimaryIcon className="h-5 w-5 shrink-0" />
-            <span className="w-full truncate text-center">{primaryAction.label}</span>
+        {shortcuts.map((shortcut) => (
+          <NavLink key={shortcut.to} to={shortcut.to} className={({ isActive }) => itemClass(isActive, dense)}>
+            <shortcut.icon className="h-6 w-6 shrink-0" />
+            <span className="w-full truncate text-center">{shortcut.shortLabel ?? shortcut.label}</span>
           </NavLink>
-        )}
+        ))}
 
         <button
           type="button"
           onClick={onMenuClick}
-          aria-label="Buka menu"
+          aria-label="Lainnya"
           aria-haspopup="dialog"
           aria-expanded={menuOpen}
-          className={itemClass(menuOpen)}
+          className={menuClass(menuOpen, dense)}
         >
-          <Menu className="h-5 w-5 shrink-0" />
-          <span className="w-full truncate text-center">Menu</span>
+          <Menu className="h-7 w-7 shrink-0" strokeWidth={2.5} />
+          <span className="w-full truncate text-center">Lainnya</span>
         </button>
       </div>
     </nav>,

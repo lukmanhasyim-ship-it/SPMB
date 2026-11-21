@@ -13,6 +13,7 @@ import { api } from '../../services/api'
 import { findLinkGroupWa } from '../../utils/waGroup'
 import { a4SinglePrintCss, kartuPrintCss } from '../../utils/kartuPrint'
 import { useKartuPrint } from '../../hooks/useKartuPrint'
+import StudentShell from './StudentShell'
 
 export default function KartuPendaftaran() {
   const navigate = useNavigate()
@@ -52,23 +53,27 @@ export default function KartuPendaftaran() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <Loader />
-      </div>
+      <StudentShell>
+        <div className="flex min-h-[60vh] items-center justify-center">
+          <Loader />
+        </div>
+      </StudentShell>
     )
   }
 
   if (!data.idPendaftaran || !isPendaftaranAwalLengkap(data)) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
-        <Card className="w-full max-w-md p-6 text-center">
-          <h2 className="text-lg font-semibold text-slate-800">Data pendaftaran belum siap</h2>
-          <p className="mt-2 text-sm text-slate-500">Lengkapi data pendaftaran terlebih dahulu.</p>
-          <Button onClick={() => navigate('/student/wizard?mode=awal&step=3')} className="mt-5">
-            Kembali ke Formulir
-          </Button>
-        </Card>
-      </div>
+      <StudentShell>
+        <div className="flex min-h-[60vh] items-center justify-center p-4">
+          <Card className="w-full max-w-md p-6 text-center">
+            <h2 className="text-lg font-semibold text-slate-800">Data pendaftaran belum siap</h2>
+            <p className="mt-2 text-sm text-slate-500">Lengkapi data pendaftaran terlebih dahulu.</p>
+            <Button onClick={() => navigate('/student/wizard?mode=awal&step=3')} className="mt-5">
+              Kembali ke Formulir
+            </Button>
+          </Card>
+        </div>
+      </StudentShell>
     )
   }
 
@@ -91,7 +96,7 @@ export default function KartuPendaftaran() {
   const css = printMode === 'kartu' ? kartuPrintCss() : a4SinglePrintCss()
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <StudentShell>
       {printMode && <style>{css}</style>}
 
       <div className="kartu-screen-shell min-h-screen p-4 sm:p-8">
@@ -148,6 +153,6 @@ export default function KartuPendaftaran() {
           </div>
         </div>
       )}
-    </div>
+    </StudentShell>
   )
 }
