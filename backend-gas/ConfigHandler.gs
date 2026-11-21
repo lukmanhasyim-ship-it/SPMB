@@ -1,9 +1,11 @@
-var EVENT_TEXT_COLUMNS = ['tanggal_pelaksanaan', 'waktu_pelaksanaan']
+﻿var EVENT_TEXT_COLUMNS = ['tanggal_pelaksanaan', 'waktu_pelaksanaan']
 var GELOMBANG_TEXT_COLUMNS = ['tanggal_mulai', 'tanggal_selesai']
 
 function handleGetGelombang() {
   initializeSheets()
-  var data = getAllRows('Pengaturan_Gelombang')
+  var data = cacheGetOrFetch_(CACHE_KEY_GEL, function() {
+    return getAllRows('Pengaturan_Gelombang');
+  }, CACHE_TTL_DEFAULT);
   return { status: 'ok', data: data }
 }
 
@@ -37,11 +39,14 @@ function handleUpdateGelombang(params) {
 
 function handleGetConfig() {
   initializeSheets()
-  var configs = getAllRows('Sistem_Config')
-  var result = {}
-  for (var i = 0; i < configs.length; i++) {
-    result[configs[i].key] = configs[i].value
-  }
+  var result = cacheGetOrFetch_(CACHE_KEY_CFG, function() {
+    var configs = getAllRows('Sistem_Config');
+    var res = {};
+    for (var i = 0; i < configs.length; i++) {
+      res[configs[i].key] = configs[i].value;
+    }
+    return res;
+  }, CACHE_TTL_DEFAULT);
   return { status: 'ok', data: result }
 }
 
@@ -208,3 +213,7 @@ function getConfigValue(configs, key, defaultValue) {
   }
   return defaultValue
 }
+
+// ==================== CACHE HELPERS ====================
+
+

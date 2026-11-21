@@ -1,6 +1,8 @@
 import { useLayoutEffect, useRef, useState, type ReactNode } from 'react'
 import { formatWIBShort } from '../../../utils/dateUtils'
 import { DATA_JURUSAN } from '../../../data/constants'
+import { usePreviewScale } from '../../../hooks/usePreviewScale'
+import { mmToPx } from '../../../utils/kartuPrint'
 
 interface FormulirPendaftaranProps {
   data: Record<string, unknown>
@@ -137,6 +139,11 @@ const contentMarginStyle: React.CSSProperties = {
 }
 
 const FIT_TARGET_PX = 1200
+
+// Ukuran kertas formulir. Dipakai hanya untuk pratinjau layar; area cetak tetap
+// memakai satuan mm di `sheetStyle` / `formPageStyle`.
+const FORM_W_PX = mmToPx(210)
+const FORM_H_PX = mmToPx(330)
 
 function FormBody({ data }: { data: Record<string, unknown> }) {
   const tglLahir = data.tanggal_lahir ? formatWIBShort(String(data.tanggal_lahir)) : '-'
@@ -394,6 +401,9 @@ function FormBody({ data }: { data: Record<string, unknown> }) {
 export default function FormulirPendaftaran({ data }: FormulirPendaftaranProps) {
   const contentRef = useRef<HTMLDivElement | null>(null)
   const [scale, setScale] = useState(1)
+  // Zoom vertikal di atas tetap dipertahankan karena hasil cetak/JPG bergantung
+  // padanya. Scaling lebar ini hanya membungkus pratinjau layar.
+  const preview = usePreviewScale({ widthPx: FORM_W_PX, heightPx: FORM_H_PX })
 
   useLayoutEffect(() => {
     const content = contentRef.current
@@ -429,13 +439,19 @@ export default function FormulirPendaftaran({ data }: FormulirPendaftaranProps) 
     <>
       <style>{printCss}</style>
 
-      <div className="screen-form-shell mx-auto w-fit p-3">
-        <div style={previewShellStyle}>
-          <div id="area-cetak" style={sheetStyle}>
-            <div className="form-page relative" style={formPageStyle}>
-              <div style={contentMarginStyle}>
-                <div ref={contentRef} style={contentStyle}>
-                  <FormBody data={data} />
+      <div className="screen-form-shell mx-auto w-full p-3">
+        <div ref={preview.containerRef} className="dash-scroll w-full overflow-x-auto">
+          <div style={{ ...preview.frameStyle, margin: '0 auto' }}>
+            <div style={preview.contentStyle}>
+              <div style={previewShellStyle}>
+                <div id="area-cetak" style={sheetStyle}>
+                  <div className="form-page relative" style={formPageStyle}>
+                    <div style={contentMarginStyle}>
+                      <div ref={contentRef} style={contentStyle}>
+                        <FormBody data={data} />
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

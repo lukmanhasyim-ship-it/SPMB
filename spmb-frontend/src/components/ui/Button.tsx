@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 
-interface ButtonProps {
+export interface ButtonProps {
   children: ReactNode
   onClick?: () => void
   type?: 'button' | 'submit'
@@ -21,7 +21,9 @@ export default function Button({
   className = '',
   fullWidth = false,
 }: ButtonProps) {
-  const base = 'px-6 py-2.5 rounded-xl font-medium transition-all duration-300 flex items-center justify-center gap-2 text-sm'
+  // min-h-touch menjaga target sentuh >= 44px pada layar sentuh tanpa mengubah
+  // tampilan desktop. px mengecil diode layar sempit supaya teks tidak wrap.
+  const base = 'min-h-touch shrink-0 px-4 sm:px-6 py-2.5 rounded-xl font-medium transition-all duration-300 flex items-center justify-center gap-2 text-sm'
   const variants: Record<string, string> = {
     primary: 'bg-brand-green hover:bg-brand-green-dark text-white shadow-md hover:shadow-lg disabled:bg-gray-300 disabled:text-gray-500 disabled:shadow-none',
     secondary: 'bg-brand-green-light text-brand-green-dark hover:bg-brand-green hover:text-white shadow-sm hover:shadow-md disabled:bg-gray-200 disabled:text-gray-400',

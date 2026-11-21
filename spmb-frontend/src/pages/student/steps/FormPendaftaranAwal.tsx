@@ -26,7 +26,7 @@ export default function FormPendaftaranAwal() {
     if (!data.idPendaftaran && user?.email) {
       loadSiswa(user.email)
     }
-  }, [])
+  }, [data.idPendaftaran, loadSiswa, user?.email])
 
   useEffect(() => {
     if (data.koordinatMaps) {

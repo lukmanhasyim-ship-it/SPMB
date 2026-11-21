@@ -66,7 +66,11 @@ test('JPG hasil download identik dengan preview di layar', async ({ page }) => {
   await mockBackend(page, { getSiswa: { status: 'ok', data: [STUDENT] } })
   await page.goto('/admin/formulir')
   await page.waitForLoadState('networkidle').catch(() => {})
-  await expect(page.getByText(STUDENT.nama_lengkap)).toBeVisible({ timeout: 15_000 })
+  // ResponsiveTable menyisipkan versi kartu (nomor + nama) dan tabel desktop.
+  // Batasi ke sel tabel supaya tidak ambigu di mode strict Playwright.
+  await expect(
+    page.getByRole('table').getByText(STUDENT.nama_lengkap, { exact: true }),
+  ).toBeVisible({ timeout: 15_000 })
   await page.getByRole('button', { name: /Generate Formulir/i }).click()
   await expect(page.locator('#area-cetak .form-page')).toBeVisible()
   await page.waitForLoadState('load')

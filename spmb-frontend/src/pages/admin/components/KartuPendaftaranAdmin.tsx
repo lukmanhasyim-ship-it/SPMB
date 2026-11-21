@@ -7,9 +7,10 @@ interface KartuPendaftaranAdminProps {
   linkGroupWA?: string
   /** Hanya diisi pada tampilan layar; area cetak memakai .kartu-print-root. */
   id?: string
+  mode?: 'screen' | 'print'
 }
 
-export default function KartuPendaftaranAdmin({ data, linkGroupWA = '', id }: KartuPendaftaranAdminProps) {
+export default function KartuPendaftaranAdmin({ data, linkGroupWA = '', id, mode }: KartuPendaftaranAdminProps) {
   const jurusanLabel = DATA_JURUSAN.find((j) => j.value === data.pilihan_jurusan)?.label || data.pilihan_jurusan
 
   const kartuData: KartuData = {
@@ -26,5 +27,5 @@ export default function KartuPendaftaranAdmin({ data, linkGroupWA = '', id }: Ka
     linkGroupWA,
   }
 
-  return <BuktiPendaftaranCard id={id} data={kartuData} />
+  return <BuktiPendaftaranCard id={id} data={kartuData} mode={mode} />
 }

@@ -50,6 +50,8 @@ export default function MplsScan() {
   type QrScanner = { stop: () => Promise<unknown>; clear: () => void }
   const scannerRef = useRef<QrScanner | null>(null)
   const lastScanRef = useRef<{ text: string; time: number }>({ text: '', time: 0 })
+  const cameraBoxRef = useRef<HTMLDivElement | null>(null)
+  const qrboxSizeRef = useRef(250)
   const [cameraOn, setCameraOn] = useState(false)
   const [cameraStarting, setCameraStarting] = useState(false)
   const [cameraError, setCameraError] = useState('')
@@ -166,9 +168,10 @@ export default function MplsScan() {
         formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE],
       })
       scannerRef.current = qrCode
+      const qrbox = qrboxSizeRef.current
       await qrCode.start(
         { facingMode: 'environment' },
-        { fps: 10, qrbox: { width: 250, height: 250 } },
+        { fps: 10, qrbox: { width: qrbox, height: qrbox } },
         (decodedText) => {
           handleDecodedText(decodedText)
         },
@@ -218,6 +221,28 @@ export default function MplsScan() {
     }
   }, [])
 
+  // Ukur qrbox dari lebar kontainer agar tidak melebar di layar sempit.
+  useEffect(() => {
+    const el = cameraBoxRef.current
+    if (!el) return
+
+    const updateQrbox = () => {
+      const width = el.clientWidth || window.innerWidth
+      qrboxSizeRef.current = Math.min(250, Math.max(200, width - 32))
+    }
+
+    updateQrbox()
+
+    if (typeof ResizeObserver !== 'undefined') {
+      const observer = new ResizeObserver(updateQrbox)
+      observer.observe(el)
+      return () => observer.disconnect()
+    }
+
+    window.addEventListener('resize', updateQrbox)
+    return () => window.removeEventListener('resize', updateQrbox)
+  }, [])
+
   const resetScan = () => {
     setScanResult(null)
     setScanError('')
@@ -249,7 +274,7 @@ export default function MplsScan() {
             Pemindai Absen
           </h3>
 
-          <div className="relative w-full overflow-hidden rounded-xl bg-slate-900">
+          <div ref={cameraBoxRef} className="relative w-full overflow-hidden rounded-xl bg-slate-900">
             <div
               id={READER_ID}
               className={`w-full h-64 sm:h-80 ${cameraOn ? 'block' : 'hidden'}`}
@@ -266,7 +291,7 @@ export default function MplsScan() {
             <div className="flex flex-col items-center justify-center h-56 rounded-xl border-2 border-dashed border-slate-200 text-slate-400">
               <ScanLine className="w-10 h-10 mb-2" />
               <p className="text-sm">Kamera belum aktif</p>
-              <p className="text-xs mt-1">Klik tombol di bawah untuk mulai memindai</p>
+              <p className="text-sm mt-1">Klik tombol di bawah untuk mulai memindai</p>
             </div>
           )}
 
@@ -285,24 +310,25 @@ export default function MplsScan() {
           </div>
 
           {cameraError && (
-            <div className="mt-3 p-3 rounded-xl bg-amber-50 border border-amber-100 text-xs text-amber-700">
+            <div className="mt-3 p-3 rounded-xl bg-amber-50 border border-amber-100 text-sm text-amber-700">
               {cameraError}
             </div>
           )}
 
           <div className="mt-4 pt-4 border-t border-slate-100">
-            <label className="text-xs font-medium text-slate-600 mb-1 block">
+            <label className="text-sm font-medium text-slate-600 mb-1 block">
               Atau input manual ID Pendaftaran
             </label>
-            <div className="flex gap-2">
+            <div className="flex flex-col gap-2 sm:flex-row">
               <input
                 type="text"
                 value={manualId}
                 onChange={(e) => setManualId(e.target.value)}
                 placeholder="SPMB-2627-G1-XXXX"
-                className="flex-1 px-3 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green/30"
+                aria-label="ID pendaftaran untuk pencarian manual"
+                className="min-h-touch w-full min-w-0 flex-1 px-3 py-2 rounded-xl border border-slate-200 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-green/30"
               />
-              <Button variant="secondary" onClick={handleManual}>
+              <Button variant="secondary" fullWidth className="sm:w-auto" onClick={handleManual}>
                 Cari
               </Button>
             </div>
@@ -349,7 +375,8 @@ export default function MplsScan() {
                   <h3 className="text-sm font-semibold text-slate-700">Data Siswa Terdeteksi</h3>
                   <button
                     onClick={resetScan}
-                    className="flex items-center gap-1 text-xs text-slate-400 hover:text-brand-green transition-colors"
+                    aria-label="Scan ulang QR code"
+                    className="flex min-h-touch shrink-0 items-center gap-1 rounded-xl px-2 text-sm text-slate-400 transition-colors hover:text-brand-green"
                   >
                     <RefreshCw className="w-3.5 h-3.5" />
                     Scan Lagi
@@ -359,27 +386,27 @@ export default function MplsScan() {
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between border-b border-slate-50 pb-2">
                   <span className="text-slate-500">ID Pendaftaran</span>
-                  <span className="font-medium text-brand-green">{scanResult.id_pendaftaran}</span>
+                  <span className="min-w-0 break-all text-right font-medium text-brand-green">{scanResult.id_pendaftaran}</span>
                 </div>
                 <div className="flex justify-between border-b border-slate-50 pb-2">
                   <span className="text-slate-500">Nama</span>
-                  <span className="font-semibold text-slate-800 text-right">{scanResult.nama_lengkap || '-'}</span>
+                  <span className="min-w-0 break-words text-right font-semibold text-slate-800">{scanResult.nama_lengkap || '-'}</span>
                 </div>
                 <div className="flex justify-between border-b border-slate-50 pb-2">
                   <span className="text-slate-500">Email</span>
-                  <span className="text-slate-700 text-right">{scanResult.email || '-'}</span>
+                  <span className="min-w-0 break-all text-right text-slate-700">{scanResult.email || '-'}</span>
                 </div>
                 <div className="flex justify-between border-b border-slate-50 pb-2">
                   <span className="text-slate-500">Program Keahlian</span>
-                  <span className="text-slate-700 text-right">{scanResult.pilihan_jurusan || '-'}</span>
+                  <span className="min-w-0 break-words text-right text-slate-700">{scanResult.pilihan_jurusan || '-'}</span>
                 </div>
                 <div className="flex justify-between border-b border-slate-50 pb-2">
                   <span className="text-slate-500">Gelombang</span>
-                  <span className="text-slate-700">{scanResult.gelombang || '-'}</span>
+                  <span className="min-w-0 break-words text-right text-slate-700">{scanResult.gelombang || '-'}</span>
                 </div>
                 <div className="flex justify-between border-b border-slate-50 pb-2">
                   <span className="text-slate-500">Status Pendaftaran</span>
-                  <span className="text-slate-700">{scanResult.status_pendaftaran || '-'}</span>
+                  <span className="min-w-0 break-words text-right text-slate-700">{scanResult.status_pendaftaran || '-'}</span>
                 </div>
               </div>
 
@@ -417,7 +444,7 @@ export default function MplsScan() {
                       >
                         <span className={`font-medium shrink-0 ${done ? 'text-brand-green-dark' : ''}`}>{s}</span>
                         {done ? (
-                          <span className="text-xs text-brand-green-dark text-right">
+                          <span className="min-w-0 break-words text-right text-xs text-brand-green-dark">
                             Absensi a.n {scanResult.nama_lengkap} sudah dilakukan {done.scan_oleh || '-'} pada{' '}
                             {String(done.jam).slice(0, 5)}
                           </span>

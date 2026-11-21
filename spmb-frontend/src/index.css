@@ -25,6 +25,9 @@ body {
 .dash-bg {
   position: relative;
   min-height: 100vh;
+  /* Hanya untuk menahan orb dekoratif. Pratinjau A4/kartu kini dibatasi di
+     kontainer masing-masing (lihat usePreviewScale + overflow-x-auto), jadi clip
+     ini tidak lagi menyembunyikan konten yang bisa digeser. */
   overflow-x: clip;
   background:
     radial-gradient(1000px 500px at 100% -10%, rgba(0, 118, 67, 0.12), transparent 60%),
@@ -80,7 +83,7 @@ body {
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   padding: 0.75rem 1rem;
-  font-size: 0.68rem;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -90,7 +93,7 @@ body {
 }
 .dash-table tbody td {
   padding: 0.75rem 1rem;
-  font-size: 0.8rem;
+  font-size: 0.875rem;
   color: #475569;
   border-bottom: 1px solid #f1f5f9;
 }

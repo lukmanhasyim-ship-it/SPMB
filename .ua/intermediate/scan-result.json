@@ -1,0 +1,1212 @@
+{
+  "name": "spmb-frontend",
+  "description": "SPMB adalah portal penerimaan murid baru berbasis web untuk SMKS Al Azhar Sempu yang mengelola proses pendaftaran mulai dari pengisian formulir hingga pendataan MPLS, dengan frontend React 18, TypeScript, dan Vite serta backend Google Apps Script yang terhubung ke Google Sheets, Google Drive, dan Google Calendar. Pengguna masuk melalui Google Sign-In dan diarahkan ke area sesuai perannya: calon murid, admin, guru SMKS, guru SMP/MTs, atau panitia MPLS. Catatan: proyek ini memiliki lebih dari 100 file sumber; pertimbangkan untuk membatasi analisis pada subdirektori tertentu agar lebih cepat.",
+  "languages": [
+    "cache",
+    "config",
+    "css",
+    "gs",
+    "html",
+    "javascript",
+    "json",
+    "markdown",
+    "txt",
+    "typescript",
+    "unknown"
+  ],
+  "frameworks": [
+    "React",
+    "Vite",
+    "Vitest",
+    "Tailwind CSS",
+    "Zustand"
+  ],
+  "files": [
+    {
+      "path": ".ua/config.json",
+      "language": "json",
+      "sizeLines": 1,
+      "fileCategory": "config"
+    },
+    {
+      "path": "README.md",
+      "language": "markdown",
+      "sizeLines": 247,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "RPD.md",
+      "language": "markdown",
+      "sizeLines": 132,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "backend-gas/.clasp.json",
+      "language": "json",
+      "sizeLines": 1,
+      "fileCategory": "config"
+    },
+    {
+      "path": "backend-gas/.claspignore",
+      "language": "unknown",
+      "sizeLines": 7,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backend-gas/AdminHandler.gs",
+      "language": "gs",
+      "sizeLines": 148,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backend-gas/AuthHandler.gs",
+      "language": "gs",
+      "sizeLines": 265,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backend-gas/CacheServiceHelper.gs",
+      "language": "gs",
+      "sizeLines": 76,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backend-gas/CalendarHandler.gs",
+      "language": "gs",
+      "sizeLines": 104,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backend-gas/Code.gs",
+      "language": "gs",
+      "sizeLines": 133,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backend-gas/ConfigHandler.gs",
+      "language": "gs",
+      "sizeLines": 219,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backend-gas/DriveHandler.gs",
+      "language": "gs",
+      "sizeLines": 70,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backend-gas/EngagementHandler.gs",
+      "language": "gs",
+      "sizeLines": 123,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backend-gas/MplsHandler.gs",
+      "language": "gs",
+      "sizeLines": 337,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backend-gas/PhoneLib.gs",
+      "language": "gs",
+      "sizeLines": 13879,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backend-gas/README.md",
+      "language": "markdown",
+      "sizeLines": 254,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "backend-gas/Security.gs",
+      "language": "gs",
+      "sizeLines": 126,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backend-gas/SeedData.gs",
+      "language": "gs",
+      "sizeLines": 64,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backend-gas/SheetManager.gs",
+      "language": "gs",
+      "sizeLines": 419,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backend-gas/SiswaHandler.gs",
+      "language": "gs",
+      "sizeLines": 466,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backend-gas/TimelineHandler.gs",
+      "language": "gs",
+      "sizeLines": 84,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backend-gas/appsscript.json",
+      "language": "json",
+      "sizeLines": 15,
+      "fileCategory": "config"
+    },
+    {
+      "path": "backend-gas/build.js",
+      "language": "javascript",
+      "sizeLines": 20,
+      "fileCategory": "code"
+    },
+    {
+      "path": "backend-gas/package.json",
+      "language": "json",
+      "sizeLines": 24,
+      "fileCategory": "config"
+    },
+    {
+      "path": "backend-gas/src/phone.js",
+      "language": "javascript",
+      "sizeLines": 14,
+      "fileCategory": "code"
+    },
+    {
+      "path": "docs/graph/ARCHITECTURE_GRAPH.md",
+      "language": "markdown",
+      "sizeLines": 223,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "docs/graph/DEPENDENCY_MAP.md",
+      "language": "markdown",
+      "sizeLines": 70,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "spmb-frontend/.env.example",
+      "language": "config",
+      "sizeLines": 2,
+      "fileCategory": "config"
+    },
+    {
+      "path": "spmb-frontend/.firebase/hosting.ZGlzdA.cache",
+      "language": "cache",
+      "sizeLines": 73,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/.firebaserc",
+      "language": "unknown",
+      "sizeLines": 5,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/README.md",
+      "language": "markdown",
+      "sizeLines": 66,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "spmb-frontend/e2e/auth.spec.ts",
+      "language": "typescript",
+      "sizeLines": 32,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/e2e/formulir-identity.spec.ts",
+      "language": "typescript",
+      "sizeLines": 154,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/e2e/formulir-jpg.spec.ts",
+      "language": "typescript",
+      "sizeLines": 152,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/e2e/helpers.ts",
+      "language": "typescript",
+      "sizeLines": 70,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/e2e/route-guard.spec.ts",
+      "language": "typescript",
+      "sizeLines": 32,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/e2e/wizard.spec.ts",
+      "language": "typescript",
+      "sizeLines": 21,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/eslint.config.js",
+      "language": "javascript",
+      "sizeLines": 28,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/firebase.json",
+      "language": "json",
+      "sizeLines": 16,
+      "fileCategory": "config"
+    },
+    {
+      "path": "spmb-frontend/index.html",
+      "language": "html",
+      "sizeLines": 14,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "spmb-frontend/package.json",
+      "language": "json",
+      "sizeLines": 51,
+      "fileCategory": "config"
+    },
+    {
+      "path": "spmb-frontend/playwright.config.ts",
+      "language": "typescript",
+      "sizeLines": 18,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/postcss.config.js",
+      "language": "javascript",
+      "sizeLines": 6,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/src/App.test.tsx",
+      "language": "typescript",
+      "sizeLines": 151,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/src/App.tsx",
+      "language": "typescript",
+      "sizeLines": 144,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/src/components/ErrorBoundary.tsx",
+      "language": "typescript",
+      "sizeLines": 60,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/src/components/kartu/BuktiPendaftaranCard.test.tsx",
+      "language": "typescript",
+      "sizeLines": 321,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/src/components/kartu/BuktiPendaftaranCard.tsx",
+      "language": "typescript",
+      "sizeLines": 177,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/src/components/layout/AppShell.tsx",
+      "language": "typescript",
+      "sizeLines": 242,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/src/components/ui/Button.tsx",
+      "language": "typescript",
+      "sizeLines": 48,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/src/components/ui/Card.tsx",
+      "language": "typescript",
+      "sizeLines": 32,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/src/components/ui/DonutChart.tsx",
+      "language": "typescript",
+      "sizeLines": 100,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/src/components/ui/InputField.tsx",
+      "language": "typescript",
+      "sizeLines": 96,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/src/components/ui/Loader.tsx",
+      "language": "typescript",
+      "sizeLines": 7,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/src/components/ui/ProgressBar.tsx",
+      "language": "typescript",
+      "sizeLines": 33,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/src/components/ui/StatCard.tsx",
+      "language": "typescript",
+      "sizeLines": 53,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/src/components/ui/Toast.tsx",
+      "language": "typescript",
+      "sizeLines": 52,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/src/data/constants.ts",
+      "language": "typescript",
+      "sizeLines": 101,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/src/hooks/useKartuPrint.ts",
+      "language": "typescript",
+      "sizeLines": 37,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/src/index.css",
+      "language": "css",
+      "sizeLines": 256,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "spmb-frontend/src/main.tsx",
+      "language": "typescript",
+      "sizeLines": 21,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/src/pages/admin/AdminBroadcast.tsx",
+      "language": "typescript",
+      "sizeLines": 660,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/src/pages/admin/AdminCetakKartu.tsx",
+      "language": "typescript",
+      "sizeLines": 329,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/src/pages/admin/AdminDaftarSiswa.tsx",
+      "language": "typescript",
+      "sizeLines": 738,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/src/pages/admin/AdminDashboard.tsx",
+      "language": "typescript",
+      "sizeLines": 322,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/src/pages/admin/AdminFormulir.tsx",
+      "language": "typescript",
+      "sizeLines": 385,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/src/pages/admin/AdminGelombang.tsx",
+      "language": "typescript",
+      "sizeLines": 365,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/src/pages/admin/AdminLayout.tsx",
+      "language": "typescript",
+      "sizeLines": 25,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/src/pages/admin/AdminManajemen.tsx",
+      "language": "typescript",
+      "sizeLines": 478,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/src/pages/admin/AdminReferral.tsx",
+      "language": "typescript",
+      "sizeLines": 240,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/src/pages/admin/AdminSiswa.tsx",
+      "language": "typescript",
+      "sizeLines": 1239,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/src/pages/admin/AdminTimeline.tsx",
+      "language": "typescript",
+      "sizeLines": 331,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/src/pages/admin/components/FormulirPendaftaran.test.tsx",
+      "language": "typescript",
+      "sizeLines": 125,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/src/pages/admin/components/FormulirPendaftaran.tsx",
+      "language": "typescript",
+      "sizeLines": 458,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/src/pages/admin/components/KartuPendaftaranAdmin.tsx",
+      "language": "typescript",
+      "sizeLines": 29,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/src/pages/guru/GuruDaftarSiswa.tsx",
+      "language": "typescript",
+      "sizeLines": 5,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/src/pages/guru/GuruDashboard.tsx",
+      "language": "typescript",
+      "sizeLines": 221,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/src/pages/guru/GuruLayout.tsx",
+      "language": "typescript",
+      "sizeLines": 19,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/src/pages/login/LoginPage.test.tsx",
+      "language": "typescript",
+      "sizeLines": 156,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/src/pages/login/LoginPage.tsx",
+      "language": "typescript",
+      "sizeLines": 359,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/src/pages/login/RegisterPage.test.tsx",
+      "language": "typescript",
+      "sizeLines": 200,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/src/pages/login/RegisterPage.tsx",
+      "language": "typescript",
+      "sizeLines": 295,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/src/pages/mpls/MplsDashboard.tsx",
+      "language": "typescript",
+      "sizeLines": 358,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/src/pages/mpls/MplsInformasi.tsx",
+      "language": "typescript",
+      "sizeLines": 331,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/src/pages/mpls/MplsIzin.tsx",
+      "language": "typescript",
+      "sizeLines": 432,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/src/pages/mpls/MplsLayout.tsx",
+      "language": "typescript",
+      "sizeLines": 19,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/src/pages/mpls/MplsScan.tsx",
+      "language": "typescript",
+      "sizeLines": 476,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/src/pages/student/DashboardSiswa.tsx",
+      "language": "typescript",
+      "sizeLines": 357,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/src/pages/student/KartuPendaftaran.tsx",
+      "language": "typescript",
+      "sizeLines": 149,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/src/pages/student/StudentWizard.test.tsx",
+      "language": "typescript",
+      "sizeLines": 183,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/src/pages/student/StudentWizard.tsx",
+      "language": "typescript",
+      "sizeLines": 92,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/src/pages/student/components/InstagramPost.tsx",
+      "language": "typescript",
+      "sizeLines": 570,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/src/pages/student/components/ProgressBar.tsx",
+      "language": "typescript",
+      "sizeLines": 52,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/src/pages/student/components/ReferralFields.tsx",
+      "language": "typescript",
+      "sizeLines": 168,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/src/pages/student/components/ScanAlamatModal.tsx",
+      "language": "typescript",
+      "sizeLines": 273,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/src/pages/student/components/StepLayout.tsx",
+      "language": "typescript",
+      "sizeLines": 72,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/src/pages/student/components/TimelineSiswa.tsx",
+      "language": "typescript",
+      "sizeLines": 105,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/src/pages/student/steps/FormPendaftaranAwal.tsx",
+      "language": "typescript",
+      "sizeLines": 375,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/src/pages/student/steps/Step1Jurusan.tsx",
+      "language": "typescript",
+      "sizeLines": 89,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/src/pages/student/steps/Step2Pribadi.tsx",
+      "language": "typescript",
+      "sizeLines": 191,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/src/pages/student/steps/Step3Alamat.tsx",
+      "language": "typescript",
+      "sizeLines": 294,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/src/pages/student/steps/Step4Ortu.tsx",
+      "language": "typescript",
+      "sizeLines": 204,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/src/pages/student/steps/Step5Berkas.tsx",
+      "language": "typescript",
+      "sizeLines": 245,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/src/services/api.test.ts",
+      "language": "typescript",
+      "sizeLines": 234,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/src/services/api.ts",
+      "language": "typescript",
+      "sizeLines": 500,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/src/services/pendingAuth.test.ts",
+      "language": "typescript",
+      "sizeLines": 75,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/src/services/pendingAuth.ts",
+      "language": "typescript",
+      "sizeLines": 49,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/src/store/authStore.test.ts",
+      "language": "typescript",
+      "sizeLines": 228,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/src/store/authStore.ts",
+      "language": "typescript",
+      "sizeLines": 140,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/src/store/studentStore.ts",
+      "language": "typescript",
+      "sizeLines": 348,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/src/test/setup.ts",
+      "language": "typescript",
+      "sizeLines": 56,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/src/types/index.ts",
+      "language": "typescript",
+      "sizeLines": 129,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/src/utils/dateUtils.ts",
+      "language": "typescript",
+      "sizeLines": 101,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/src/utils/formImage.ts",
+      "language": "typescript",
+      "sizeLines": 194,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/src/utils/imageCompress.ts",
+      "language": "typescript",
+      "sizeLines": 64,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/src/utils/kartuPrint.ts",
+      "language": "typescript",
+      "sizeLines": 221,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/src/utils/ocr.ts",
+      "language": "typescript",
+      "sizeLines": 170,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/src/utils/waGroup.test.tsx",
+      "language": "typescript",
+      "sizeLines": 113,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/src/utils/waGroup.ts",
+      "language": "typescript",
+      "sizeLines": 24,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/src/vite-env.d.ts",
+      "language": "typescript",
+      "sizeLines": 1,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/tailwind.config.js",
+      "language": "javascript",
+      "sizeLines": 22,
+      "fileCategory": "code"
+    },
+    {
+      "path": "spmb-frontend/test-output.txt",
+      "language": "txt",
+      "sizeLines": 259,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "spmb-frontend/tsconfig.app.json",
+      "language": "json",
+      "sizeLines": 26,
+      "fileCategory": "config"
+    },
+    {
+      "path": "spmb-frontend/tsconfig.json",
+      "language": "json",
+      "sizeLines": 7,
+      "fileCategory": "config"
+    },
+    {
+      "path": "spmb-frontend/tsconfig.node.json",
+      "language": "json",
+      "sizeLines": 24,
+      "fileCategory": "config"
+    },
+    {
+      "path": "spmb-frontend/vite.config.ts",
+      "language": "typescript",
+      "sizeLines": 30,
+      "fileCategory": "code"
+    }
+  ],
+  "totalFiles": 126,
+  "filteredByIgnore": 0,
+  "estimatedComplexity": "moderate",
+  "importMap": {
+    ".ua/config.json": [],
+    "README.md": [],
+    "RPD.md": [],
+    "backend-gas/.clasp.json": [],
+    "backend-gas/.claspignore": [],
+    "backend-gas/AdminHandler.gs": [],
+    "backend-gas/AuthHandler.gs": [],
+    "backend-gas/CacheServiceHelper.gs": [],
+    "backend-gas/CalendarHandler.gs": [],
+    "backend-gas/Code.gs": [],
+    "backend-gas/ConfigHandler.gs": [],
+    "backend-gas/DriveHandler.gs": [],
+    "backend-gas/EngagementHandler.gs": [],
+    "backend-gas/MplsHandler.gs": [],
+    "backend-gas/PhoneLib.gs": [],
+    "backend-gas/README.md": [],
+    "backend-gas/Security.gs": [],
+    "backend-gas/SeedData.gs": [],
+    "backend-gas/SheetManager.gs": [],
+    "backend-gas/SiswaHandler.gs": [],
+    "backend-gas/TimelineHandler.gs": [],
+    "backend-gas/appsscript.json": [],
+    "backend-gas/build.js": [],
+    "backend-gas/package.json": [],
+    "backend-gas/src/phone.js": [],
+    "docs/graph/ARCHITECTURE_GRAPH.md": [],
+    "docs/graph/DEPENDENCY_MAP.md": [],
+    "spmb-frontend/.env.example": [],
+    "spmb-frontend/.firebase/hosting.ZGlzdA.cache": [],
+    "spmb-frontend/.firebaserc": [],
+    "spmb-frontend/README.md": [],
+    "spmb-frontend/e2e/auth.spec.ts": [
+      "spmb-frontend/e2e/helpers.ts"
+    ],
+    "spmb-frontend/e2e/formulir-identity.spec.ts": [
+      "spmb-frontend/e2e/helpers.ts"
+    ],
+    "spmb-frontend/e2e/formulir-jpg.spec.ts": [
+      "spmb-frontend/e2e/helpers.ts"
+    ],
+    "spmb-frontend/e2e/helpers.ts": [],
+    "spmb-frontend/e2e/route-guard.spec.ts": [
+      "spmb-frontend/e2e/helpers.ts"
+    ],
+    "spmb-frontend/e2e/wizard.spec.ts": [
+      "spmb-frontend/e2e/helpers.ts"
+    ],
+    "spmb-frontend/eslint.config.js": [],
+    "spmb-frontend/firebase.json": [],
+    "spmb-frontend/index.html": [],
+    "spmb-frontend/package.json": [],
+    "spmb-frontend/playwright.config.ts": [],
+    "spmb-frontend/postcss.config.js": [],
+    "spmb-frontend/src/App.test.tsx": [
+      "spmb-frontend/src/App.tsx",
+      "spmb-frontend/src/store/authStore.ts",
+      "spmb-frontend/src/types/index.ts"
+    ],
+    "spmb-frontend/src/App.tsx": [
+      "spmb-frontend/src/components/ErrorBoundary.tsx",
+      "spmb-frontend/src/pages/login/LoginPage.tsx",
+      "spmb-frontend/src/pages/login/RegisterPage.tsx",
+      "spmb-frontend/src/store/authStore.ts",
+      "spmb-frontend/src/types/index.ts"
+    ],
+    "spmb-frontend/src/components/ErrorBoundary.tsx": [],
+    "spmb-frontend/src/components/kartu/BuktiPendaftaranCard.test.tsx": [
+      "spmb-frontend/src/components/kartu/BuktiPendaftaranCard.tsx",
+      "spmb-frontend/src/utils/kartuPrint.ts",
+      "spmb-frontend/src/utils/waGroup.ts"
+    ],
+    "spmb-frontend/src/components/kartu/BuktiPendaftaranCard.tsx": [
+      "spmb-frontend/src/utils/kartuPrint.ts",
+      "spmb-frontend/src/utils/waGroup.ts"
+    ],
+    "spmb-frontend/src/components/layout/AppShell.tsx": [
+      "spmb-frontend/src/store/authStore.ts"
+    ],
+    "spmb-frontend/src/components/ui/Button.tsx": [],
+    "spmb-frontend/src/components/ui/Card.tsx": [],
+    "spmb-frontend/src/components/ui/DonutChart.tsx": [],
+    "spmb-frontend/src/components/ui/InputField.tsx": [],
+    "spmb-frontend/src/components/ui/Loader.tsx": [],
+    "spmb-frontend/src/components/ui/ProgressBar.tsx": [],
+    "spmb-frontend/src/components/ui/StatCard.tsx": [
+      "spmb-frontend/src/components/ui/Card.tsx"
+    ],
+    "spmb-frontend/src/components/ui/Toast.tsx": [],
+    "spmb-frontend/src/data/constants.ts": [],
+    "spmb-frontend/src/hooks/useKartuPrint.ts": [],
+    "spmb-frontend/src/index.css": [],
+    "spmb-frontend/src/main.tsx": [
+      "spmb-frontend/src/App.tsx",
+      "spmb-frontend/src/index.css",
+      "spmb-frontend/src/store/authStore.ts"
+    ],
+    "spmb-frontend/src/pages/admin/AdminBroadcast.tsx": [
+      "spmb-frontend/src/components/ui/Button.tsx",
+      "spmb-frontend/src/components/ui/Card.tsx",
+      "spmb-frontend/src/components/ui/Loader.tsx",
+      "spmb-frontend/src/services/api.ts",
+      "spmb-frontend/src/utils/dateUtils.ts",
+      "spmb-frontend/src/utils/imageCompress.ts"
+    ],
+    "spmb-frontend/src/pages/admin/AdminCetakKartu.tsx": [
+      "spmb-frontend/src/components/kartu/BuktiPendaftaranCard.tsx",
+      "spmb-frontend/src/components/ui/Button.tsx",
+      "spmb-frontend/src/components/ui/Card.tsx",
+      "spmb-frontend/src/components/ui/Loader.tsx",
+      "spmb-frontend/src/data/constants.ts",
+      "spmb-frontend/src/hooks/useKartuPrint.ts",
+      "spmb-frontend/src/services/api.ts",
+      "spmb-frontend/src/utils/dateUtils.ts",
+      "spmb-frontend/src/utils/kartuPrint.ts"
+    ],
+    "spmb-frontend/src/pages/admin/AdminDaftarSiswa.tsx": [
+      "spmb-frontend/src/components/ui/Button.tsx",
+      "spmb-frontend/src/components/ui/Card.tsx",
+      "spmb-frontend/src/components/ui/InputField.tsx",
+      "spmb-frontend/src/data/constants.ts",
+      "spmb-frontend/src/services/api.ts",
+      "spmb-frontend/src/store/authStore.ts",
+      "spmb-frontend/src/types/index.ts"
+    ],
+    "spmb-frontend/src/pages/admin/AdminDashboard.tsx": [
+      "spmb-frontend/src/components/ui/Card.tsx",
+      "spmb-frontend/src/components/ui/DonutChart.tsx",
+      "spmb-frontend/src/components/ui/Loader.tsx",
+      "spmb-frontend/src/components/ui/ProgressBar.tsx",
+      "spmb-frontend/src/components/ui/StatCard.tsx",
+      "spmb-frontend/src/services/api.ts",
+      "spmb-frontend/src/store/authStore.ts",
+      "spmb-frontend/src/utils/dateUtils.ts"
+    ],
+    "spmb-frontend/src/pages/admin/AdminFormulir.tsx": [
+      "spmb-frontend/src/components/ui/Button.tsx",
+      "spmb-frontend/src/components/ui/Card.tsx",
+      "spmb-frontend/src/components/ui/Loader.tsx",
+      "spmb-frontend/src/components/ui/Toast.tsx",
+      "spmb-frontend/src/hooks/useKartuPrint.ts",
+      "spmb-frontend/src/pages/admin/components/FormulirPendaftaran.tsx",
+      "spmb-frontend/src/pages/admin/components/KartuPendaftaranAdmin.tsx",
+      "spmb-frontend/src/services/api.ts",
+      "spmb-frontend/src/utils/formImage.ts",
+      "spmb-frontend/src/utils/kartuPrint.ts",
+      "spmb-frontend/src/utils/waGroup.ts"
+    ],
+    "spmb-frontend/src/pages/admin/AdminGelombang.tsx": [
+      "spmb-frontend/src/components/ui/Button.tsx",
+      "spmb-frontend/src/components/ui/Card.tsx",
+      "spmb-frontend/src/components/ui/Loader.tsx",
+      "spmb-frontend/src/services/api.ts",
+      "spmb-frontend/src/utils/dateUtils.ts"
+    ],
+    "spmb-frontend/src/pages/admin/AdminLayout.tsx": [
+      "spmb-frontend/src/components/layout/AppShell.tsx"
+    ],
+    "spmb-frontend/src/pages/admin/AdminManajemen.tsx": [
+      "spmb-frontend/src/components/ui/Button.tsx",
+      "spmb-frontend/src/components/ui/Card.tsx",
+      "spmb-frontend/src/components/ui/Loader.tsx",
+      "spmb-frontend/src/services/api.ts"
+    ],
+    "spmb-frontend/src/pages/admin/AdminReferral.tsx": [
+      "spmb-frontend/src/components/ui/Button.tsx",
+      "spmb-frontend/src/components/ui/Card.tsx",
+      "spmb-frontend/src/components/ui/Loader.tsx",
+      "spmb-frontend/src/services/api.ts"
+    ],
+    "spmb-frontend/src/pages/admin/AdminSiswa.tsx": [
+      "spmb-frontend/src/components/ui/Button.tsx",
+      "spmb-frontend/src/components/ui/Card.tsx",
+      "spmb-frontend/src/components/ui/InputField.tsx",
+      "spmb-frontend/src/components/ui/Loader.tsx",
+      "spmb-frontend/src/data/constants.ts",
+      "spmb-frontend/src/pages/student/components/ReferralFields.tsx",
+      "spmb-frontend/src/services/api.ts",
+      "spmb-frontend/src/types/index.ts"
+    ],
+    "spmb-frontend/src/pages/admin/AdminTimeline.tsx": [
+      "spmb-frontend/src/components/ui/Button.tsx",
+      "spmb-frontend/src/components/ui/Card.tsx",
+      "spmb-frontend/src/components/ui/Loader.tsx",
+      "spmb-frontend/src/services/api.ts",
+      "spmb-frontend/src/utils/dateUtils.ts"
+    ],
+    "spmb-frontend/src/pages/admin/components/FormulirPendaftaran.test.tsx": [
+      "spmb-frontend/src/pages/admin/components/FormulirPendaftaran.tsx"
+    ],
+    "spmb-frontend/src/pages/admin/components/FormulirPendaftaran.tsx": [
+      "spmb-frontend/src/data/constants.ts",
+      "spmb-frontend/src/utils/dateUtils.ts"
+    ],
+    "spmb-frontend/src/pages/admin/components/KartuPendaftaranAdmin.tsx": [
+      "spmb-frontend/src/components/kartu/BuktiPendaftaranCard.tsx",
+      "spmb-frontend/src/data/constants.ts",
+      "spmb-frontend/src/utils/dateUtils.ts"
+    ],
+    "spmb-frontend/src/pages/guru/GuruDaftarSiswa.tsx": [
+      "spmb-frontend/src/pages/admin/AdminDaftarSiswa.tsx"
+    ],
+    "spmb-frontend/src/pages/guru/GuruDashboard.tsx": [
+      "spmb-frontend/src/components/ui/Card.tsx",
+      "spmb-frontend/src/components/ui/DonutChart.tsx",
+      "spmb-frontend/src/components/ui/Loader.tsx",
+      "spmb-frontend/src/components/ui/ProgressBar.tsx",
+      "spmb-frontend/src/components/ui/StatCard.tsx",
+      "spmb-frontend/src/services/api.ts",
+      "spmb-frontend/src/store/authStore.ts"
+    ],
+    "spmb-frontend/src/pages/guru/GuruLayout.tsx": [
+      "spmb-frontend/src/components/layout/AppShell.tsx",
+      "spmb-frontend/src/store/authStore.ts"
+    ],
+    "spmb-frontend/src/pages/login/LoginPage.test.tsx": [
+      "spmb-frontend/src/pages/login/LoginPage.tsx",
+      "spmb-frontend/src/pages/login/RegisterPage.tsx"
+    ],
+    "spmb-frontend/src/pages/login/LoginPage.tsx": [
+      "spmb-frontend/src/components/ui/Card.tsx",
+      "spmb-frontend/src/services/api.ts",
+      "spmb-frontend/src/services/pendingAuth.ts",
+      "spmb-frontend/src/store/authStore.ts"
+    ],
+    "spmb-frontend/src/pages/login/RegisterPage.test.tsx": [
+      "spmb-frontend/src/pages/login/RegisterPage.tsx",
+      "spmb-frontend/src/services/pendingAuth.ts"
+    ],
+    "spmb-frontend/src/pages/login/RegisterPage.tsx": [
+      "spmb-frontend/src/components/ui/Button.tsx",
+      "spmb-frontend/src/components/ui/Card.tsx",
+      "spmb-frontend/src/components/ui/InputField.tsx",
+      "spmb-frontend/src/services/api.ts",
+      "spmb-frontend/src/services/pendingAuth.ts",
+      "spmb-frontend/src/store/authStore.ts",
+      "spmb-frontend/src/utils/imageCompress.ts"
+    ],
+    "spmb-frontend/src/pages/mpls/MplsDashboard.tsx": [
+      "spmb-frontend/src/components/ui/Card.tsx",
+      "spmb-frontend/src/components/ui/Loader.tsx",
+      "spmb-frontend/src/components/ui/ProgressBar.tsx",
+      "spmb-frontend/src/components/ui/StatCard.tsx",
+      "spmb-frontend/src/services/api.ts",
+      "spmb-frontend/src/store/authStore.ts",
+      "spmb-frontend/src/types/index.ts",
+      "spmb-frontend/src/utils/dateUtils.ts"
+    ],
+    "spmb-frontend/src/pages/mpls/MplsInformasi.tsx": [
+      "spmb-frontend/src/components/ui/Button.tsx",
+      "spmb-frontend/src/components/ui/Card.tsx",
+      "spmb-frontend/src/components/ui/Loader.tsx",
+      "spmb-frontend/src/services/api.ts",
+      "spmb-frontend/src/utils/dateUtils.ts",
+      "spmb-frontend/src/utils/imageCompress.ts"
+    ],
+    "spmb-frontend/src/pages/mpls/MplsIzin.tsx": [
+      "spmb-frontend/src/components/ui/Button.tsx",
+      "spmb-frontend/src/components/ui/Card.tsx",
+      "spmb-frontend/src/components/ui/Toast.tsx",
+      "spmb-frontend/src/data/constants.ts",
+      "spmb-frontend/src/services/api.ts",
+      "spmb-frontend/src/store/authStore.ts",
+      "spmb-frontend/src/types/index.ts"
+    ],
+    "spmb-frontend/src/pages/mpls/MplsLayout.tsx": [
+      "spmb-frontend/src/components/layout/AppShell.tsx"
+    ],
+    "spmb-frontend/src/pages/mpls/MplsScan.tsx": [
+      "spmb-frontend/src/components/ui/Button.tsx",
+      "spmb-frontend/src/components/ui/Card.tsx",
+      "spmb-frontend/src/components/ui/Toast.tsx",
+      "spmb-frontend/src/services/api.ts",
+      "spmb-frontend/src/store/authStore.ts",
+      "spmb-frontend/src/types/index.ts"
+    ],
+    "spmb-frontend/src/pages/student/DashboardSiswa.tsx": [
+      "spmb-frontend/src/components/ui/Button.tsx",
+      "spmb-frontend/src/components/ui/Card.tsx",
+      "spmb-frontend/src/pages/student/components/InstagramPost.tsx",
+      "spmb-frontend/src/pages/student/components/TimelineSiswa.tsx",
+      "spmb-frontend/src/services/api.ts",
+      "spmb-frontend/src/store/authStore.ts",
+      "spmb-frontend/src/store/studentStore.ts",
+      "spmb-frontend/src/utils/dateUtils.ts"
+    ],
+    "spmb-frontend/src/pages/student/KartuPendaftaran.tsx": [
+      "spmb-frontend/src/components/kartu/BuktiPendaftaranCard.tsx",
+      "spmb-frontend/src/components/ui/Button.tsx",
+      "spmb-frontend/src/components/ui/Card.tsx",
+      "spmb-frontend/src/components/ui/Loader.tsx",
+      "spmb-frontend/src/data/constants.ts",
+      "spmb-frontend/src/hooks/useKartuPrint.ts",
+      "spmb-frontend/src/services/api.ts",
+      "spmb-frontend/src/store/authStore.ts",
+      "spmb-frontend/src/store/studentStore.ts",
+      "spmb-frontend/src/utils/dateUtils.ts",
+      "spmb-frontend/src/utils/kartuPrint.ts",
+      "spmb-frontend/src/utils/waGroup.ts"
+    ],
+    "spmb-frontend/src/pages/student/StudentWizard.test.tsx": [
+      "spmb-frontend/src/pages/student/StudentWizard.tsx"
+    ],
+    "spmb-frontend/src/pages/student/StudentWizard.tsx": [
+      "spmb-frontend/src/pages/student/steps/Step1Jurusan.tsx",
+      "spmb-frontend/src/pages/student/steps/Step2Pribadi.tsx",
+      "spmb-frontend/src/pages/student/steps/Step3Alamat.tsx",
+      "spmb-frontend/src/pages/student/steps/Step4Ortu.tsx",
+      "spmb-frontend/src/pages/student/steps/Step5Berkas.tsx",
+      "spmb-frontend/src/store/authStore.ts",
+      "spmb-frontend/src/store/studentStore.ts"
+    ],
+    "spmb-frontend/src/pages/student/components/InstagramPost.tsx": [
+      "spmb-frontend/src/services/api.ts",
+      "spmb-frontend/src/utils/dateUtils.ts"
+    ],
+    "spmb-frontend/src/pages/student/components/ProgressBar.tsx": [
+      "spmb-frontend/src/types/index.ts"
+    ],
+    "spmb-frontend/src/pages/student/components/ReferralFields.tsx": [
+      "spmb-frontend/src/components/ui/InputField.tsx",
+      "spmb-frontend/src/data/constants.ts",
+      "spmb-frontend/src/services/api.ts"
+    ],
+    "spmb-frontend/src/pages/student/components/ScanAlamatModal.tsx": [
+      "spmb-frontend/src/components/ui/Button.tsx",
+      "spmb-frontend/src/components/ui/Card.tsx",
+      "spmb-frontend/src/components/ui/InputField.tsx",
+      "spmb-frontend/src/utils/ocr.ts"
+    ],
+    "spmb-frontend/src/pages/student/components/StepLayout.tsx": [
+      "spmb-frontend/src/components/ui/Button.tsx",
+      "spmb-frontend/src/components/ui/Card.tsx",
+      "spmb-frontend/src/pages/student/components/ProgressBar.tsx",
+      "spmb-frontend/src/types/index.ts"
+    ],
+    "spmb-frontend/src/pages/student/components/TimelineSiswa.tsx": [
+      "spmb-frontend/src/components/ui/Card.tsx",
+      "spmb-frontend/src/services/api.ts",
+      "spmb-frontend/src/utils/dateUtils.ts"
+    ],
+    "spmb-frontend/src/pages/student/steps/FormPendaftaranAwal.tsx": [
+      "spmb-frontend/src/components/ui/Button.tsx",
+      "spmb-frontend/src/components/ui/Card.tsx",
+      "spmb-frontend/src/components/ui/InputField.tsx",
+      "spmb-frontend/src/data/constants.ts",
+      "spmb-frontend/src/pages/student/components/ReferralFields.tsx",
+      "spmb-frontend/src/store/authStore.ts",
+      "spmb-frontend/src/store/studentStore.ts"
+    ],
+    "spmb-frontend/src/pages/student/steps/Step1Jurusan.tsx": [
+      "spmb-frontend/src/components/ui/InputField.tsx",
+      "spmb-frontend/src/data/constants.ts",
+      "spmb-frontend/src/pages/student/components/ReferralFields.tsx",
+      "spmb-frontend/src/pages/student/components/StepLayout.tsx",
+      "spmb-frontend/src/store/studentStore.ts"
+    ],
+    "spmb-frontend/src/pages/student/steps/Step2Pribadi.tsx": [
+      "spmb-frontend/src/components/ui/InputField.tsx",
+      "spmb-frontend/src/data/constants.ts",
+      "spmb-frontend/src/pages/student/components/StepLayout.tsx",
+      "spmb-frontend/src/store/studentStore.ts"
+    ],
+    "spmb-frontend/src/pages/student/steps/Step3Alamat.tsx": [
+      "spmb-frontend/src/components/ui/Button.tsx",
+      "spmb-frontend/src/components/ui/Card.tsx",
+      "spmb-frontend/src/components/ui/InputField.tsx",
+      "spmb-frontend/src/pages/student/components/ScanAlamatModal.tsx",
+      "spmb-frontend/src/pages/student/components/StepLayout.tsx",
+      "spmb-frontend/src/services/api.ts",
+      "spmb-frontend/src/store/studentStore.ts",
+      "spmb-frontend/src/utils/ocr.ts"
+    ],
+    "spmb-frontend/src/pages/student/steps/Step4Ortu.tsx": [
+      "spmb-frontend/src/components/ui/InputField.tsx",
+      "spmb-frontend/src/data/constants.ts",
+      "spmb-frontend/src/pages/student/components/StepLayout.tsx",
+      "spmb-frontend/src/store/studentStore.ts",
+      "spmb-frontend/src/types/index.ts"
+    ],
+    "spmb-frontend/src/pages/student/steps/Step5Berkas.tsx": [
+      "spmb-frontend/src/components/ui/Button.tsx",
+      "spmb-frontend/src/components/ui/Card.tsx",
+      "spmb-frontend/src/pages/student/components/StepLayout.tsx",
+      "spmb-frontend/src/services/api.ts",
+      "spmb-frontend/src/store/studentStore.ts",
+      "spmb-frontend/src/utils/imageCompress.ts"
+    ],
+    "spmb-frontend/src/services/api.test.ts": [
+      "spmb-frontend/src/services/api.ts"
+    ],
+    "spmb-frontend/src/services/api.ts": [],
+    "spmb-frontend/src/services/pendingAuth.test.ts": [
+      "spmb-frontend/src/services/pendingAuth.ts"
+    ],
+    "spmb-frontend/src/services/pendingAuth.ts": [],
+    "spmb-frontend/src/store/authStore.test.ts": [
+      "spmb-frontend/src/store/authStore.ts"
+    ],
+    "spmb-frontend/src/store/authStore.ts": [
+      "spmb-frontend/src/services/api.ts",
+      "spmb-frontend/src/types/index.ts"
+    ],
+    "spmb-frontend/src/store/studentStore.ts": [
+      "spmb-frontend/src/services/api.ts",
+      "spmb-frontend/src/types/index.ts",
+      "spmb-frontend/src/utils/dateUtils.ts"
+    ],
+    "spmb-frontend/src/test/setup.ts": [],
+    "spmb-frontend/src/types/index.ts": [],
+    "spmb-frontend/src/utils/dateUtils.ts": [],
+    "spmb-frontend/src/utils/formImage.ts": [],
+    "spmb-frontend/src/utils/imageCompress.ts": [],
+    "spmb-frontend/src/utils/kartuPrint.ts": [],
+    "spmb-frontend/src/utils/ocr.ts": [],
+    "spmb-frontend/src/utils/waGroup.test.tsx": [
+      "spmb-frontend/src/utils/waGroup.ts"
+    ],
+    "spmb-frontend/src/utils/waGroup.ts": [],
+    "spmb-frontend/src/vite-env.d.ts": [],
+    "spmb-frontend/tailwind.config.js": [],
+    "spmb-frontend/test-output.txt": [],
+    "spmb-frontend/tsconfig.app.json": [],
+    "spmb-frontend/tsconfig.json": [],
+    "spmb-frontend/tsconfig.node.json": [],
+    "spmb-frontend/vite.config.ts": []
+  }
+}

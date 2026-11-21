@@ -8,6 +8,7 @@ import { DATA_JURUSAN } from '../../data/constants'
 import { formatWIB } from '../../utils/dateUtils'
 import { api } from '../../services/api'
 import { useKartuPrint } from '../../hooks/useKartuPrint'
+import { usePreviewScale } from '../../hooks/usePreviewScale'
 import {
   A4_GRID_COLS,
   A4_GRID_ROWS,
@@ -17,6 +18,7 @@ import {
   a4PrintCss,
   a4SheetCss,
   chunkIntoSheets,
+  mmToPx,
 } from '../../utils/kartuPrint'
 
 interface SiswaRow {
@@ -128,6 +130,10 @@ export default function AdminCetakKartu() {
 
   const cardsToPrint = cetakSemua ? semuaCards : cards
   const printing = printMode !== null
+  const preview = usePreviewScale({
+    widthPx: mmToPx(A4_W_MM),
+    heightPx: mmToPx(A4_H_MM),
+  })
 
   // Pratinjau selalu mengikuti pilihan; area cetak boleh mengikuti "semua".
   const lembPilihan = cards.length === 0 ? 0 : Math.ceil(cards.length / A4_MAX_CARDS)
@@ -169,26 +175,26 @@ export default function AdminCetakKartu() {
       {printMode === 'a4' && <style>{a4PrintCss()}</style>}
 
       <div className="kartu-screen-shell space-y-4">
-        <div className="flex flex-wrap items-center justify-between gap-3 print:hidden">
+        <div className="flex flex-col gap-3 print:hidden sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3">
-            <h1 className="text-lg font-bold text-slate-800">Cetak Kartu Massal</h1>
-            <span className="inline-flex items-center gap-1 rounded-full bg-brand-green-light px-2.5 py-1 text-[11px] font-semibold text-brand-green-dark">
-              <Users className="w-3.5 h-3.5" />
+            <h1 className="text-base font-bold text-slate-800 sm:text-lg">Cetak Kartu Massal</h1>
+            <span className="inline-flex items-center gap-1 rounded-full bg-brand-green-light px-2.5 py-1 text-xs font-semibold text-brand-green-dark">
+              <Users className="h-3.5 w-3.5" />
               {selected.length} dipilih
             </span>
           </div>
-          <div className="flex flex-wrap gap-2">
-            <Button variant="secondary" onClick={cetakSemuaSiswa} disabled={!siswaList.length || printing}>
-              <Files className="w-4 h-4" />
+          <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+            <Button variant="secondary" onClick={cetakSemuaSiswa} disabled={!siswaList.length || printing} fullWidth className="sm:w-auto">
+              <Files className="h-4 w-4" />
               Cetak Semua ({siswaList.length})
             </Button>
             {selected.length > 0 && (
-              <Button variant="secondary" onClick={() => setSelected([])} disabled={printing}>
+              <Button variant="secondary" onClick={() => setSelected([])} disabled={printing} fullWidth className="sm:w-auto">
                 Bersihkan
               </Button>
             )}
-            <Button variant="primary" onClick={cetakPilihan} disabled={!cards.length || printing}>
-              <Printer className="w-4 h-4" />
+            <Button variant="primary" onClick={cetakPilihan} disabled={!cards.length || printing} fullWidth className="sm:w-auto">
+              <Printer className="h-4 w-4" />
               Cetak A4 ({cards.length} kartu
               {lembPilihan > 0 && ` · ${lembPilihan} lemb`})
             </Button>
@@ -207,13 +213,14 @@ export default function AdminCetakKartu() {
 
         <Card className="p-4 print:hidden">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 w-4 h-4 -translate-y-1/2 text-slate-400" />
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Cari nama, ID pendaftaran, atau email..."
-              className="w-full rounded-xl border border-slate-200 py-2.5 pl-9 pr-3 text-sm outline-none transition-colors focus:border-brand-green"
+              aria-label="Cari siswa"
+              className="min-h-touch w-full rounded-xl border border-slate-200 py-2.5 pl-9 pr-3 text-base outline-none transition-colors focus:border-brand-green sm:text-sm"
             />
           </div>
         </Card>
@@ -233,7 +240,7 @@ export default function AdminCetakKartu() {
                       key={s.idPendaftaran}
                       type="button"
                       onClick={() => toggle(s.idPendaftaran)}
-                      className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-colors ${
+                      className={`flex min-h-touch w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-colors ${
                         active ? 'bg-brand-green-light' : 'hover:bg-slate-50'
                       }`}
                     >
@@ -259,7 +266,7 @@ export default function AdminCetakKartu() {
                         <span className="block truncate text-sm font-semibold text-slate-800">
                           {s.namaLengkap || '-'}
                         </span>
-                        <span className="block truncate text-[11px] text-slate-500">
+                        <span className="block truncate text-xs text-slate-500">
                           {s.idPendaftaran} &middot; {s.gelombang}
                         </span>
                       </span>
@@ -271,36 +278,63 @@ export default function AdminCetakKartu() {
           </Card>
 
           <div className="print:hidden">
-            <p className="mb-2 text-xs font-semibold text-slate-500">
-              Pratinjau A4 ({A4_W_MM} x {A4_H_MM} mm, muat {A4_MAX_CARDS} kartu)
-              {lembPilihan > 1 && ` · lemb 1 dari ${lembPilihan}`}
-            </p>
-            <div
-              className="a4-sheet rounded-lg bg-white shadow-lg ring-1 ring-slate-200"
-              style={{ width: `${A4_W_MM}mm`, height: `${A4_H_MM}mm` }}
-            >
-              {pratinjauSlots.map((c, i) =>
-                c ? (
-                  <BuktiPendaftaranCard key={c.idPendaftaran || i} data={c} />
-                ) : (
-                  <div
-                    key={`kosong-${i}`}
-                    className="flex items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-slate-50 text-[10px] font-semibold text-slate-400"
-                  >
-                    Slot {i + 1}
+            {/* Di layar < sm, lembar A4 yang dikecilkan membuat teks kartu tak
+                terbaca. Tampilkan kartu satuan yang benar-benar bisa dibaca. */}
+            <div className="space-y-3 sm:hidden">
+              <p className="text-xs font-semibold text-slate-500">
+                Pratinjau kartu terpilih ({cards.length})
+              </p>
+              {cards.length === 0 ? (
+                <p className="rounded-xl border border-dashed border-slate-200 px-4 py-8 text-center text-sm text-slate-400">
+                  Pilih siswa untuk melihat pratinjau kartu.
+                </p>
+              ) : (
+                cards.map((c, i) => (
+                  <div key={c.idPendaftaran || i} className="flex justify-center">
+                    <BuktiPendaftaranCard data={c} mode="screen" />
                   </div>
-                )
+                ))
               )}
             </div>
-            {lembPilihan > 1 && (
-              <p className="mt-2 text-[11px] text-slate-400">
-                + {cards.length - A4_MAX_CARDS} kartu lagi pada {lembPilihan - 1} lemb berikutnya.
+
+            <div className="hidden sm:block">
+              <p className="mb-2 text-xs font-semibold text-slate-500">
+                Pratinjau A4 ({A4_W_MM} x {A4_H_MM} mm, muat {A4_MAX_CARDS} kartu)
+                {lembPilihan > 1 && ` · lemb 1 dari ${lembPilihan}`}
               </p>
-            )}
+              <div ref={preview.containerRef} className="dash-scroll w-full overflow-x-auto">
+                <div style={{ ...preview.frameStyle, margin: '0 auto' }}>
+                  <div style={preview.contentStyle}>
+                    <div
+                      className="a4-sheet rounded-lg bg-white shadow-lg ring-1 ring-slate-200"
+                      style={{ width: `${A4_W_MM}mm`, height: `${A4_H_MM}mm` }}
+                    >
+                      {pratinjauSlots.map((c, i) =>
+                        c ? (
+                          <BuktiPendaftaranCard key={c.idPendaftaran || i} data={c} />
+                        ) : (
+                          <div
+                            key={`kosong-${i}`}
+                            className="flex items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-slate-50 text-xs font-semibold text-slate-400"
+                          >
+                            Slot {i + 1}
+                          </div>
+                        )
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              {lembPilihan > 1 && (
+                <p className="mt-2 text-xs text-slate-400">
+                  + {cards.length - A4_MAX_CARDS} kartu lagi pada {lembPilihan - 1} lemb berikutnya.
+                </p>
+              )}
+            </div>
           </div>
         </div>
 
-        <p className="text-[11px] text-slate-400 print:hidden">
+        <p className="text-xs text-slate-400 print:hidden">
           Kartu berukuran 65 x 95 mm, {A4_MAX_CARDS} per lemb A4 potret. Potong tepat pada batas
           antar kartu. Jumlah kartu tidak harus kelipatan {A4_MAX_CARDS}.
         </p>

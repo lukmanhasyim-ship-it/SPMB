@@ -3,6 +3,7 @@ import { Plus, Edit3, Trash2, Check, X, MessageCircle } from 'lucide-react'
 import Card from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
 import Loader from '../../components/ui/Loader'
+import Modal from '../../components/ui/Modal'
 import { api } from '../../services/api'
 import { formatWIBShort } from '../../utils/dateUtils'
 
@@ -284,82 +285,74 @@ export default function AdminGelombang() {
         )}
       </div>
 
-      {modalOpen && (
-        <div className="fixed inset-0 bg-black/30 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-bold text-slate-800">
-                {editingGelombang ? 'Edit Gelombang' : 'Tambah Gelombang'}
-              </h3>
-              <button onClick={() => setModalOpen(false)}>
-                <X className="w-5 h-5 text-slate-400" />
-              </button>
-            </div>
-
-            <div className="space-y-3">
-              <div>
-                <label className="text-xs font-medium text-slate-600 mb-1 block">Nama Gelombang</label>
-                <input
-                  type="text"
-                  value={form.gelombang}
-                  onChange={(e) => setForm({ ...form, gelombang: e.target.value })}
-                  disabled={!!editingGelombang}
-                  placeholder="Gelombang 4"
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green/30 disabled:bg-slate-50 disabled:text-slate-400"
-                />
-              </div>
-              <div>
-                <label className="text-xs font-medium text-slate-600 mb-1 block">Tanggal Mulai</label>
-                <input
-                  type="date"
-                  value={form.tanggal_mulai}
-                  onChange={(e) => setForm({ ...form, tanggal_mulai: e.target.value })}
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green/30"
-                />
-              </div>
-              <div>
-                <label className="text-xs font-medium text-slate-600 mb-1 block">Tanggal Selesai</label>
-                <input
-                  type="date"
-                  value={form.tanggal_selesai}
-                  onChange={(e) => setForm({ ...form, tanggal_selesai: e.target.value })}
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green/30"
-                />
-              </div>
-              <div>
-                <label className="text-xs font-medium text-slate-600 mb-1 block">Link Group WA</label>
-                <input
-                  type="text"
-                  value={form.link_group_wa}
-                  onChange={(e) => setForm({ ...form, link_group_wa: e.target.value })}
-                  placeholder="https://chat.whatsapp.com/..."
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green/30"
-                />
-              </div>
-              <div>
-                <label className="text-xs font-medium text-slate-600 mb-1 block">Status</label>
-                <select
-                  value={form.status}
-                  onChange={(e) => setForm({ ...form, status: e.target.value })}
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green/30"
-                >
-                  <option value="Aktif">Aktif</option>
-                  <option value="Non-Aktif">Non-Aktif</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="flex gap-2 mt-6">
-              <Button variant="ghost" className="flex-1" onClick={() => setModalOpen(false)}>
-                Batal
-              </Button>
-              <Button variant="primary" className="flex-1" onClick={handleSave}>
-                Simpan
-              </Button>
-            </div>
+      <Modal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        title={editingGelombang ? 'Edit Gelombang' : 'Tambah Gelombang'}
+        footer={
+          <>
+            <Button variant="ghost" fullWidth className="sm:w-auto" onClick={() => setModalOpen(false)}>
+              Batal
+            </Button>
+            <Button variant="primary" fullWidth className="sm:w-auto" onClick={handleSave}>
+              Simpan
+            </Button>
+          </>
+        }
+      >
+        <div className="space-y-3">
+          <div>
+            <label className="text-xs font-medium text-slate-600 mb-1 block">Nama Gelombang</label>
+            <input
+              type="text"
+              value={form.gelombang}
+              onChange={(e) => setForm({ ...form, gelombang: e.target.value })}
+              disabled={!!editingGelombang}
+              placeholder="Gelombang 4"
+              className="w-full min-h-touch px-4 py-2.5 rounded-xl border border-slate-200 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-green/30 disabled:bg-slate-50 disabled:text-slate-400"
+            />
+          </div>
+          <div>
+            <label className="text-xs font-medium text-slate-600 mb-1 block">Tanggal Mulai</label>
+            <input
+              type="date"
+              value={form.tanggal_mulai}
+              onChange={(e) => setForm({ ...form, tanggal_mulai: e.target.value })}
+              className="w-full min-h-touch px-4 py-2.5 rounded-xl border border-slate-200 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-green/30"
+            />
+          </div>
+          <div>
+            <label className="text-xs font-medium text-slate-600 mb-1 block">Tanggal Selesai</label>
+            <input
+              type="date"
+              value={form.tanggal_selesai}
+              onChange={(e) => setForm({ ...form, tanggal_selesai: e.target.value })}
+              className="w-full min-h-touch px-4 py-2.5 rounded-xl border border-slate-200 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-green/30"
+            />
+          </div>
+          <div>
+            <label className="text-xs font-medium text-slate-600 mb-1 block">Link Group WA</label>
+            <input
+              type="text"
+              value={form.link_group_wa}
+              onChange={(e) => setForm({ ...form, link_group_wa: e.target.value })}
+              placeholder="https://chat.whatsapp.com/..."
+              className="w-full min-h-touch px-4 py-2.5 rounded-xl border border-slate-200 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-green/30"
+            />
+          </div>
+          <div>
+            <label className="text-xs font-medium text-slate-600 mb-1 block">Status</label>
+            <select
+              value={form.status}
+              onChange={(e) => setForm({ ...form, status: e.target.value })}
+              className="w-full min-h-touch px-4 py-2.5 rounded-xl border border-slate-200 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-green/30"
+            >
+              <option value="Aktif">Aktif</option>
+              <option value="Non-Aktif">Non-Aktif</option>
+            </select>
           </div>
         </div>
-      )}
+      </Modal>
     </div>
   )
 }

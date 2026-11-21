@@ -18,6 +18,8 @@ const wizardStore = vi.hoisted(() => {
 })
 
 vi.mock('../../store/studentStore', () => ({
+  // StudentShell memakai helper ini untuk memilih aksi utama bottom bar.
+  isPendaftaranAwalLengkap: () => false,
   useStudentStore: (selector: (s: unknown) => unknown) =>
     selector({
       data: {

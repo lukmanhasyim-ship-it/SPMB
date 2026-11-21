@@ -1,3 +1,63 @@
+﻿// Simple in-memory cache for master data
+interface CacheEntry<T> {
+  data: T
+  timestamp: number
+}
+
+const MASTER_CACHE_TTL = 300000 // 5 minutes
+interface GelombangItem {
+  gelombang?: string
+  tanggal_mulai?: string
+  tanggal_selesai?: string
+  link_group_wa?: string
+  status?: string
+  [key: string]: unknown
+}
+
+interface TimelineItem {
+  id_timeline?: string
+  urutan?: string | number
+  nama_tahapan?: string
+  deskripsi?: string
+  tanggal_mulai?: string
+  tanggal_selesai?: string
+  status?: string
+  [key: string]: unknown
+}
+
+const masterCache: Record<'gelombang' | 'config' | 'timeline', CacheEntry<unknown> | null> = {
+  gelombang: null,
+  config: null,
+  timeline: null,
+}
+
+function isCacheValid(entry: CacheEntry<unknown>): boolean {
+  return Date.now() - entry.timestamp <= MASTER_CACHE_TTL
+}
+
+function getMasterCache<T>(key: 'gelombang' | 'config' | 'timeline'): T | null {
+  const entry = masterCache[key]
+  if (!entry) return null
+  if (!isCacheValid(entry)) {
+    masterCache[key] = null
+    return null
+  }
+  return entry.data as T
+}
+
+function setMasterCache(key: 'gelombang' | 'config' | 'timeline', data: unknown): void {
+  masterCache[key] = { data, timestamp: Date.now() }
+}
+
+export function clearMasterCache(key?: 'gelombang' | 'config' | 'timeline'): void {
+  if (key) {
+    masterCache[key] = null
+  } else {
+    masterCache.gelombang = null
+    masterCache.config = null
+    masterCache.timeline = null
+  }
+}
 const API_URL = import.meta.env.VITE_API_URL || ''
 const TOKEN_KEY = 'spmb.session-token'
 const USER_KEY = 'spmb.session'
@@ -130,7 +190,7 @@ const FRIENDLY_ERROR_PATTERNS: Array<[RegExp, string]> = [
   [/UPLOAD_OK_SAVE_FAILED|gagal disimpan ke data/i, 'Foto berhasil diunggah tetapi gagal disimpan ke data. Tekan Simpan Ulang.'],
   [/FILE_TOO_LARGE|maksimal 10MB/i, 'File terlalu besar. Gunakan foto lain atau tunggu kompresi selesai.'],
   [/UNKNOWN_ACTION|frontend lebih baru/i, 'Aplikasi backend belum diperbarui setelah deploy. Hubungi admin untuk redeploy.'],
-  [/HTTP 404/i, 'Layanan backend tidak tersedia (404). Kemungkinan URL backend basi setelah deploy — hubungi admin.'],
+  [/HTTP 404/i, 'Layanan backend tidak tersedia (404). Kemungkinan URL backend basi setelah deploy â€” hubungi admin.'],
   [/HTTP 429/i, 'Terlalu banyak permintaan. Tunggu sebentar lalu coba lagi.'],
   [/HTTP 5\d\d/i, 'Server sedang sibuk. Tunggu sebentar lalu coba lagi.'],
   [/failed to fetch|load failed|networkerror|network error/i, 'Koneksi bermasalah. Periksa internet Anda dan coba lagi.'],
@@ -301,22 +361,45 @@ export const api = {
   },
 
   gelombang: {
-    get: () =>
-      request('getGelombang'),
+    get: async () => {
+      const cached = getMasterCache<GelombangItem[]>('gelombang')
+      if (cached) return { status: 'ok' as const, data: cached }
+      const res = await request('getGelombang')
+      if (res.status === 'ok' && res.data) {
+        setMasterCache('gelombang', res.data)
+      }
+      return res
+    },
 
-    update: (data: Record<string, unknown>) =>
-      request('updateGelombang', data),
+    update: async (data: Record<string, unknown>) => {
+      const res = await request('updateGelombang', data)
+      clearMasterCache('gelombang')
+      return res
+    },
 
-    delete: (gelombang: string) =>
-      request('deleteGelombang', { gelombang }),
+    delete: async (gelombang: string) => {
+      const res = await request('deleteGelombang', { gelombang })
+      clearMasterCache('gelombang')
+      return res
+    },
   },
 
   config: {
-    get: () =>
-      request('getConfig'),
+    get: async () => {
+      const cached = getMasterCache<Record<string, string>>('config')
+      if (cached) return { status: 'ok' as const, data: cached }
+      const res = await request('getConfig')
+      if (res.status === 'ok' && res.data) {
+        setMasterCache('config', res.data)
+      }
+      return res
+    },
 
-    update: (key: string, value: string) =>
-      request('updateConfig', { key, value }),
+    update: async (key: string, value: string) => {
+      const res = await request('updateConfig', { key, value })
+      clearMasterCache('config')
+      return res
+    },
   },
 
   broadcast: {
@@ -386,16 +469,32 @@ export const api = {
   },
 
   timeline: {
-    get: () =>
-      request('getTimeline'),
+    get: async () => {
+      const cached = getMasterCache<TimelineItem[]>('timeline')
+      if (cached) return { status: 'ok' as const, data: cached }
+      const res = await request('getTimeline')
+      if (res.status === 'ok' && res.data) {
+        setMasterCache('timeline', res.data)
+      }
+      return res
+    },
 
-    add: (data: Record<string, unknown>) =>
-      request('addTimeline', data),
+    add: async (data: Record<string, unknown>) => {
+      const res = await request('addTimeline', data)
+      clearMasterCache('timeline')
+      return res
+    },
 
-    update: (idTimeline: string, data: Record<string, unknown>) =>
-      request('updateTimeline', { id_timeline: idTimeline, ...data }),
+    update: async (idTimeline: string, data: Record<string, unknown>) => {
+      const res = await request('updateTimeline', { id_timeline: idTimeline, ...data })
+      clearMasterCache('timeline')
+      return res
+    },
 
-    delete: (idTimeline: string) =>
-      request('deleteTimeline', { id_timeline: idTimeline }),
+    delete: async (idTimeline: string) => {
+      const res = await request('deleteTimeline', { id_timeline: idTimeline })
+      clearMasterCache('timeline')
+      return res
+    },
   },
 }

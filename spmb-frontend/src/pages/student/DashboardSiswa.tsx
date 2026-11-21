@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { LogOut, User, MessageCircle, FileText, UserCheck, MapPin, Award, Newspaper, Loader2 } from 'lucide-react'
+import { User, MessageCircle, FileText, UserCheck, MapPin, Award, Newspaper, Loader2 } from 'lucide-react'
 import { useAuthStore } from '../../store/authStore'
 import { useStudentStore } from '../../store/studentStore'
+import StudentShell from './StudentShell'
 import Card from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
 import { api } from '../../services/api'
@@ -20,7 +21,7 @@ const statusStyle: Record<string, string> = {
 
 export default function DashboardSiswa() {
   const navigate = useNavigate()
-  const { user, logout } = useAuthStore()
+  const { user } = useAuthStore()
   const data = useStudentStore((s) => s.data)
   const steps = useStudentStore((s) => s.steps)
   const loadSiswa = useStudentStore((s) => s.loadSiswa)
@@ -69,11 +70,6 @@ export default function DashboardSiswa() {
     navigate('/student/wizard?mode=awal')
   }
 
-  const handleLogout = () => {
-    logout()
-    navigate('/')
-  }
-
   const stepIcons = [FileText, UserCheck, MapPin, User, Award]
   const stepLabels = ['Program Keahlian', 'Data Pribadi', 'Alamat & Peta', 'Orang Tua/Wali', 'Berkas & Prestasi']
   const filteredEvents = events.filter(
@@ -81,29 +77,8 @@ export default function DashboardSiswa() {
   )
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <nav className="bg-white border-b border-slate-200 sticky top-0 z-50">
-        <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-3 min-w-0">
-            <div className="w-9 h-9 bg-brand-green-light rounded-full flex items-center justify-center shrink-0">
-              <User className="w-5 h-5 text-brand-green" />
-            </div>
-            <div className="min-w-0">
-              <p className="text-xs sm:text-sm font-semibold text-slate-800 truncate">{user?.nama}</p>
-              <p className="text-[11px] sm:text-xs text-slate-500 truncate max-w-[140px] sm:max-w-none">{user?.email}</p>
-            </div>
-          </div>
-          <button
-            onClick={handleLogout}
-            className="flex items-center gap-1.5 text-xs sm:text-sm text-slate-500 hover:text-red-500 transition-colors shrink-0 py-1 px-2"
-          >
-            <LogOut className="w-4 h-4" />
-            <span>Keluar</span>
-          </button>
-        </div>
-      </nav>
-
-      <div className="max-w-3xl mx-auto px-3.5 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-5">
+    <StudentShell hideShortcuts={initialLoading}>
+      <div className="max-w-3xl mx-auto px-3.5 sm:px-4 pt-4 sm:pt-6 space-y-4 sm:space-y-5">
         {gelombangAktif && (
           <Card className="p-3.5 sm:p-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -352,6 +327,6 @@ export default function DashboardSiswa() {
           </div>
         )}
       </div>
-    </div>
+    </StudentShell>
   )
 }

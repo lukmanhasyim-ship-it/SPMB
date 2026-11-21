@@ -4,11 +4,11 @@ import { api } from '../services/api'
 import { formatWIBDateInput } from '../utils/dateUtils'
 
 const STEPS: StepInfo[] = [
-  { nomor: 1, label: 'Program Keahlian', selesai: false },
-  { nomor: 2, label: 'Data Pribadi', selesai: false },
-  { nomor: 3, label: 'Alamat & Peta', selesai: false },
-  { nomor: 4, label: 'Orang Tua/Wali', selesai: false },
-  { nomor: 5, label: 'Berkas & Prestasi', selesai: false },
+  { nomor: 1, label: 'Program Keahlian', shortLabel: 'Jurusan', selesai: false },
+  { nomor: 2, label: 'Data Pribadi', shortLabel: 'Pribadi', selesai: false },
+  { nomor: 3, label: 'Alamat & Peta', shortLabel: 'Alamat', selesai: false },
+  { nomor: 4, label: 'Orang Tua/Wali', shortLabel: 'Ortu', selesai: false },
+  { nomor: 5, label: 'Berkas & Prestasi', shortLabel: 'Berkas', selesai: false },
 ]
 
 const initialState: DataSiswa = {

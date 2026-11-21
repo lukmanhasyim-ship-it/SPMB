@@ -6,6 +6,16 @@ export default {
   ],
   theme: {
     extend: {
+      // Target sentuh minimum WCAG 2.5.8 / iOS HIG (44x44px).
+      spacing: {
+        touch: '2.75rem',
+      },
+      minHeight: {
+        touch: '2.75rem',
+      },
+      minWidth: {
+        touch: '2.75rem',
+      },
       colors: {
         'brand-green': '#007643',
         'brand-green-dark': '#004d2e',

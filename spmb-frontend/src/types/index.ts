@@ -97,6 +97,8 @@ export interface InformasiEvent {
 export interface StepInfo {
   nomor: number;
   label: string;
+  /** Label sangat pendek untuk indikator di layar < 640px. */
+  shortLabel?: string;
   selesai: boolean;
 }
 
