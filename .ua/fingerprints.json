@@ -1,0 +1,5556 @@
+{
+  "version": "1.0.0",
+  "gitCommitHash": "fbffbb4f63c77ecbf7d2e4468797288460301c8a",
+  "generatedAt": "2026-11-18T03:02:01.574Z",
+  "files": {
+    ".ua/config.json": {
+      "filePath": ".ua/config.json",
+      "contentHash": "e707baceef9de1f013564b6e81066f0937edade61dd50e148f30e8168c595921",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 1,
+      "hasStructuralAnalysis": false
+    },
+    "README.md": {
+      "filePath": "README.md",
+      "contentHash": "34cfd54ec7de2dc0a340a48208dd90b1518a38625f0a16477d76b8221826dee8",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 248,
+      "hasStructuralAnalysis": false
+    },
+    "RPD.md": {
+      "filePath": "RPD.md",
+      "contentHash": "f01593163e1a8222a51380045d93cb0574ca17fad3b1e6b73e1a4c4d0e049b84",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 133,
+      "hasStructuralAnalysis": false
+    },
+    "backend-gas/.clasp.json": {
+      "filePath": "backend-gas/.clasp.json",
+      "contentHash": "33496881c64be2c47f5c5eae7ad1ee688740ef1cad42883cbe0c861037b010aa",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 2,
+      "hasStructuralAnalysis": false
+    },
+    "backend-gas/.claspignore": {
+      "filePath": "backend-gas/.claspignore",
+      "contentHash": "9bbbb433741ef65f7cb9661f0588f04503f8d45b382c34e25c55bfb3a46b3708",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 8,
+      "hasStructuralAnalysis": false
+    },
+    "backend-gas/AdminHandler.gs": {
+      "filePath": "backend-gas/AdminHandler.gs",
+      "contentHash": "23a65a9bcdf2856ac3e5836d6b640e46fc174451fcddffb33e800e71dc4c6f5e",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 149,
+      "hasStructuralAnalysis": false
+    },
+    "backend-gas/AuthHandler.gs": {
+      "filePath": "backend-gas/AuthHandler.gs",
+      "contentHash": "d1d89e0e500bb970bd18384c2d01d5ccd2764a61ac51e28c3cbbf9750309291f",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 266,
+      "hasStructuralAnalysis": false
+    },
+    "backend-gas/CacheServiceHelper.gs": {
+      "filePath": "backend-gas/CacheServiceHelper.gs",
+      "contentHash": "11b78ab6318d685584d8cf5094ae90ba9d96b4b5141196a3bc2bd9d14515972e",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 77,
+      "hasStructuralAnalysis": false
+    },
+    "backend-gas/CalendarHandler.gs": {
+      "filePath": "backend-gas/CalendarHandler.gs",
+      "contentHash": "899ac6570acaf34e5f15117fba032ca1cceed67fc5145967b5d3cd686d8388ff",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 105,
+      "hasStructuralAnalysis": false
+    },
+    "backend-gas/Code.gs": {
+      "filePath": "backend-gas/Code.gs",
+      "contentHash": "96ef1a7ea939636b2bd89f0cbf67ede11ad0e805bce3bab7b74335d9eeab4775",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 134,
+      "hasStructuralAnalysis": false
+    },
+    "backend-gas/ConfigHandler.gs": {
+      "filePath": "backend-gas/ConfigHandler.gs",
+      "contentHash": "12023701a09cd10ab5139df9138345e829a5417e918b159d4084f6f6ba0546d0",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 220,
+      "hasStructuralAnalysis": false
+    },
+    "backend-gas/DriveHandler.gs": {
+      "filePath": "backend-gas/DriveHandler.gs",
+      "contentHash": "dc32c68ceae5dbe0ce1a3d3c4145addb741d96608dfc238cc221979d47f85997",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 71,
+      "hasStructuralAnalysis": false
+    },
+    "backend-gas/EngagementHandler.gs": {
+      "filePath": "backend-gas/EngagementHandler.gs",
+      "contentHash": "b2231b2ced9e4105734fa4afa0baafcaf0561f3ca6ef18742ead2739df618284",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 124,
+      "hasStructuralAnalysis": false
+    },
+    "backend-gas/MplsHandler.gs": {
+      "filePath": "backend-gas/MplsHandler.gs",
+      "contentHash": "04070f478abcf00ac8d92fb6ad16ee2fea06ac737209a51b91a4029a50fa7c5b",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 338,
+      "hasStructuralAnalysis": false
+    },
+    "backend-gas/PhoneLib.gs": {
+      "filePath": "backend-gas/PhoneLib.gs",
+      "contentHash": "e5da2cc91d97f09e86538f9289bf663cf167dca05809dbe1c9da4132a62282f0",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 13880,
+      "hasStructuralAnalysis": false
+    },
+    "backend-gas/README.md": {
+      "filePath": "backend-gas/README.md",
+      "contentHash": "6c05c46485eeee4521cc12d8954cab55463a83d394100a22df46a00bf7f929d7",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 255,
+      "hasStructuralAnalysis": false
+    },
+    "backend-gas/Security.gs": {
+      "filePath": "backend-gas/Security.gs",
+      "contentHash": "50d69eb0f1d3b8873430834114351faef61b61edf760d3ed4c1a11a32fa71265",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 127,
+      "hasStructuralAnalysis": false
+    },
+    "backend-gas/SeedData.gs": {
+      "filePath": "backend-gas/SeedData.gs",
+      "contentHash": "a0d0c3e09fc14c5f3d4f04508a2d3276c716cc35b18900f12d88d5d8784fd236",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 65,
+      "hasStructuralAnalysis": false
+    },
+    "backend-gas/SheetManager.gs": {
+      "filePath": "backend-gas/SheetManager.gs",
+      "contentHash": "3838a454917d85adc9bb38a465cdbc3d2af1094bcb0e9ef5b8decb8e111a7995",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 420,
+      "hasStructuralAnalysis": false
+    },
+    "backend-gas/SiswaHandler.gs": {
+      "filePath": "backend-gas/SiswaHandler.gs",
+      "contentHash": "59c55ecf3b3ac21faa27af12867f814fd037b49bccdfe795cfa8bc742a312c85",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 467,
+      "hasStructuralAnalysis": false
+    },
+    "backend-gas/TimelineHandler.gs": {
+      "filePath": "backend-gas/TimelineHandler.gs",
+      "contentHash": "15e50ba35894be6a78212e9db06ab35b68d0de57881303a849c8a4bf3e641360",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 85,
+      "hasStructuralAnalysis": false
+    },
+    "backend-gas/appsscript.json": {
+      "filePath": "backend-gas/appsscript.json",
+      "contentHash": "04e14b5d64186c35ed84f55c6171d0e670e74ad34b56d6d27998e0ca53237d6f",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 16,
+      "hasStructuralAnalysis": false
+    },
+    "backend-gas/build.js": {
+      "filePath": "backend-gas/build.js",
+      "contentHash": "7a6bfe02dfcddd8f1b7b818def97a30e070e6bd827507859a926365094c93866",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 21,
+      "hasStructuralAnalysis": true
+    },
+    "backend-gas/package.json": {
+      "filePath": "backend-gas/package.json",
+      "contentHash": "119a87ea975049a967988a11f87014e77dfb8914b90b16c75e106b3808211760",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 25,
+      "hasStructuralAnalysis": false
+    },
+    "backend-gas/src/phone.js": {
+      "filePath": "backend-gas/src/phone.js",
+      "contentHash": "3a7f297db4a536209044b3c005133e4374285c200ba313acba46cecfe817866d",
+      "functions": [
+        {
+          "name": "normalizeIndoPhone",
+          "params": [
+            "raw"
+          ],
+          "exported": false,
+          "lineCount": 9
+        }
+      ],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 15,
+      "hasStructuralAnalysis": true
+    },
+    "docs/graph/ARCHITECTURE_GRAPH.md": {
+      "filePath": "docs/graph/ARCHITECTURE_GRAPH.md",
+      "contentHash": "df78b2d674e102ec61fddbefad13ee6d228abaeb7a75b3e6bdab588cf9e15ee7",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 224,
+      "hasStructuralAnalysis": false
+    },
+    "docs/graph/DEPENDENCY_MAP.md": {
+      "filePath": "docs/graph/DEPENDENCY_MAP.md",
+      "contentHash": "2606656392744ee5f637981139175cfbce182672b8319b3e46113d36acba3c12",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 71,
+      "hasStructuralAnalysis": false
+    },
+    "spmb-frontend/.env.example": {
+      "filePath": "spmb-frontend/.env.example",
+      "contentHash": "d77bdeed37318ce121e5b4dfc3b7e090bc88cd477900aa2c97dd8c8865695ac2",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 3,
+      "hasStructuralAnalysis": false
+    },
+    "spmb-frontend/.firebase/hosting.ZGlzdA.cache": {
+      "filePath": "spmb-frontend/.firebase/hosting.ZGlzdA.cache",
+      "contentHash": "1a423cc0d9ffaaa5513c4fc5ef5db5e1c3732eab10e0d8b47196a3141e3d569a",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 75,
+      "hasStructuralAnalysis": false
+    },
+    "spmb-frontend/.firebaserc": {
+      "filePath": "spmb-frontend/.firebaserc",
+      "contentHash": "7c4efc0e135f7e26a9b346e6f79282af23719804b8370efe77497f7766408908",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 6,
+      "hasStructuralAnalysis": false
+    },
+    "spmb-frontend/README.md": {
+      "filePath": "spmb-frontend/README.md",
+      "contentHash": "5fad82472baa958fddb6d97ed0c903e0cc8f506873f3d858dbe97a1290c39f34",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 67,
+      "hasStructuralAnalysis": false
+    },
+    "spmb-frontend/e2e/auth.spec.ts": {
+      "filePath": "spmb-frontend/e2e/auth.spec.ts",
+      "contentHash": "f17d07a09a701b83c9c5ed73902f3221b58a05c588735cdf0eddbf99d1045878",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "@playwright/test",
+          "specifiers": [
+            "test",
+            "expect"
+          ]
+        },
+        {
+          "source": "./helpers",
+          "specifiers": [
+            "mockBackend",
+            "stubGoogleSignIn",
+            "seedSession",
+            "MOCK_EMAIL"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 33,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/e2e/formulir-identity.spec.ts": {
+      "filePath": "spmb-frontend/e2e/formulir-identity.spec.ts",
+      "contentHash": "7dc96fa4665e7261ccf0ef98a9971ec31fd21bc398de82986b48701c418509dc",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "@playwright/test",
+          "specifiers": [
+            "expect",
+            "test"
+          ]
+        },
+        {
+          "source": "node:fs",
+          "specifiers": [
+            "readFileSync"
+          ]
+        },
+        {
+          "source": "./helpers",
+          "specifiers": [
+            "mockBackend",
+            "seedSession"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 155,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/e2e/formulir-jpg.spec.ts": {
+      "filePath": "spmb-frontend/e2e/formulir-jpg.spec.ts",
+      "contentHash": "df32e96c86ee4a95874720077714eaae354a928848fc096c5e4c31799e65492c",
+      "functions": [
+        {
+          "name": "jpegSize",
+          "params": [
+            "buf"
+          ],
+          "returnType": "{ width: number; height: number }",
+          "exported": false,
+          "lineCount": 29
+        },
+        {
+          "name": "renderForm",
+          "params": [
+            "page"
+          ],
+          "exported": false,
+          "lineCount": 13
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "@playwright/test",
+          "specifiers": [
+            "expect",
+            "test"
+          ]
+        },
+        {
+          "source": "node:fs",
+          "specifiers": [
+            "readFileSync"
+          ]
+        },
+        {
+          "source": "./helpers",
+          "specifiers": [
+            "mockBackend",
+            "seedSession"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 153,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/e2e/helpers.ts": {
+      "filePath": "spmb-frontend/e2e/helpers.ts",
+      "contentHash": "60de171944779f68a32c29c2f226bc0c41d50fe077b64c737b0f6881b92dcb80",
+      "functions": [
+        {
+          "name": "mockBackend",
+          "params": [
+            "page",
+            "responses"
+          ],
+          "exported": true,
+          "lineCount": 32
+        },
+        {
+          "name": "stubGoogleSignIn",
+          "params": [
+            "page"
+          ],
+          "exported": true,
+          "lineCount": 13
+        },
+        {
+          "name": "seedSession",
+          "params": [
+            "page",
+            "role",
+            "email"
+          ],
+          "exported": true,
+          "lineCount": 12
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "@playwright/test",
+          "specifiers": [
+            "Page"
+          ]
+        }
+      ],
+      "exports": [
+        "MOCK_EMAIL",
+        "CORS_HEADERS",
+        "mockBackend",
+        "stubGoogleSignIn",
+        "seedSession"
+      ],
+      "totalLines": 71,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/e2e/route-guard.spec.ts": {
+      "filePath": "spmb-frontend/e2e/route-guard.spec.ts",
+      "contentHash": "b6c60c2a23f424d2d282b2f60310a27e2824af131f80139a051cd9b7627e4094",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "@playwright/test",
+          "specifiers": [
+            "test",
+            "expect"
+          ]
+        },
+        {
+          "source": "./helpers",
+          "specifiers": [
+            "mockBackend",
+            "seedSession"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 33,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/e2e/wizard.spec.ts": {
+      "filePath": "spmb-frontend/e2e/wizard.spec.ts",
+      "contentHash": "6e0eb9e93db4f002a2775e40315aa44ecf23d2d04cb3b4bb55bfeecf9b314937",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "@playwright/test",
+          "specifiers": [
+            "test",
+            "expect"
+          ]
+        },
+        {
+          "source": "./helpers",
+          "specifiers": [
+            "mockBackend",
+            "seedSession"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 22,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/eslint.config.js": {
+      "filePath": "spmb-frontend/eslint.config.js",
+      "contentHash": "dc00c7db700d03834d04a172ea709593ae5ef1bc750eb55dfc521a60d9e1baa0",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "@eslint/js",
+          "specifiers": [
+            "js"
+          ]
+        },
+        {
+          "source": "globals",
+          "specifiers": [
+            "globals"
+          ]
+        },
+        {
+          "source": "eslint-plugin-react-hooks",
+          "specifiers": [
+            "reactHooks"
+          ]
+        },
+        {
+          "source": "eslint-plugin-react-refresh",
+          "specifiers": [
+            "reactRefresh"
+          ]
+        },
+        {
+          "source": "typescript-eslint",
+          "specifiers": [
+            "tseslint"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 29,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/firebase.json": {
+      "filePath": "spmb-frontend/firebase.json",
+      "contentHash": "a365b3c5037478c0908a85b76b8ef68daa6d74ba7751e9f5d884c6cf4c8df57b",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 17,
+      "hasStructuralAnalysis": false
+    },
+    "spmb-frontend/index.html": {
+      "filePath": "spmb-frontend/index.html",
+      "contentHash": "32452029b0c62c399a8bf90a28b71690db9abeffa6d2950384ec82e1918dc915",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 15,
+      "hasStructuralAnalysis": false
+    },
+    "spmb-frontend/package.json": {
+      "filePath": "spmb-frontend/package.json",
+      "contentHash": "f6bf63ed1aec76dd1a7d35707331a2012741bea431b91da3f2df01064caedac9",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 52,
+      "hasStructuralAnalysis": false
+    },
+    "spmb-frontend/playwright.config.ts": {
+      "filePath": "spmb-frontend/playwright.config.ts",
+      "contentHash": "77ffc4cc548a23ea9bf3d0d669938ac58d6ddac050a6e734a3a3daa617acede2",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "@playwright/test",
+          "specifiers": [
+            "defineConfig"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 19,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/postcss.config.js": {
+      "filePath": "spmb-frontend/postcss.config.js",
+      "contentHash": "190c877db466995bf1482f4a16abd06e04a89ede3119341e2a86ff96e1737b27",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 7,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/src/App.test.tsx": {
+      "filePath": "spmb-frontend/src/App.test.tsx",
+      "contentHash": "e11ffb2961f313490f022323b0031b1fc0c288a87d833f1f490105afe7604355",
+      "functions": [
+        {
+          "name": "loginAs",
+          "params": [
+            "role"
+          ],
+          "exported": false,
+          "lineCount": 8
+        },
+        {
+          "name": "renderApp",
+          "params": [
+            "initialPath"
+          ],
+          "exported": false,
+          "lineCount": 7
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "@testing-library/react",
+          "specifiers": [
+            "render",
+            "screen"
+          ]
+        },
+        {
+          "source": "react-router-dom",
+          "specifiers": [
+            "MemoryRouter"
+          ]
+        },
+        {
+          "source": "vitest",
+          "specifiers": [
+            "describe",
+            "it",
+            "expect",
+            "vi",
+            "beforeEach"
+          ]
+        },
+        {
+          "source": "./App",
+          "specifiers": [
+            "App"
+          ]
+        },
+        {
+          "source": "./store/authStore",
+          "specifiers": [
+            "useAuthStore"
+          ]
+        },
+        {
+          "source": "./types",
+          "specifiers": [
+            "Role",
+            "User"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 152,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/src/App.tsx": {
+      "filePath": "spmb-frontend/src/App.tsx",
+      "contentHash": "e38e3d8a58703b9c7b994bc76d2a28be84e0eea35e174543adb99fec42accc6d",
+      "functions": [
+        {
+          "name": "SuspenseWrapper",
+          "params": [
+            "{ children }"
+          ],
+          "exported": false,
+          "lineCount": 7
+        },
+        {
+          "name": "ProtectedRoute",
+          "params": [
+            "{ children, role }"
+          ],
+          "exported": false,
+          "lineCount": 8
+        },
+        {
+          "name": "App",
+          "params": [],
+          "exported": false,
+          "lineCount": 94
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "react",
+          "specifiers": [
+            "lazy",
+            "Suspense"
+          ]
+        },
+        {
+          "source": "react-router-dom",
+          "specifiers": [
+            "Routes",
+            "Route",
+            "Navigate"
+          ]
+        },
+        {
+          "source": "./store/authStore",
+          "specifiers": [
+            "useAuthStore"
+          ]
+        },
+        {
+          "source": "./types",
+          "specifiers": [
+            "Role"
+          ]
+        },
+        {
+          "source": "./components/ErrorBoundary",
+          "specifiers": [
+            "ErrorBoundary"
+          ]
+        },
+        {
+          "source": "./pages/login/LoginPage",
+          "specifiers": [
+            "LoginPage"
+          ]
+        },
+        {
+          "source": "./pages/login/RegisterPage",
+          "specifiers": [
+            "RegisterPage"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 145,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/src/components/ErrorBoundary.tsx": {
+      "filePath": "spmb-frontend/src/components/ErrorBoundary.tsx",
+      "contentHash": "4737b177b13ae68adae418671ec975d2984010a63ede83b8cd969e179e8b9a9d",
+      "functions": [],
+      "classes": [
+        {
+          "name": "ErrorBoundary",
+          "methods": [
+            "getDerivedStateFromError",
+            "componentDidCatch",
+            "render"
+          ],
+          "properties": [
+            "state",
+            "handleReload"
+          ],
+          "exported": false,
+          "lineCount": 49
+        }
+      ],
+      "imports": [
+        {
+          "source": "react",
+          "specifiers": [
+            "Component"
+          ]
+        },
+        {
+          "source": "react",
+          "specifiers": [
+            "ErrorInfo",
+            "ReactNode"
+          ]
+        }
+      ],
+      "exports": [
+        "default"
+      ],
+      "totalLines": 61,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/src/components/kartu/BuktiPendaftaranCard.test.tsx": {
+      "filePath": "spmb-frontend/src/components/kartu/BuktiPendaftaranCard.test.tsx",
+      "contentHash": "b7ecb775eabab6a03c2888ed04cf8f8fd810525e7368c521ef8a254878179f48",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "vitest",
+          "specifiers": [
+            "describe",
+            "it",
+            "expect"
+          ]
+        },
+        {
+          "source": "node:fs",
+          "specifiers": [
+            "readFileSync"
+          ]
+        },
+        {
+          "source": "node:path",
+          "specifiers": [
+            "resolve"
+          ]
+        },
+        {
+          "source": "@testing-library/react",
+          "specifiers": [
+            "render"
+          ]
+        },
+        {
+          "source": "./BuktiPendaftaranCard",
+          "specifiers": [
+            "BuktiPendaftaranCard",
+            "KartuData"
+          ]
+        },
+        {
+          "source": "../../utils/waGroup",
+          "specifiers": [
+            "QR_MODULE_COLOR"
+          ]
+        },
+        {
+          "source": "../../utils/kartuPrint",
+          "specifiers": [
+            "A4_GRID_COLS",
+            "A4_GRID_ROWS",
+            "A4_H_MM",
+            "A4_MAX_CARDS",
+            "A4_SHEET_OFFSET_X_MM",
+            "A4_SHEET_OFFSET_Y_MM",
+            "A4_W_MM",
+            "KARTU_CONTENT_W_MM",
+            "KARTU_H_MM",
+            "KARTU_PADDING_MM",
+            "KARTU_W_MM",
+            "QR_COL_W_MM",
+            "QR_GAP_MM",
+            "QR_LABEL_MAX_W_MM",
+            "QR_MAX_GAP_MM",
+            "QR_PLATE_PAD_MM",
+            "QR_ROW_W_MM",
+            "QR_SIDE_MARGIN_MM",
+            "QR_SIZE_MM",
+            "a4PrintCss",
+            "a4SheetCss",
+            "a4SinglePrintCss",
+            "chunkIntoSheets",
+            "kartuPrintCss"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 322,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/src/components/kartu/BuktiPendaftaranCard.tsx": {
+      "filePath": "spmb-frontend/src/components/kartu/BuktiPendaftaranCard.tsx",
+      "contentHash": "619a90b9368113bd539cc07709dce5a6ff8fae2d23b43aa95910e5dedf0bb42e",
+      "functions": [
+        {
+          "name": "BuktiPendaftaranCard",
+          "params": [
+            "{\n  data,\n  id,\n  className = '',\n}"
+          ],
+          "exported": true,
+          "lineCount": 151
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "qrcode.react",
+          "specifiers": [
+            "QRCodeSVG"
+          ]
+        },
+        {
+          "source": "../../utils/waGroup",
+          "specifiers": [
+            "QR_MODULE_COLOR",
+            "WHATSAPP_LOGO_SRC"
+          ]
+        },
+        {
+          "source": "../../utils/kartuPrint",
+          "specifiers": [
+            "KARTU_H_MM",
+            "KARTU_W_MM",
+            "QR_GAP_MM",
+            "QR_LABEL_MAX_W_MM",
+            "QR_PLATE_PAD_MM",
+            "QR_SIZE_MM"
+          ]
+        }
+      ],
+      "exports": [
+        "BuktiPendaftaranCard"
+      ],
+      "totalLines": 178,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/src/components/layout/AppShell.tsx": {
+      "filePath": "spmb-frontend/src/components/layout/AppShell.tsx",
+      "contentHash": "4ac0bd3e087b8b643ba60cf635a1ff413c1350989d16aafad7b0b473d05f6c23",
+      "functions": [
+        {
+          "name": "formatTanggalWIB",
+          "params": [],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 4
+        },
+        {
+          "name": "AppShell",
+          "params": [
+            "{ navItems, brandTitle, brandSubtitle }"
+          ],
+          "exported": true,
+          "lineCount": 213
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "react",
+          "specifiers": [
+            "useMemo",
+            "useState"
+          ]
+        },
+        {
+          "source": "react-router-dom",
+          "specifiers": [
+            "NavLink",
+            "Outlet",
+            "useLocation",
+            "useNavigate"
+          ]
+        },
+        {
+          "source": "lucide-react",
+          "specifiers": [
+            "GraduationCap",
+            "LogOut",
+            "Menu",
+            "X",
+            "PanelLeftClose",
+            "PanelLeftOpen"
+          ]
+        },
+        {
+          "source": "react",
+          "specifiers": [
+            "ComponentType"
+          ]
+        },
+        {
+          "source": "../../store/authStore",
+          "specifiers": [
+            "useAuthStore"
+          ]
+        }
+      ],
+      "exports": [
+        "AppShell"
+      ],
+      "totalLines": 243,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/src/components/ui/Button.tsx": {
+      "filePath": "spmb-frontend/src/components/ui/Button.tsx",
+      "contentHash": "22ef50db5c2a069590c093bd53dbc8f4474e25453042426a55ed8db032dc79cb",
+      "functions": [
+        {
+          "name": "Button",
+          "params": [
+            "{\n  children,\n  onClick,\n  type = 'button',\n  variant = 'primary',\n  disabled = false,\n  loading = false,\n  className = '',\n  fullWidth = false,\n}"
+          ],
+          "exported": true,
+          "lineCount": 35
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "react",
+          "specifiers": [
+            "ReactNode"
+          ]
+        }
+      ],
+      "exports": [
+        "Button"
+      ],
+      "totalLines": 49,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/src/components/ui/Card.tsx": {
+      "filePath": "spmb-frontend/src/components/ui/Card.tsx",
+      "contentHash": "73335ab2db36aaacedfc5bac390ca7023cd6ee1e01896b30a4da4fb8e0d65faf",
+      "functions": [
+        {
+          "name": "Card",
+          "params": [
+            "{ children, className = '', onClick, hover = false, glass = false }"
+          ],
+          "exported": false,
+          "lineCount": 20
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "react",
+          "specifiers": [
+            "React"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 33,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/src/components/ui/DonutChart.tsx": {
+      "filePath": "spmb-frontend/src/components/ui/DonutChart.tsx",
+      "contentHash": "2befb07a72e765401dcb9e59de5d23269136b5eaa689f91284bb50315b042913",
+      "functions": [
+        {
+          "name": "DonutChart",
+          "params": [
+            "{\n  data,\n  size = 168,\n  thickness = 26,\n  centerLabel = 'Total',\n  showLegend = true,\n  className = '',\n}"
+          ],
+          "exported": true,
+          "lineCount": 85
+        }
+      ],
+      "classes": [],
+      "imports": [],
+      "exports": [
+        "DonutChart"
+      ],
+      "totalLines": 101,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/src/components/ui/InputField.tsx": {
+      "filePath": "spmb-frontend/src/components/ui/InputField.tsx",
+      "contentHash": "ecf7649f6723bac9dd7d2757112d700c8d074f688e9b92d81dbfb5a6af95a877",
+      "functions": [
+        {
+          "name": "InputField",
+          "params": [
+            "{\n  label,\n  name,\n  value,\n  onChange,\n  type = 'text',\n  placeholder = '',\n  required = false,\n  disabled = false,\n  error,\n  helperText,\n  options,\n  textarea = false,\n  maxLength,\n  min,\n  max,\n}"
+          ],
+          "exported": true,
+          "lineCount": 76
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "react",
+          "specifiers": [
+            "ChangeEvent"
+          ]
+        }
+      ],
+      "exports": [
+        "InputField"
+      ],
+      "totalLines": 97,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/src/components/ui/Loader.tsx": {
+      "filePath": "spmb-frontend/src/components/ui/Loader.tsx",
+      "contentHash": "5d51cb71ebece6da2b23d873de8e66903680026eb2563a419e2b13d68a648695",
+      "functions": [
+        {
+          "name": "Loader",
+          "params": [
+            "{ className = '' }"
+          ],
+          "exported": true,
+          "lineCount": 7
+        }
+      ],
+      "classes": [],
+      "imports": [],
+      "exports": [
+        "Loader"
+      ],
+      "totalLines": 8,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/src/components/ui/ProgressBar.tsx": {
+      "filePath": "spmb-frontend/src/components/ui/ProgressBar.tsx",
+      "contentHash": "6809fa0b464080834929f35f7d85af586e9040f7d3fe0743b868ac8e1778da73",
+      "functions": [
+        {
+          "name": "ProgressBar",
+          "params": [
+            "{\n  label,\n  count,\n  total,\n  color = 'bg-brand-green',\n  suffix = 'siswa',\n}"
+          ],
+          "exported": true,
+          "lineCount": 25
+        }
+      ],
+      "classes": [],
+      "imports": [],
+      "exports": [
+        "ProgressBar"
+      ],
+      "totalLines": 34,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/src/components/ui/StatCard.tsx": {
+      "filePath": "spmb-frontend/src/components/ui/StatCard.tsx",
+      "contentHash": "ed3664910ca5d065dda3fe25d92e00a9c2b98983ce9a48b7bcbd7d6260f216ea",
+      "functions": [
+        {
+          "name": "StatCard",
+          "params": [
+            "{\n  icon: Icon,\n  label,\n  value,\n  tone = 'green',\n  hint,\n  className = '',\n}"
+          ],
+          "exported": true,
+          "lineCount": 29
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "react",
+          "specifiers": [
+            "ComponentType",
+            "ReactNode"
+          ]
+        },
+        {
+          "source": "./Card",
+          "specifiers": [
+            "Card"
+          ]
+        }
+      ],
+      "exports": [
+        "StatCard"
+      ],
+      "totalLines": 54,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/src/components/ui/Toast.tsx": {
+      "filePath": "spmb-frontend/src/components/ui/Toast.tsx",
+      "contentHash": "27bd217ffd614dd91a9cb2632a3a506d8a847bb64d903f2201d7d0b78ea523f1",
+      "functions": [
+        {
+          "name": "Toast",
+          "params": [
+            "{ type, message, onClose }"
+          ],
+          "exported": true,
+          "lineCount": 24
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "lucide-react",
+          "specifiers": [
+            "CheckCircle2",
+            "XCircle",
+            "Info",
+            "X"
+          ]
+        }
+      ],
+      "exports": [
+        "Toast"
+      ],
+      "totalLines": 53,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/src/data/constants.ts": {
+      "filePath": "spmb-frontend/src/data/constants.ts",
+      "contentHash": "43a4b51e3dd04ba5a38dcae3205ee5b67fbb28e069c390a0593ae68695d6c8f2",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [
+        "DATA_JURUSAN",
+        "DATA_AGAMA",
+        "DATA_TINGGAL_BERSAMA",
+        "DATA_ESTIMASI_PENGHASILAN",
+        "DATA_KATEGORI_REFERRAL",
+        "DATA_PROSPEK_KARIR",
+        "DATA_JENIS_IZIN"
+      ],
+      "totalLines": 102,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/src/hooks/useKartuPrint.ts": {
+      "filePath": "spmb-frontend/src/hooks/useKartuPrint.ts",
+      "contentHash": "cfe51dd0a95db1e09928e41fff0cd6a6c6386451bd76615349c6fffa4a342312",
+      "functions": [
+        {
+          "name": "useKartuPrint",
+          "params": [],
+          "exported": true,
+          "lineCount": 27
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "react",
+          "specifiers": [
+            "useCallback",
+            "useEffect",
+            "useState"
+          ]
+        }
+      ],
+      "exports": [
+        "useKartuPrint"
+      ],
+      "totalLines": 38,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/src/index.css": {
+      "filePath": "spmb-frontend/src/index.css",
+      "contentHash": "8727dcadfed314b4306f99dcb856b74985ed1a9eba30b04a9769b84f1f416872",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 257,
+      "hasStructuralAnalysis": false
+    },
+    "spmb-frontend/src/main.tsx": {
+      "filePath": "spmb-frontend/src/main.tsx",
+      "contentHash": "2ecf7a312e32b3784602243e62faeb2d89598d4febd1a135cb3a9e5615951eef",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "react",
+          "specifiers": [
+            "StrictMode"
+          ]
+        },
+        {
+          "source": "react-dom/client",
+          "specifiers": [
+            "createRoot"
+          ]
+        },
+        {
+          "source": "react-router-dom",
+          "specifiers": [
+            "BrowserRouter"
+          ]
+        },
+        {
+          "source": "./index.css",
+          "specifiers": []
+        },
+        {
+          "source": "./App",
+          "specifiers": [
+            "App"
+          ]
+        },
+        {
+          "source": "./store/authStore",
+          "specifiers": [
+            "useAuthStore"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 22,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/src/pages/admin/AdminBroadcast.tsx": {
+      "filePath": "spmb-frontend/src/pages/admin/AdminBroadcast.tsx",
+      "contentHash": "fdb6c0f6d2a12aecfc81737931c4660366076f49136e0742e53cda8d417e960b",
+      "functions": [
+        {
+          "name": "AdminBroadcast",
+          "params": [],
+          "exported": true,
+          "lineCount": 634
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "react",
+          "specifiers": [
+            "useEffect",
+            "useState",
+            "useRef"
+          ]
+        },
+        {
+          "source": "lucide-react",
+          "specifiers": [
+            "ImagePlus",
+            "CheckCircle2",
+            "Trash2",
+            "X",
+            "Loader2",
+            "Pencil",
+            "Calendar",
+            "Clock",
+            "MapPin"
+          ]
+        },
+        {
+          "source": "../../components/ui/Card",
+          "specifiers": [
+            "Card"
+          ]
+        },
+        {
+          "source": "../../components/ui/Button",
+          "specifiers": [
+            "Button"
+          ]
+        },
+        {
+          "source": "../../components/ui/Loader",
+          "specifiers": [
+            "Loader"
+          ]
+        },
+        {
+          "source": "../../services/api",
+          "specifiers": [
+            "api"
+          ]
+        },
+        {
+          "source": "../../utils/imageCompress",
+          "specifiers": [
+            "compressAndCropImage"
+          ]
+        },
+        {
+          "source": "../../utils/dateUtils",
+          "specifiers": [
+            "formatWIBShort",
+            "formatWIBDateInput",
+            "formatWIBTime"
+          ]
+        }
+      ],
+      "exports": [
+        "AdminBroadcast"
+      ],
+      "totalLines": 661,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/src/pages/admin/AdminCetakKartu.tsx": {
+      "filePath": "spmb-frontend/src/pages/admin/AdminCetakKartu.tsx",
+      "contentHash": "0934c212e13433bba77051657c95e5a15fcc1bbb254926b9ae8140397f4117ca",
+      "functions": [
+        {
+          "name": "AdminCetakKartu",
+          "params": [],
+          "exported": true,
+          "lineCount": 301
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "react",
+          "specifiers": [
+            "useCallback",
+            "useEffect",
+            "useMemo",
+            "useState"
+          ]
+        },
+        {
+          "source": "lucide-react",
+          "specifiers": [
+            "Printer",
+            "Search",
+            "Users",
+            "Files"
+          ]
+        },
+        {
+          "source": "../../components/ui/Card",
+          "specifiers": [
+            "Card"
+          ]
+        },
+        {
+          "source": "../../components/ui/Button",
+          "specifiers": [
+            "Button"
+          ]
+        },
+        {
+          "source": "../../components/ui/Loader",
+          "specifiers": [
+            "Loader"
+          ]
+        },
+        {
+          "source": "../../components/kartu/BuktiPendaftaranCard",
+          "specifiers": [
+            "BuktiPendaftaranCard",
+            "KartuData"
+          ]
+        },
+        {
+          "source": "../../data/constants",
+          "specifiers": [
+            "DATA_JURUSAN"
+          ]
+        },
+        {
+          "source": "../../utils/dateUtils",
+          "specifiers": [
+            "formatWIB"
+          ]
+        },
+        {
+          "source": "../../services/api",
+          "specifiers": [
+            "api"
+          ]
+        },
+        {
+          "source": "../../hooks/useKartuPrint",
+          "specifiers": [
+            "useKartuPrint"
+          ]
+        },
+        {
+          "source": "../../utils/kartuPrint",
+          "specifiers": [
+            "A4_GRID_COLS",
+            "A4_GRID_ROWS",
+            "A4_MAX_CARDS",
+            "A4_W_MM",
+            "A4_H_MM",
+            "a4PrintCss",
+            "a4SheetCss",
+            "chunkIntoSheets"
+          ]
+        }
+      ],
+      "exports": [
+        "AdminCetakKartu"
+      ],
+      "totalLines": 330,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/src/pages/admin/AdminDaftarSiswa.tsx": {
+      "filePath": "spmb-frontend/src/pages/admin/AdminDaftarSiswa.tsx",
+      "contentHash": "a43b9ebb756dec55ed689e2a2ab4b90693a6143c5656e1fa89badc3f6f8d4eeb",
+      "functions": [
+        {
+          "name": "buatFormKosong",
+          "params": [
+            "user"
+          ],
+          "exported": false,
+          "lineCount": 46
+        },
+        {
+          "name": "AdminDaftarSiswa",
+          "params": [
+            "{ cetakPath = '/admin/formulir' }"
+          ],
+          "exported": true,
+          "lineCount": 671
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "react",
+          "specifiers": [
+            "useState"
+          ]
+        },
+        {
+          "source": "react",
+          "specifiers": [
+            "ChangeEvent"
+          ]
+        },
+        {
+          "source": "react-router-dom",
+          "specifiers": [
+            "useNavigate"
+          ]
+        },
+        {
+          "source": "lucide-react",
+          "specifiers": [
+            "UserPlus",
+            "GraduationCap",
+            "MapPin",
+            "Users",
+            "Award",
+            "Mail",
+            "CheckCircle2",
+            "Printer",
+            "FileText"
+          ]
+        },
+        {
+          "source": "../../components/ui/Card",
+          "specifiers": [
+            "Card"
+          ]
+        },
+        {
+          "source": "../../components/ui/Button",
+          "specifiers": [
+            "Button"
+          ]
+        },
+        {
+          "source": "../../components/ui/InputField",
+          "specifiers": [
+            "InputField"
+          ]
+        },
+        {
+          "source": "../../store/authStore",
+          "specifiers": [
+            "useAuthStore"
+          ]
+        },
+        {
+          "source": "../../types",
+          "specifiers": [
+            "User"
+          ]
+        },
+        {
+          "source": "../../services/api",
+          "specifiers": [
+            "api"
+          ]
+        },
+        {
+          "source": "../../data/constants",
+          "specifiers": [
+            "DATA_JURUSAN",
+            "DATA_AGAMA",
+            "DATA_TINGGAL_BERSAMA",
+            "DATA_KATEGORI_REFERRAL",
+            "DATA_ESTIMASI_PENGHASILAN"
+          ]
+        }
+      ],
+      "exports": [
+        "AdminDaftarSiswa"
+      ],
+      "totalLines": 739,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/src/pages/admin/AdminDashboard.tsx": {
+      "filePath": "spmb-frontend/src/pages/admin/AdminDashboard.tsx",
+      "contentHash": "2718d9e05d8a23f631ada0463fb4662e3463dad161cec64a4de89e2c5d0f5025",
+      "functions": [
+        {
+          "name": "getSapaanWIB",
+          "params": [],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 7
+        },
+        {
+          "name": "AdminDashboard",
+          "params": [],
+          "exported": true,
+          "lineCount": 293
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "react",
+          "specifiers": [
+            "useEffect",
+            "useState"
+          ]
+        },
+        {
+          "source": "react-router-dom",
+          "specifiers": [
+            "Link"
+          ]
+        },
+        {
+          "source": "lucide-react",
+          "specifiers": [
+            "Users",
+            "FileCheck",
+            "Clock",
+            "AlertTriangle",
+            "Calendar",
+            "Milestone",
+            "Image",
+            "FileText",
+            "ArrowUpRight",
+            "CreditCard"
+          ]
+        },
+        {
+          "source": "../../components/ui/Card",
+          "specifiers": [
+            "Card"
+          ]
+        },
+        {
+          "source": "../../components/ui/Loader",
+          "specifiers": [
+            "Loader"
+          ]
+        },
+        {
+          "source": "../../components/ui/StatCard",
+          "specifiers": [
+            "StatCard"
+          ]
+        },
+        {
+          "source": "../../components/ui/DonutChart",
+          "specifiers": [
+            "DonutChart"
+          ]
+        },
+        {
+          "source": "../../components/ui/ProgressBar",
+          "specifiers": [
+            "ProgressBar"
+          ]
+        },
+        {
+          "source": "../../services/api",
+          "specifiers": [
+            "api"
+          ]
+        },
+        {
+          "source": "../../utils/dateUtils",
+          "specifiers": [
+            "formatWIBShort"
+          ]
+        },
+        {
+          "source": "../../store/authStore",
+          "specifiers": [
+            "useAuthStore"
+          ]
+        }
+      ],
+      "exports": [
+        "AdminDashboard"
+      ],
+      "totalLines": 323,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/src/pages/admin/AdminFormulir.tsx": {
+      "filePath": "spmb-frontend/src/pages/admin/AdminFormulir.tsx",
+      "contentHash": "d2fc2bd7a508ec3949260f72506b2e5f485e7c1f037c71ebbcebccae661f4f7f",
+      "functions": [
+        {
+          "name": "AdminFormulir",
+          "params": [],
+          "exported": true,
+          "lineCount": 358
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "react",
+          "specifiers": [
+            "useEffect",
+            "useState",
+            "useMemo",
+            "useRef"
+          ]
+        },
+        {
+          "source": "react-router-dom",
+          "specifiers": [
+            "useSearchParams"
+          ]
+        },
+        {
+          "source": "lucide-react",
+          "specifiers": [
+            "Search",
+            "FileText",
+            "ArrowLeft",
+            "Printer",
+            "CreditCard",
+            "Download"
+          ]
+        },
+        {
+          "source": "../../components/ui/Card",
+          "specifiers": [
+            "Card"
+          ]
+        },
+        {
+          "source": "../../components/ui/Button",
+          "specifiers": [
+            "Button"
+          ]
+        },
+        {
+          "source": "../../components/ui/Loader",
+          "specifiers": [
+            "Loader"
+          ]
+        },
+        {
+          "source": "../../components/ui/Toast",
+          "specifiers": [
+            "Toast"
+          ]
+        },
+        {
+          "source": "../../services/api",
+          "specifiers": [
+            "api"
+          ]
+        },
+        {
+          "source": "../../utils/formImage",
+          "specifiers": [
+            "renderFormJpeg",
+            "printJpeg",
+            "downloadJpeg"
+          ]
+        },
+        {
+          "source": "../../utils/waGroup",
+          "specifiers": [
+            "findLinkGroupWa"
+          ]
+        },
+        {
+          "source": "../../utils/kartuPrint",
+          "specifiers": [
+            "a4SinglePrintCss",
+            "kartuPrintCss"
+          ]
+        },
+        {
+          "source": "../../hooks/useKartuPrint",
+          "specifiers": [
+            "useKartuPrint"
+          ]
+        },
+        {
+          "source": "./components/FormulirPendaftaran",
+          "specifiers": [
+            "FormulirPendaftaran"
+          ]
+        },
+        {
+          "source": "./components/KartuPendaftaranAdmin",
+          "specifiers": [
+            "KartuPendaftaranAdmin"
+          ]
+        }
+      ],
+      "exports": [
+        "AdminFormulir"
+      ],
+      "totalLines": 386,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/src/pages/admin/AdminGelombang.tsx": {
+      "filePath": "spmb-frontend/src/pages/admin/AdminGelombang.tsx",
+      "contentHash": "53aab718e004259778d5cfa61e5119a9a1c9b442eaac356cb16b258175113772",
+      "functions": [
+        {
+          "name": "parseDate",
+          "params": [
+            "dateStr"
+          ],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 11
+        },
+        {
+          "name": "displayDate",
+          "params": [
+            "dateStr"
+          ],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 3
+        },
+        {
+          "name": "AdminGelombang",
+          "params": [],
+          "exported": true,
+          "lineCount": 319
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "react",
+          "specifiers": [
+            "useEffect",
+            "useState"
+          ]
+        },
+        {
+          "source": "lucide-react",
+          "specifiers": [
+            "Plus",
+            "Edit3",
+            "Trash2",
+            "Check",
+            "X",
+            "MessageCircle"
+          ]
+        },
+        {
+          "source": "../../components/ui/Card",
+          "specifiers": [
+            "Card"
+          ]
+        },
+        {
+          "source": "../../components/ui/Button",
+          "specifiers": [
+            "Button"
+          ]
+        },
+        {
+          "source": "../../components/ui/Loader",
+          "specifiers": [
+            "Loader"
+          ]
+        },
+        {
+          "source": "../../services/api",
+          "specifiers": [
+            "api"
+          ]
+        },
+        {
+          "source": "../../utils/dateUtils",
+          "specifiers": [
+            "formatWIBShort"
+          ]
+        }
+      ],
+      "exports": [
+        "AdminGelombang"
+      ],
+      "totalLines": 366,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/src/pages/admin/AdminLayout.tsx": {
+      "filePath": "spmb-frontend/src/pages/admin/AdminLayout.tsx",
+      "contentHash": "9c2e959ffd2111bd63e48d37ff13f55172322de8f44ab0af614ef843490a36a1",
+      "functions": [
+        {
+          "name": "AdminLayout",
+          "params": [],
+          "exported": true,
+          "lineCount": 9
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "lucide-react",
+          "specifiers": [
+            "LayoutDashboard",
+            "Users",
+            "Calendar",
+            "Image",
+            "FileText",
+            "Shield",
+            "UserPlus",
+            "Milestone",
+            "UserCheck",
+            "CreditCard"
+          ]
+        },
+        {
+          "source": "../../components/layout/AppShell",
+          "specifiers": [
+            "AppShell"
+          ]
+        }
+      ],
+      "exports": [
+        "AdminLayout"
+      ],
+      "totalLines": 26,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/src/pages/admin/AdminManajemen.tsx": {
+      "filePath": "spmb-frontend/src/pages/admin/AdminManajemen.tsx",
+      "contentHash": "55b49c14c20ad32c65389bacbb0f45f39f4446c53efc51978670ba8d5f0c15df",
+      "functions": [
+        {
+          "name": "AdminManajemen",
+          "params": [],
+          "exported": true,
+          "lineCount": 455
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "react",
+          "specifiers": [
+            "useEffect",
+            "useState",
+            "useRef"
+          ]
+        },
+        {
+          "source": "lucide-react",
+          "specifiers": [
+            "Plus",
+            "Edit3",
+            "Trash2",
+            "Shield",
+            "School",
+            "X",
+            "Upload",
+            "FileSpreadsheet",
+            "CheckCircle2",
+            "AlertTriangle",
+            "Loader2",
+            "Download"
+          ]
+        },
+        {
+          "source": "../../components/ui/Card",
+          "specifiers": [
+            "Card"
+          ]
+        },
+        {
+          "source": "../../components/ui/Button",
+          "specifiers": [
+            "Button"
+          ]
+        },
+        {
+          "source": "../../components/ui/Loader",
+          "specifiers": [
+            "Loader"
+          ]
+        },
+        {
+          "source": "../../services/api",
+          "specifiers": [
+            "api"
+          ]
+        }
+      ],
+      "exports": [
+        "AdminManajemen"
+      ],
+      "totalLines": 479,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/src/pages/admin/AdminReferral.tsx": {
+      "filePath": "spmb-frontend/src/pages/admin/AdminReferral.tsx",
+      "contentHash": "96916dcdf27d38fdb867925b7f2bfeed3604a1ddbfcf840e8d59283cc0ac520a",
+      "functions": [
+        {
+          "name": "AdminReferral",
+          "params": [],
+          "exported": true,
+          "lineCount": 200
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "react",
+          "specifiers": [
+            "useEffect",
+            "useState"
+          ]
+        },
+        {
+          "source": "lucide-react",
+          "specifiers": [
+            "UserCheck",
+            "Users",
+            "ChevronDown",
+            "ChevronUp",
+            "Download"
+          ]
+        },
+        {
+          "source": "../../components/ui/Card",
+          "specifiers": [
+            "Card"
+          ]
+        },
+        {
+          "source": "../../components/ui/Button",
+          "specifiers": [
+            "Button"
+          ]
+        },
+        {
+          "source": "../../components/ui/Loader",
+          "specifiers": [
+            "Loader"
+          ]
+        },
+        {
+          "source": "../../services/api",
+          "specifiers": [
+            "api"
+          ]
+        }
+      ],
+      "exports": [
+        "AdminReferral"
+      ],
+      "totalLines": 241,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/src/pages/admin/AdminSiswa.tsx": {
+      "filePath": "spmb-frontend/src/pages/admin/AdminSiswa.tsx",
+      "contentHash": "38b6fe04efe729301b257cacb3b99528ce9e23b4a3fb9491dc9a711eb85744ca",
+      "functions": [
+        {
+          "name": "AdminSiswa",
+          "params": [],
+          "exported": true,
+          "lineCount": 1119
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "react",
+          "specifiers": [
+            "useEffect",
+            "useState",
+            "useMemo"
+          ]
+        },
+        {
+          "source": "react",
+          "specifiers": [
+            "ChangeEvent"
+          ]
+        },
+        {
+          "source": "lucide-react",
+          "specifiers": [
+            "Search",
+            "Filter",
+            "ChevronDown",
+            "Download",
+            "Trash2",
+            "AlertTriangle",
+            "X",
+            "Pencil"
+          ]
+        },
+        {
+          "source": "../../components/ui/Card",
+          "specifiers": [
+            "Card"
+          ]
+        },
+        {
+          "source": "../../components/ui/Button",
+          "specifiers": [
+            "Button"
+          ]
+        },
+        {
+          "source": "../../components/ui/Loader",
+          "specifiers": [
+            "Loader"
+          ]
+        },
+        {
+          "source": "../../components/ui/InputField",
+          "specifiers": [
+            "InputField"
+          ]
+        },
+        {
+          "source": "../student/components/ReferralFields",
+          "specifiers": [
+            "ReferralFields"
+          ]
+        },
+        {
+          "source": "../../services/api",
+          "specifiers": [
+            "api"
+          ]
+        },
+        {
+          "source": "../../data/constants",
+          "specifiers": [
+            "DATA_JURUSAN",
+            "DATA_AGAMA",
+            "DATA_TINGGAL_BERSAMA",
+            "DATA_ESTIMASI_PENGHASILAN"
+          ]
+        },
+        {
+          "source": "../../types",
+          "specifiers": [
+            "StatusPendaftaran"
+          ]
+        }
+      ],
+      "exports": [
+        "AdminSiswa"
+      ],
+      "totalLines": 1240,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/src/pages/admin/AdminTimeline.tsx": {
+      "filePath": "spmb-frontend/src/pages/admin/AdminTimeline.tsx",
+      "contentHash": "7dc6d513bd1b59f167b830b438e5a0d7d3b1022de922ade5bc5dc06e5be7438f",
+      "functions": [
+        {
+          "name": "AdminTimeline",
+          "params": [],
+          "exported": true,
+          "lineCount": 304
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "react",
+          "specifiers": [
+            "useEffect",
+            "useState"
+          ]
+        },
+        {
+          "source": "lucide-react",
+          "specifiers": [
+            "Plus",
+            "Edit3",
+            "Trash2",
+            "Check",
+            "X",
+            "ListOrdered",
+            "Calendar"
+          ]
+        },
+        {
+          "source": "../../components/ui/Card",
+          "specifiers": [
+            "Card"
+          ]
+        },
+        {
+          "source": "../../components/ui/Button",
+          "specifiers": [
+            "Button"
+          ]
+        },
+        {
+          "source": "../../components/ui/Loader",
+          "specifiers": [
+            "Loader"
+          ]
+        },
+        {
+          "source": "../../services/api",
+          "specifiers": [
+            "api"
+          ]
+        },
+        {
+          "source": "../../utils/dateUtils",
+          "specifiers": [
+            "formatWIBShort",
+            "formatWIBDateInput"
+          ]
+        }
+      ],
+      "exports": [
+        "AdminTimeline"
+      ],
+      "totalLines": 332,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/src/pages/admin/components/FormulirPendaftaran.test.tsx": {
+      "filePath": "spmb-frontend/src/pages/admin/components/FormulirPendaftaran.test.tsx",
+      "contentHash": "771d3f318394b3587775a1c0b170f624612fa778b67a9e9bd64a1ea1e93b21cc",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "@testing-library/react",
+          "specifiers": [
+            "render",
+            "screen"
+          ]
+        },
+        {
+          "source": "vitest",
+          "specifiers": [
+            "describe",
+            "expect",
+            "it"
+          ]
+        },
+        {
+          "source": "./FormulirPendaftaran",
+          "specifiers": [
+            "FormulirPendaftaran"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 126,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/src/pages/admin/components/FormulirPendaftaran.tsx": {
+      "filePath": "spmb-frontend/src/pages/admin/components/FormulirPendaftaran.tsx",
+      "contentHash": "1c7204867b77b17ec9c7e271e2a087be67f6d68981de9328deafa016aebf7782",
+      "functions": [
+        {
+          "name": "jurusanLabel",
+          "params": [
+            "value"
+          ],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 6
+        },
+        {
+          "name": "safeValue",
+          "params": [
+            "value"
+          ],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 4
+        },
+        {
+          "name": "FieldLabel",
+          "params": [
+            "{ children }"
+          ],
+          "exported": false,
+          "lineCount": 3
+        },
+        {
+          "name": "FieldValue",
+          "params": [
+            "{ children, className = '' }"
+          ],
+          "exported": false,
+          "lineCount": 3
+        },
+        {
+          "name": "PageHeader",
+          "params": [],
+          "exported": false,
+          "lineCount": 9
+        },
+        {
+          "name": "SectionTitle",
+          "params": [
+            "{ children }"
+          ],
+          "exported": false,
+          "lineCount": 7
+        },
+        {
+          "name": "FormBody",
+          "params": [
+            "{ data }"
+          ],
+          "exported": false,
+          "lineCount": 252
+        },
+        {
+          "name": "FormulirPendaftaran",
+          "params": [
+            "{ data }"
+          ],
+          "exported": true,
+          "lineCount": 66
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "react",
+          "specifiers": [
+            "useLayoutEffect",
+            "useRef",
+            "useState",
+            "ReactNode"
+          ]
+        },
+        {
+          "source": "../../../utils/dateUtils",
+          "specifiers": [
+            "formatWIBShort"
+          ]
+        },
+        {
+          "source": "../../../data/constants",
+          "specifiers": [
+            "DATA_JURUSAN"
+          ]
+        }
+      ],
+      "exports": [
+        "FormulirPendaftaran"
+      ],
+      "totalLines": 459,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/src/pages/admin/components/KartuPendaftaranAdmin.tsx": {
+      "filePath": "spmb-frontend/src/pages/admin/components/KartuPendaftaranAdmin.tsx",
+      "contentHash": "89f5f8a627c59eaf8225f84724de40de1b4ee0a57d8d915b8a0a6a55317a2830",
+      "functions": [
+        {
+          "name": "KartuPendaftaranAdmin",
+          "params": [
+            "{ data, linkGroupWA = '', id }"
+          ],
+          "exported": true,
+          "lineCount": 19
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "../../../components/kartu/BuktiPendaftaranCard",
+          "specifiers": [
+            "BuktiPendaftaranCard",
+            "KartuData"
+          ]
+        },
+        {
+          "source": "../../../data/constants",
+          "specifiers": [
+            "DATA_JURUSAN"
+          ]
+        },
+        {
+          "source": "../../../utils/dateUtils",
+          "specifiers": [
+            "formatWIB"
+          ]
+        }
+      ],
+      "exports": [
+        "KartuPendaftaranAdmin"
+      ],
+      "totalLines": 30,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/src/pages/guru/GuruDaftarSiswa.tsx": {
+      "filePath": "spmb-frontend/src/pages/guru/GuruDaftarSiswa.tsx",
+      "contentHash": "8c4c8a9b89cbc94a9ef78af502d6274d61d7e53bca84eee961fb1b0db67799d4",
+      "functions": [
+        {
+          "name": "GuruDaftarSiswa",
+          "params": [],
+          "exported": true,
+          "lineCount": 3
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "../admin/AdminDaftarSiswa",
+          "specifiers": [
+            "AdminDaftarSiswa"
+          ]
+        }
+      ],
+      "exports": [
+        "GuruDaftarSiswa"
+      ],
+      "totalLines": 6,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/src/pages/guru/GuruDashboard.tsx": {
+      "filePath": "spmb-frontend/src/pages/guru/GuruDashboard.tsx",
+      "contentHash": "b52ac79ae5e9421d24c34d9f4b81784a6e8bce6f09b44301d25ff4a8e9584fc7",
+      "functions": [
+        {
+          "name": "getSapaanWIB",
+          "params": [],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 7
+        },
+        {
+          "name": "GuruDashboard",
+          "params": [],
+          "exported": true,
+          "lineCount": 200
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "react",
+          "specifiers": [
+            "useEffect",
+            "useState"
+          ]
+        },
+        {
+          "source": "lucide-react",
+          "specifiers": [
+            "Users",
+            "FileCheck",
+            "Clock",
+            "AlertTriangle",
+            "School"
+          ]
+        },
+        {
+          "source": "../../store/authStore",
+          "specifiers": [
+            "useAuthStore"
+          ]
+        },
+        {
+          "source": "../../components/ui/Card",
+          "specifiers": [
+            "Card"
+          ]
+        },
+        {
+          "source": "../../components/ui/Loader",
+          "specifiers": [
+            "Loader"
+          ]
+        },
+        {
+          "source": "../../components/ui/StatCard",
+          "specifiers": [
+            "StatCard"
+          ]
+        },
+        {
+          "source": "../../components/ui/DonutChart",
+          "specifiers": [
+            "DonutChart"
+          ]
+        },
+        {
+          "source": "../../components/ui/ProgressBar",
+          "specifiers": [
+            "ProgressBar"
+          ]
+        },
+        {
+          "source": "../../services/api",
+          "specifiers": [
+            "api"
+          ]
+        }
+      ],
+      "exports": [
+        "GuruDashboard"
+      ],
+      "totalLines": 222,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/src/pages/guru/GuruLayout.tsx": {
+      "filePath": "spmb-frontend/src/pages/guru/GuruLayout.tsx",
+      "contentHash": "77cf0ea201fd13d86fa39caad884b51f9974b8acb188b71e54feaab9fc7847ab",
+      "functions": [
+        {
+          "name": "GuruLayout",
+          "params": [],
+          "exported": true,
+          "lineCount": 15
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "lucide-react",
+          "specifiers": [
+            "LayoutDashboard",
+            "UserPlus"
+          ]
+        },
+        {
+          "source": "../../components/layout/AppShell",
+          "specifiers": [
+            "AppShell"
+          ]
+        },
+        {
+          "source": "../../store/authStore",
+          "specifiers": [
+            "useAuthStore"
+          ]
+        }
+      ],
+      "exports": [
+        "GuruLayout"
+      ],
+      "totalLines": 20,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/src/pages/login/LoginPage.test.tsx": {
+      "filePath": "spmb-frontend/src/pages/login/LoginPage.test.tsx",
+      "contentHash": "3d18dfac47b035b920f16ba5f4c9dfa4b06c8339510f9f35994655ddfdc52609",
+      "functions": [
+        {
+          "name": "installGis",
+          "params": [
+            "tokenResponse"
+          ],
+          "exported": false,
+          "lineCount": 13
+        },
+        {
+          "name": "renderLogin",
+          "params": [
+            "initialPath"
+          ],
+          "exported": false,
+          "lineCount": 10
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "@testing-library/react",
+          "specifiers": [
+            "render",
+            "screen",
+            "cleanup"
+          ]
+        },
+        {
+          "source": "@testing-library/user-event",
+          "specifiers": [
+            "userEvent"
+          ]
+        },
+        {
+          "source": "react-router-dom",
+          "specifiers": [
+            "MemoryRouter",
+            "Routes",
+            "Route"
+          ]
+        },
+        {
+          "source": "vitest",
+          "specifiers": [
+            "describe",
+            "it",
+            "expect",
+            "vi",
+            "beforeEach",
+            "afterEach"
+          ]
+        },
+        {
+          "source": "./LoginPage",
+          "specifiers": [
+            "LoginPage"
+          ]
+        },
+        {
+          "source": "../login/RegisterPage",
+          "specifiers": [
+            "RegisterPage"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 157,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/src/pages/login/LoginPage.tsx": {
+      "filePath": "spmb-frontend/src/pages/login/LoginPage.tsx",
+      "contentHash": "b1e50f811c0835bd0bbbee740e83cbb53943221a2db21aa3a5f254a0536dc259",
+      "functions": [
+        {
+          "name": "LoginPage",
+          "params": [],
+          "exported": true,
+          "lineCount": 334
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "react",
+          "specifiers": [
+            "useEffect",
+            "useRef",
+            "useState"
+          ]
+        },
+        {
+          "source": "react-router-dom",
+          "specifiers": [
+            "useNavigate",
+            "useSearchParams"
+          ]
+        },
+        {
+          "source": "lucide-react",
+          "specifiers": [
+            "Info",
+            "LogIn",
+            "User",
+            "School",
+            "MapPin",
+            "Users",
+            "Award",
+            "X",
+            "Loader2",
+            "Sparkles"
+          ]
+        },
+        {
+          "source": "../../store/authStore",
+          "specifiers": [
+            "useAuthStore"
+          ]
+        },
+        {
+          "source": "../../services/api",
+          "specifiers": [
+            "checkBackendHealth",
+            "formatRetryCountdown",
+            "getFriendlyAuthError",
+            "getRetryAfterSec"
+          ]
+        },
+        {
+          "source": "../../services/pendingAuth",
+          "specifiers": [
+            "setPendingRegistration"
+          ]
+        },
+        {
+          "source": "../../components/ui/Card",
+          "specifiers": [
+            "Card"
+          ]
+        }
+      ],
+      "exports": [
+        "LoginPage"
+      ],
+      "totalLines": 360,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/src/pages/login/RegisterPage.test.tsx": {
+      "filePath": "spmb-frontend/src/pages/login/RegisterPage.test.tsx",
+      "contentHash": "7a7863d2058dd7a6d14c529c4c3995bc79231d6206be144695a5294f60672e2a",
+      "functions": [
+        {
+          "name": "seedValidPending",
+          "params": [],
+          "exported": false,
+          "lineCount": 8
+        },
+        {
+          "name": "seedExpiredPending",
+          "params": [],
+          "exported": false,
+          "lineCount": 6
+        },
+        {
+          "name": "renderRegister",
+          "params": [
+            "initialEntry"
+          ],
+          "exported": false,
+          "lineCount": 12
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "@testing-library/react",
+          "specifiers": [
+            "render",
+            "screen",
+            "cleanup"
+          ]
+        },
+        {
+          "source": "@testing-library/user-event",
+          "specifiers": [
+            "userEvent"
+          ]
+        },
+        {
+          "source": "react-router-dom",
+          "specifiers": [
+            "MemoryRouter",
+            "Routes",
+            "Route"
+          ]
+        },
+        {
+          "source": "vitest",
+          "specifiers": [
+            "describe",
+            "it",
+            "expect",
+            "vi",
+            "beforeEach",
+            "afterEach"
+          ]
+        },
+        {
+          "source": "./RegisterPage",
+          "specifiers": [
+            "RegisterPage"
+          ]
+        },
+        {
+          "source": "../../services/pendingAuth",
+          "specifiers": [
+            "setPendingRegistration",
+            "clearPendingRegistration"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 201,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/src/pages/login/RegisterPage.tsx": {
+      "filePath": "spmb-frontend/src/pages/login/RegisterPage.tsx",
+      "contentHash": "d0e3f1438e003e23a42a8dd2695d111e42eb8a3dab64122596b8580148ac0b22",
+      "functions": [
+        {
+          "name": "fileToBase64",
+          "params": [
+            "file"
+          ],
+          "returnType": "Promise<string>",
+          "exported": false,
+          "lineCount": 8
+        },
+        {
+          "name": "RegisterPage",
+          "params": [],
+          "exported": true,
+          "lineCount": 275
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "react",
+          "specifiers": [
+            "useState",
+            "useRef",
+            "useMemo"
+          ]
+        },
+        {
+          "source": "react-router-dom",
+          "specifiers": [
+            "useNavigate",
+            "useLocation",
+            "Link"
+          ]
+        },
+        {
+          "source": "lucide-react",
+          "specifiers": [
+            "UserPlus",
+            "Upload",
+            "Camera",
+            "GraduationCap",
+            "School"
+          ]
+        },
+        {
+          "source": "../../store/authStore",
+          "specifiers": [
+            "useAuthStore"
+          ]
+        },
+        {
+          "source": "../../services/api",
+          "specifiers": [
+            "getFriendlyAuthError"
+          ]
+        },
+        {
+          "source": "../../utils/imageCompress",
+          "specifiers": [
+            "compressAndCropImage"
+          ]
+        },
+        {
+          "source": "../../services/pendingAuth",
+          "specifiers": [
+            "readPendingRegistration",
+            "clearPendingRegistration"
+          ]
+        },
+        {
+          "source": "../../components/ui/Card",
+          "specifiers": [
+            "Card"
+          ]
+        },
+        {
+          "source": "../../components/ui/Button",
+          "specifiers": [
+            "Button"
+          ]
+        },
+        {
+          "source": "../../components/ui/InputField",
+          "specifiers": [
+            "InputField"
+          ]
+        }
+      ],
+      "exports": [
+        "RegisterPage"
+      ],
+      "totalLines": 296,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/src/pages/mpls/MplsDashboard.tsx": {
+      "filePath": "spmb-frontend/src/pages/mpls/MplsDashboard.tsx",
+      "contentHash": "6a99059a49c66c45992fc8debc3ba1899dfbc894bcfccf5e7026f04e219a81c7",
+      "functions": [
+        {
+          "name": "todayWIB",
+          "params": [],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 3
+        },
+        {
+          "name": "buildRekap",
+          "params": [
+            "kehadiran",
+            "izinList"
+          ],
+          "returnType": "RekapRow[]",
+          "exported": false,
+          "lineCount": 33
+        },
+        {
+          "name": "buildExportSheet",
+          "params": [
+            "rows",
+            "XLSX"
+          ],
+          "returnType": "import('xlsx').WorkSheet",
+          "exported": false,
+          "lineCount": 22
+        },
+        {
+          "name": "groupByTanggal",
+          "params": [
+            "rows"
+          ],
+          "returnType": "{ tanggal: string; rows: RekapRow[] }[]",
+          "exported": false,
+          "lineCount": 11
+        },
+        {
+          "name": "sheetNameFromTanggal",
+          "params": [
+            "tanggal"
+          ],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 4
+        },
+        {
+          "name": "MplsDashboard",
+          "params": [],
+          "exported": true,
+          "lineCount": 251
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "react",
+          "specifiers": [
+            "useEffect",
+            "useState"
+          ]
+        },
+        {
+          "source": "react-router-dom",
+          "specifiers": [
+            "Link"
+          ]
+        },
+        {
+          "source": "lucide-react",
+          "specifiers": [
+            "Users",
+            "CheckCircle2",
+            "ScanLine",
+            "RefreshCw",
+            "FileSpreadsheet",
+            "AlertTriangle",
+            "ClipboardX",
+            "Percent"
+          ]
+        },
+        {
+          "source": "../../store/authStore",
+          "specifiers": [
+            "useAuthStore"
+          ]
+        },
+        {
+          "source": "../../components/ui/Card",
+          "specifiers": [
+            "Card"
+          ]
+        },
+        {
+          "source": "../../components/ui/Loader",
+          "specifiers": [
+            "Loader"
+          ]
+        },
+        {
+          "source": "../../components/ui/StatCard",
+          "specifiers": [
+            "StatCard"
+          ]
+        },
+        {
+          "source": "../../components/ui/ProgressBar",
+          "specifiers": [
+            "ProgressBar"
+          ]
+        },
+        {
+          "source": "../../services/api",
+          "specifiers": [
+            "api"
+          ]
+        },
+        {
+          "source": "../../types",
+          "specifiers": [
+            "KehadiranMpls",
+            "IzinMpls"
+          ]
+        },
+        {
+          "source": "../../utils/dateUtils",
+          "specifiers": [
+            "formatWIBShort"
+          ]
+        }
+      ],
+      "exports": [
+        "MplsDashboard"
+      ],
+      "totalLines": 359,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/src/pages/mpls/MplsInformasi.tsx": {
+      "filePath": "spmb-frontend/src/pages/mpls/MplsInformasi.tsx",
+      "contentHash": "634a3ba0cae9d43858e08d5bba201ea06d220a75085d2378f584e8af288e24db",
+      "functions": [
+        {
+          "name": "MplsInformasi",
+          "params": [],
+          "exported": true,
+          "lineCount": 305
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "react",
+          "specifiers": [
+            "useEffect",
+            "useState",
+            "useRef"
+          ]
+        },
+        {
+          "source": "lucide-react",
+          "specifiers": [
+            "ImagePlus",
+            "Trash2",
+            "X",
+            "Loader2",
+            "Send",
+            "Calendar",
+            "Clock",
+            "MapPin"
+          ]
+        },
+        {
+          "source": "../../components/ui/Card",
+          "specifiers": [
+            "Card"
+          ]
+        },
+        {
+          "source": "../../components/ui/Button",
+          "specifiers": [
+            "Button"
+          ]
+        },
+        {
+          "source": "../../components/ui/Loader",
+          "specifiers": [
+            "Loader"
+          ]
+        },
+        {
+          "source": "../../services/api",
+          "specifiers": [
+            "api"
+          ]
+        },
+        {
+          "source": "../../utils/imageCompress",
+          "specifiers": [
+            "compressAndCropImage"
+          ]
+        },
+        {
+          "source": "../../utils/dateUtils",
+          "specifiers": [
+            "formatWIBShort",
+            "formatWIBTime"
+          ]
+        }
+      ],
+      "exports": [
+        "MplsInformasi"
+      ],
+      "totalLines": 332,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/src/pages/mpls/MplsIzin.tsx": {
+      "filePath": "spmb-frontend/src/pages/mpls/MplsIzin.tsx",
+      "contentHash": "a7e9062ccdce90dfe6c6f77c1b184b58a4224591c824e5e632134869afadaac4",
+      "functions": [
+        {
+          "name": "todayWIB",
+          "params": [],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 3
+        },
+        {
+          "name": "MplsIzin",
+          "params": [],
+          "exported": true,
+          "lineCount": 407
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "react",
+          "specifiers": [
+            "useEffect",
+            "useRef",
+            "useState"
+          ]
+        },
+        {
+          "source": "lucide-react",
+          "specifiers": [
+            "Search",
+            "ClipboardX",
+            "Trash2",
+            "Loader2",
+            "RefreshCw",
+            "UserSearch",
+            "CheckCircle2",
+            "AlertTriangle"
+          ]
+        },
+        {
+          "source": "../../store/authStore",
+          "specifiers": [
+            "useAuthStore"
+          ]
+        },
+        {
+          "source": "../../components/ui/Card",
+          "specifiers": [
+            "Card"
+          ]
+        },
+        {
+          "source": "../../components/ui/Button",
+          "specifiers": [
+            "Button"
+          ]
+        },
+        {
+          "source": "../../components/ui/Toast",
+          "specifiers": [
+            "Toast"
+          ]
+        },
+        {
+          "source": "../../services/api",
+          "specifiers": [
+            "api"
+          ]
+        },
+        {
+          "source": "../../data/constants",
+          "specifiers": [
+            "DATA_JENIS_IZIN"
+          ]
+        },
+        {
+          "source": "../../types",
+          "specifiers": [
+            "IzinMpls"
+          ]
+        }
+      ],
+      "exports": [
+        "MplsIzin"
+      ],
+      "totalLines": 433,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/src/pages/mpls/MplsLayout.tsx": {
+      "filePath": "spmb-frontend/src/pages/mpls/MplsLayout.tsx",
+      "contentHash": "6828f41a9845024bc79a7e037a53fa780d09b546133928b421bb72a65f1b7fee",
+      "functions": [
+        {
+          "name": "MplsLayout",
+          "params": [],
+          "exported": true,
+          "lineCount": 9
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "lucide-react",
+          "specifiers": [
+            "LayoutDashboard",
+            "ScanLine",
+            "Image",
+            "ClipboardX"
+          ]
+        },
+        {
+          "source": "../../components/layout/AppShell",
+          "specifiers": [
+            "AppShell"
+          ]
+        }
+      ],
+      "exports": [
+        "MplsLayout"
+      ],
+      "totalLines": 20,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/src/pages/mpls/MplsScan.tsx": {
+      "filePath": "spmb-frontend/src/pages/mpls/MplsScan.tsx",
+      "contentHash": "4610ee3acb2694083981285d75d1902fad39a911862ada9e6959bea2169489c8",
+      "functions": [
+        {
+          "name": "extractIdPendaftaran",
+          "params": [
+            "text"
+          ],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 13
+        },
+        {
+          "name": "MplsScan",
+          "params": [],
+          "exported": true,
+          "lineCount": 429
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "react",
+          "specifiers": [
+            "useEffect",
+            "useRef",
+            "useState"
+          ]
+        },
+        {
+          "source": "lucide-react",
+          "specifiers": [
+            "Camera",
+            "ScanLine",
+            "CheckCircle2",
+            "XCircle",
+            "RefreshCw",
+            "Loader2",
+            "ClipboardX"
+          ]
+        },
+        {
+          "source": "../../store/authStore",
+          "specifiers": [
+            "useAuthStore"
+          ]
+        },
+        {
+          "source": "../../components/ui/Card",
+          "specifiers": [
+            "Card"
+          ]
+        },
+        {
+          "source": "../../components/ui/Button",
+          "specifiers": [
+            "Button"
+          ]
+        },
+        {
+          "source": "../../components/ui/Toast",
+          "specifiers": [
+            "Toast"
+          ]
+        },
+        {
+          "source": "../../services/api",
+          "specifiers": [
+            "api"
+          ]
+        },
+        {
+          "source": "../../types",
+          "specifiers": [
+            "IzinMpls"
+          ]
+        }
+      ],
+      "exports": [
+        "MplsScan"
+      ],
+      "totalLines": 477,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/src/pages/student/DashboardSiswa.tsx": {
+      "filePath": "spmb-frontend/src/pages/student/DashboardSiswa.tsx",
+      "contentHash": "6776d8bfa5208867b73daac8a40b2ec2277c746f753e48258b1d4e93b72d150f",
+      "functions": [
+        {
+          "name": "DashboardSiswa",
+          "params": [],
+          "exported": true,
+          "lineCount": 337
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "react",
+          "specifiers": [
+            "useEffect",
+            "useState"
+          ]
+        },
+        {
+          "source": "react-router-dom",
+          "specifiers": [
+            "useNavigate"
+          ]
+        },
+        {
+          "source": "lucide-react",
+          "specifiers": [
+            "LogOut",
+            "User",
+            "MessageCircle",
+            "FileText",
+            "UserCheck",
+            "MapPin",
+            "Award",
+            "Newspaper",
+            "Loader2"
+          ]
+        },
+        {
+          "source": "../../store/authStore",
+          "specifiers": [
+            "useAuthStore"
+          ]
+        },
+        {
+          "source": "../../store/studentStore",
+          "specifiers": [
+            "useStudentStore"
+          ]
+        },
+        {
+          "source": "../../components/ui/Card",
+          "specifiers": [
+            "Card"
+          ]
+        },
+        {
+          "source": "../../components/ui/Button",
+          "specifiers": [
+            "Button"
+          ]
+        },
+        {
+          "source": "../../services/api",
+          "specifiers": [
+            "api"
+          ]
+        },
+        {
+          "source": "../../utils/dateUtils",
+          "specifiers": [
+            "formatWIBShort",
+            "getSapaanWIB"
+          ]
+        },
+        {
+          "source": "./components/InstagramPost",
+          "specifiers": [
+            "InstagramPost"
+          ]
+        },
+        {
+          "source": "./components/TimelineSiswa",
+          "specifiers": [
+            "TimelineSiswa"
+          ]
+        }
+      ],
+      "exports": [
+        "DashboardSiswa"
+      ],
+      "totalLines": 358,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/src/pages/student/KartuPendaftaran.tsx": {
+      "filePath": "spmb-frontend/src/pages/student/KartuPendaftaran.tsx",
+      "contentHash": "35bc2ac09948183b715521e5179cc42ecc9096e9cdc9a39bf3d8e2633d3eb5bb",
+      "functions": [
+        {
+          "name": "KartuPendaftaran",
+          "params": [],
+          "exported": true,
+          "lineCount": 134
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "react",
+          "specifiers": [
+            "useEffect",
+            "useState"
+          ]
+        },
+        {
+          "source": "react-router-dom",
+          "specifiers": [
+            "useNavigate",
+            "Link"
+          ]
+        },
+        {
+          "source": "lucide-react",
+          "specifiers": [
+            "ArrowLeft",
+            "Download",
+            "Printer",
+            "FileText"
+          ]
+        },
+        {
+          "source": "../../store/studentStore",
+          "specifiers": [
+            "isPendaftaranAwalLengkap",
+            "useStudentStore"
+          ]
+        },
+        {
+          "source": "../../store/authStore",
+          "specifiers": [
+            "useAuthStore"
+          ]
+        },
+        {
+          "source": "../../components/ui/Card",
+          "specifiers": [
+            "Card"
+          ]
+        },
+        {
+          "source": "../../components/ui/Button",
+          "specifiers": [
+            "Button"
+          ]
+        },
+        {
+          "source": "../../components/ui/Loader",
+          "specifiers": [
+            "Loader"
+          ]
+        },
+        {
+          "source": "../../components/kartu/BuktiPendaftaranCard",
+          "specifiers": [
+            "BuktiPendaftaranCard",
+            "KartuData"
+          ]
+        },
+        {
+          "source": "../../data/constants",
+          "specifiers": [
+            "DATA_JURUSAN"
+          ]
+        },
+        {
+          "source": "../../utils/dateUtils",
+          "specifiers": [
+            "formatWIB"
+          ]
+        },
+        {
+          "source": "../../services/api",
+          "specifiers": [
+            "api"
+          ]
+        },
+        {
+          "source": "../../utils/waGroup",
+          "specifiers": [
+            "findLinkGroupWa"
+          ]
+        },
+        {
+          "source": "../../utils/kartuPrint",
+          "specifiers": [
+            "a4SinglePrintCss",
+            "kartuPrintCss"
+          ]
+        },
+        {
+          "source": "../../hooks/useKartuPrint",
+          "specifiers": [
+            "useKartuPrint"
+          ]
+        }
+      ],
+      "exports": [
+        "KartuPendaftaran"
+      ],
+      "totalLines": 150,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/src/pages/student/StudentWizard.test.tsx": {
+      "filePath": "spmb-frontend/src/pages/student/StudentWizard.test.tsx",
+      "contentHash": "fab193eb14ade447d221ec29bf93d7966843deb5a675a67883954a29e91efa19",
+      "functions": [
+        {
+          "name": "LocationProbe",
+          "params": [],
+          "exported": false,
+          "lineCount": 4
+        },
+        {
+          "name": "renderWizard",
+          "params": [
+            "initialUrl"
+          ],
+          "exported": false,
+          "lineCount": 12
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "@testing-library/react",
+          "specifiers": [
+            "render",
+            "screen"
+          ]
+        },
+        {
+          "source": "@testing-library/user-event",
+          "specifiers": [
+            "userEvent"
+          ]
+        },
+        {
+          "source": "react-router-dom",
+          "specifiers": [
+            "MemoryRouter",
+            "Routes",
+            "Route",
+            "useLocation"
+          ]
+        },
+        {
+          "source": "vitest",
+          "specifiers": [
+            "describe",
+            "it",
+            "expect",
+            "vi",
+            "beforeEach"
+          ]
+        },
+        {
+          "source": "./StudentWizard",
+          "specifiers": [
+            "StudentWizard"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 184,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/src/pages/student/StudentWizard.tsx": {
+      "filePath": "spmb-frontend/src/pages/student/StudentWizard.tsx",
+      "contentHash": "202fca5118ce0139092d14f0646f2cbfc905bdc7b10e9632675244433fbeb742",
+      "functions": [
+        {
+          "name": "StudentWizard",
+          "params": [],
+          "exported": true,
+          "lineCount": 82
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "react",
+          "specifiers": [
+            "useEffect",
+            "useRef"
+          ]
+        },
+        {
+          "source": "react-router-dom",
+          "specifiers": [
+            "useNavigate",
+            "useSearchParams"
+          ]
+        },
+        {
+          "source": "../../store/authStore",
+          "specifiers": [
+            "useAuthStore"
+          ]
+        },
+        {
+          "source": "../../store/studentStore",
+          "specifiers": [
+            "useStudentStore"
+          ]
+        },
+        {
+          "source": "./steps/Step1Jurusan",
+          "specifiers": [
+            "Step1Jurusan"
+          ]
+        },
+        {
+          "source": "./steps/Step2Pribadi",
+          "specifiers": [
+            "Step2Pribadi"
+          ]
+        },
+        {
+          "source": "./steps/Step3Alamat",
+          "specifiers": [
+            "Step3Alamat"
+          ]
+        },
+        {
+          "source": "./steps/Step4Ortu",
+          "specifiers": [
+            "Step4Ortu"
+          ]
+        },
+        {
+          "source": "./steps/Step5Berkas",
+          "specifiers": [
+            "Step5Berkas"
+          ]
+        }
+      ],
+      "exports": [
+        "StudentWizard"
+      ],
+      "totalLines": 93,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/src/pages/student/components/InstagramPost.tsx": {
+      "filePath": "spmb-frontend/src/pages/student/components/InstagramPost.tsx",
+      "contentHash": "153d9b69279570556a297fef7d111576c30e192625c0574fea667d5183e29c22",
+      "functions": [
+        {
+          "name": "buildCalendarUrl",
+          "params": [
+            "opts"
+          ],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 30
+        },
+        {
+          "name": "getRelativeTime",
+          "params": [
+            "dateStr"
+          ],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 17
+        },
+        {
+          "name": "InstagramPost",
+          "params": [
+            "{ event, studentName, userEmail }"
+          ],
+          "exported": true,
+          "lineCount": 490
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "react",
+          "specifiers": [
+            "React",
+            "useState",
+            "useRef",
+            "useEffect"
+          ]
+        },
+        {
+          "source": "lucide-react",
+          "specifiers": [
+            "Heart",
+            "MessageCircle",
+            "Calendar",
+            "Clock",
+            "MapPin",
+            "Check",
+            "CalendarPlus",
+            "Smile",
+            "Loader2"
+          ]
+        },
+        {
+          "source": "../../../utils/dateUtils",
+          "specifiers": [
+            "formatWIBShort",
+            "formatWIBDateInput",
+            "formatWIBTime"
+          ]
+        },
+        {
+          "source": "../../../services/api",
+          "specifiers": [
+            "api"
+          ]
+        }
+      ],
+      "exports": [
+        "InstagramPost"
+      ],
+      "totalLines": 571,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/src/pages/student/components/ProgressBar.tsx": {
+      "filePath": "spmb-frontend/src/pages/student/components/ProgressBar.tsx",
+      "contentHash": "359c557cc8cb503925835f817ef8d1a0998ba8bb26e8bf415adbf19e551ac0ab",
+      "functions": [
+        {
+          "name": "ProgressBar",
+          "params": [
+            "{ steps, currentStep }"
+          ],
+          "exported": true,
+          "lineCount": 45
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "../../../types",
+          "specifiers": [
+            "StepInfo"
+          ]
+        }
+      ],
+      "exports": [
+        "ProgressBar"
+      ],
+      "totalLines": 53,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/src/pages/student/components/ReferralFields.tsx": {
+      "filePath": "spmb-frontend/src/pages/student/components/ReferralFields.tsx",
+      "contentHash": "687237178a2f36d30d05ce5499a9d085523ee732ae9e172aa60430bcbd36f958",
+      "functions": [
+        {
+          "name": "ReferralFields",
+          "params": [
+            "{ kategori, nama, onChange }"
+          ],
+          "exported": true,
+          "lineCount": 147
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "react",
+          "specifiers": [
+            "useEffect",
+            "useMemo",
+            "useState"
+          ]
+        },
+        {
+          "source": "../../../components/ui/InputField",
+          "specifiers": [
+            "InputField"
+          ]
+        },
+        {
+          "source": "../../../data/constants",
+          "specifiers": [
+            "DATA_KATEGORI_REFERRAL"
+          ]
+        },
+        {
+          "source": "../../../services/api",
+          "specifiers": [
+            "api"
+          ]
+        }
+      ],
+      "exports": [
+        "ReferralFields"
+      ],
+      "totalLines": 169,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/src/pages/student/components/ScanAlamatModal.tsx": {
+      "filePath": "spmb-frontend/src/pages/student/components/ScanAlamatModal.tsx",
+      "contentHash": "8c12a1fa1a5e817eb2973f46fc04e7107c8974aa03ff2d8717bfc5b295762e77",
+      "functions": [
+        {
+          "name": "ScanAlamatModal",
+          "params": [
+            "{ open, onClose, onApply }"
+          ],
+          "exported": true,
+          "lineCount": 244
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "react",
+          "specifiers": [
+            "useEffect",
+            "useRef",
+            "useState"
+          ]
+        },
+        {
+          "source": "react",
+          "specifiers": [
+            "ChangeEvent"
+          ]
+        },
+        {
+          "source": "lucide-react",
+          "specifiers": [
+            "X",
+            "Upload",
+            "RefreshCw",
+            "CheckCircle",
+            "AlertTriangle",
+            "ScanLine"
+          ]
+        },
+        {
+          "source": "../../../components/ui/Card",
+          "specifiers": [
+            "Card"
+          ]
+        },
+        {
+          "source": "../../../components/ui/Button",
+          "specifiers": [
+            "Button"
+          ]
+        },
+        {
+          "source": "../../../components/ui/InputField",
+          "specifiers": [
+            "InputField"
+          ]
+        },
+        {
+          "source": "../../../utils/ocr",
+          "specifiers": [
+            "preprocessDokumen",
+            "runOcr",
+            "extractAlamat"
+          ]
+        },
+        {
+          "source": "../../../utils/ocr",
+          "specifiers": [
+            "HasilEkstraksiAlamat",
+            "JenisDokumen"
+          ]
+        }
+      ],
+      "exports": [
+        "ScanAlamatModal"
+      ],
+      "totalLines": 274,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/src/pages/student/components/StepLayout.tsx": {
+      "filePath": "spmb-frontend/src/pages/student/components/StepLayout.tsx",
+      "contentHash": "1da041bc8acf48b640bef8933952e2c65b4a077d988472bf97d73e9e34dfd4fb",
+      "functions": [
+        {
+          "name": "StepLayout",
+          "params": [
+            "{\n  title,\n  subtitle,\n  steps,\n  currentStep,\n  children,\n  onPrevious,\n  onNext,\n  isFirst = false,\n  isLast = false,\n  loading = false,\n}"
+          ],
+          "exported": true,
+          "lineCount": 52
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "react",
+          "specifiers": [
+            "ReactNode"
+          ]
+        },
+        {
+          "source": "lucide-react",
+          "specifiers": [
+            "ArrowLeft",
+            "ArrowRight"
+          ]
+        },
+        {
+          "source": "./ProgressBar",
+          "specifiers": [
+            "ProgressBar"
+          ]
+        },
+        {
+          "source": "../../../components/ui/Card",
+          "specifiers": [
+            "Card"
+          ]
+        },
+        {
+          "source": "../../../components/ui/Button",
+          "specifiers": [
+            "Button"
+          ]
+        },
+        {
+          "source": "../../../types",
+          "specifiers": [
+            "StepInfo"
+          ]
+        }
+      ],
+      "exports": [
+        "StepLayout"
+      ],
+      "totalLines": 73,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/src/pages/student/components/TimelineSiswa.tsx": {
+      "filePath": "spmb-frontend/src/pages/student/components/TimelineSiswa.tsx",
+      "contentHash": "48f4feeb41177988451c0e4c6a11f54c50f03f5873c2b92b93ced16c46defa6d",
+      "functions": [
+        {
+          "name": "getStageState",
+          "params": [
+            "tanggalMulai",
+            "tanggalSelesai"
+          ],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 10
+        },
+        {
+          "name": "TimelineSiswa",
+          "params": [],
+          "exported": true,
+          "lineCount": 72
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "react",
+          "specifiers": [
+            "useEffect",
+            "useState"
+          ]
+        },
+        {
+          "source": "lucide-react",
+          "specifiers": [
+            "CalendarRange",
+            "Calendar"
+          ]
+        },
+        {
+          "source": "../../../components/ui/Card",
+          "specifiers": [
+            "Card"
+          ]
+        },
+        {
+          "source": "../../../services/api",
+          "specifiers": [
+            "api"
+          ]
+        },
+        {
+          "source": "../../../utils/dateUtils",
+          "specifiers": [
+            "formatWIBShort",
+            "formatWIBDateInput"
+          ]
+        }
+      ],
+      "exports": [
+        "TimelineSiswa"
+      ],
+      "totalLines": 106,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/src/pages/student/steps/FormPendaftaranAwal.tsx": {
+      "filePath": "spmb-frontend/src/pages/student/steps/FormPendaftaranAwal.tsx",
+      "contentHash": "9d9f21fca996d416605c57491372bd7cd2233c0582803d6a7ddfecd95d38c5f0",
+      "functions": [
+        {
+          "name": "FormPendaftaranAwal",
+          "params": [],
+          "exported": true,
+          "lineCount": 359
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "react",
+          "specifiers": [
+            "useState",
+            "useEffect"
+          ]
+        },
+        {
+          "source": "react",
+          "specifiers": [
+            "ChangeEvent"
+          ]
+        },
+        {
+          "source": "react-router-dom",
+          "specifiers": [
+            "useNavigate"
+          ]
+        },
+        {
+          "source": "lucide-react",
+          "specifiers": [
+            "ArrowLeft",
+            "MapPin",
+            "GraduationCap",
+            "MapIcon",
+            "ExternalLink"
+          ]
+        },
+        {
+          "source": "../../../store/studentStore",
+          "specifiers": [
+            "isPendaftaranAwalLengkap",
+            "useStudentStore"
+          ]
+        },
+        {
+          "source": "../../../store/authStore",
+          "specifiers": [
+            "useAuthStore"
+          ]
+        },
+        {
+          "source": "../../../components/ui/InputField",
+          "specifiers": [
+            "InputField"
+          ]
+        },
+        {
+          "source": "../../../components/ui/Card",
+          "specifiers": [
+            "Card"
+          ]
+        },
+        {
+          "source": "../../../components/ui/Button",
+          "specifiers": [
+            "Button"
+          ]
+        },
+        {
+          "source": "../components/ReferralFields",
+          "specifiers": [
+            "ReferralFields"
+          ]
+        },
+        {
+          "source": "../../../data/constants",
+          "specifiers": [
+            "DATA_JURUSAN",
+            "DATA_AGAMA"
+          ]
+        }
+      ],
+      "exports": [
+        "FormPendaftaranAwal"
+      ],
+      "totalLines": 376,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/src/pages/student/steps/Step1Jurusan.tsx": {
+      "filePath": "spmb-frontend/src/pages/student/steps/Step1Jurusan.tsx",
+      "contentHash": "7e5f49dcd22304febae8745a70301427ad826a1797cd210bec29c31e84ee2ebd",
+      "functions": [
+        {
+          "name": "Step1Jurusan",
+          "params": [
+            "{ onComplete, onBack }"
+          ],
+          "exported": true,
+          "lineCount": 77
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "react",
+          "specifiers": [
+            "ChangeEvent"
+          ]
+        },
+        {
+          "source": "../../../store/studentStore",
+          "specifiers": [
+            "useStudentStore"
+          ]
+        },
+        {
+          "source": "../../../data/constants",
+          "specifiers": [
+            "DATA_JURUSAN",
+            "DATA_PROSPEK_KARIR"
+          ]
+        },
+        {
+          "source": "../components/StepLayout",
+          "specifiers": [
+            "StepLayout"
+          ]
+        },
+        {
+          "source": "../../../components/ui/InputField",
+          "specifiers": [
+            "InputField"
+          ]
+        },
+        {
+          "source": "../components/ReferralFields",
+          "specifiers": [
+            "ReferralFields"
+          ]
+        }
+      ],
+      "exports": [
+        "Step1Jurusan"
+      ],
+      "totalLines": 90,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/src/pages/student/steps/Step2Pribadi.tsx": {
+      "filePath": "spmb-frontend/src/pages/student/steps/Step2Pribadi.tsx",
+      "contentHash": "2ab2374bb06ebe752b1c101f5b25026c649a573f20935bee7a5f1c94b6794249",
+      "functions": [
+        {
+          "name": "Step2Pribadi",
+          "params": [
+            "{ onComplete, onBack }"
+          ],
+          "exported": true,
+          "lineCount": 179
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "react",
+          "specifiers": [
+            "useState"
+          ]
+        },
+        {
+          "source": "react",
+          "specifiers": [
+            "ChangeEvent"
+          ]
+        },
+        {
+          "source": "../../../store/studentStore",
+          "specifiers": [
+            "isDataPribadiLengkap",
+            "useStudentStore"
+          ]
+        },
+        {
+          "source": "../../../data/constants",
+          "specifiers": [
+            "DATA_AGAMA"
+          ]
+        },
+        {
+          "source": "../components/StepLayout",
+          "specifiers": [
+            "StepLayout"
+          ]
+        },
+        {
+          "source": "../../../components/ui/InputField",
+          "specifiers": [
+            "InputField"
+          ]
+        }
+      ],
+      "exports": [
+        "Step2Pribadi"
+      ],
+      "totalLines": 192,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/src/pages/student/steps/Step3Alamat.tsx": {
+      "filePath": "spmb-frontend/src/pages/student/steps/Step3Alamat.tsx",
+      "contentHash": "42d5afff43e0d07498beb1554b71d3922eaf41be5a353573d982f36771b64441",
+      "functions": [
+        {
+          "name": "Step3Alamat",
+          "params": [
+            "{ onComplete, onBack }"
+          ],
+          "exported": true,
+          "lineCount": 273
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "react",
+          "specifiers": [
+            "useState",
+            "useEffect"
+          ]
+        },
+        {
+          "source": "react",
+          "specifiers": [
+            "ChangeEvent"
+          ]
+        },
+        {
+          "source": "lucide-react",
+          "specifiers": [
+            "MapPin",
+            "Crosshair",
+            "ExternalLink",
+            "MapIcon",
+            "ScanLine"
+          ]
+        },
+        {
+          "source": "../../../store/studentStore",
+          "specifiers": [
+            "useStudentStore"
+          ]
+        },
+        {
+          "source": "../components/StepLayout",
+          "specifiers": [
+            "StepLayout"
+          ]
+        },
+        {
+          "source": "../components/ScanAlamatModal",
+          "specifiers": [
+            "ScanAlamatModal"
+          ]
+        },
+        {
+          "source": "../../../utils/ocr",
+          "specifiers": [
+            "HasilEkstraksiAlamat"
+          ]
+        },
+        {
+          "source": "../../../components/ui/InputField",
+          "specifiers": [
+            "InputField"
+          ]
+        },
+        {
+          "source": "../../../components/ui/Card",
+          "specifiers": [
+            "Card"
+          ]
+        },
+        {
+          "source": "../../../components/ui/Button",
+          "specifiers": [
+            "Button"
+          ]
+        },
+        {
+          "source": "../../../services/api",
+          "specifiers": [
+            "api"
+          ]
+        }
+      ],
+      "exports": [
+        "Step3Alamat"
+      ],
+      "totalLines": 295,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/src/pages/student/steps/Step4Ortu.tsx": {
+      "filePath": "spmb-frontend/src/pages/student/steps/Step4Ortu.tsx",
+      "contentHash": "5d20c48311ae97a7c5c91ec3f80e08405e53b15259f3cd9e7730bc5dc150aafe",
+      "functions": [
+        {
+          "name": "Step4Ortu",
+          "params": [
+            "{ onComplete, onBack }"
+          ],
+          "exported": true,
+          "lineCount": 192
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "react",
+          "specifiers": [
+            "ChangeEvent"
+          ]
+        },
+        {
+          "source": "../../../store/studentStore",
+          "specifiers": [
+            "useStudentStore"
+          ]
+        },
+        {
+          "source": "../../../types",
+          "specifiers": [
+            "TinggalBersama"
+          ]
+        },
+        {
+          "source": "../../../data/constants",
+          "specifiers": [
+            "DATA_TINGGAL_BERSAMA",
+            "DATA_ESTIMASI_PENGHASILAN"
+          ]
+        },
+        {
+          "source": "../components/StepLayout",
+          "specifiers": [
+            "StepLayout"
+          ]
+        },
+        {
+          "source": "../../../components/ui/InputField",
+          "specifiers": [
+            "InputField"
+          ]
+        }
+      ],
+      "exports": [
+        "Step4Ortu"
+      ],
+      "totalLines": 205,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/src/pages/student/steps/Step5Berkas.tsx": {
+      "filePath": "spmb-frontend/src/pages/student/steps/Step5Berkas.tsx",
+      "contentHash": "18ad98a7020e3ac2a6e9edb08863855783a56a6848270723bac17a23c32e11e7",
+      "functions": [
+        {
+          "name": "fileToBase64",
+          "params": [
+            "file"
+          ],
+          "returnType": "Promise<string>",
+          "exported": false,
+          "lineCount": 8
+        },
+        {
+          "name": "compressFoto",
+          "params": [
+            "file"
+          ],
+          "returnType": "Promise<{ base64: string; info: string }>",
+          "exported": false,
+          "lineCount": 7
+        },
+        {
+          "name": "Step5Berkas",
+          "params": [
+            "{ onComplete, onBack }"
+          ],
+          "exported": true,
+          "lineCount": 211
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "react",
+          "specifiers": [
+            "ChangeEvent"
+          ]
+        },
+        {
+          "source": "react",
+          "specifiers": [
+            "useRef",
+            "useState"
+          ]
+        },
+        {
+          "source": "lucide-react",
+          "specifiers": [
+            "Upload",
+            "Award"
+          ]
+        },
+        {
+          "source": "../../../store/studentStore",
+          "specifiers": [
+            "useStudentStore"
+          ]
+        },
+        {
+          "source": "../../../services/api",
+          "specifiers": [
+            "api",
+            "driveImageUrl",
+            "getFriendlyAuthError"
+          ]
+        },
+        {
+          "source": "../../../utils/imageCompress",
+          "specifiers": [
+            "compressAndCropImage"
+          ]
+        },
+        {
+          "source": "../components/StepLayout",
+          "specifiers": [
+            "StepLayout"
+          ]
+        },
+        {
+          "source": "../../../components/ui/Card",
+          "specifiers": [
+            "Card"
+          ]
+        },
+        {
+          "source": "../../../components/ui/Button",
+          "specifiers": [
+            "Button"
+          ]
+        }
+      ],
+      "exports": [
+        "Step5Berkas"
+      ],
+      "totalLines": 246,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/src/services/api.test.ts": {
+      "filePath": "spmb-frontend/src/services/api.test.ts",
+      "contentHash": "0e2ac32c3b1fd89934a1fe36a52805e3e70d86b663b37c862d1a5660d7e35a59",
+      "functions": [
+        {
+          "name": "loadApi",
+          "params": [],
+          "returnType": "Promise<ApiModule>",
+          "exported": false,
+          "lineCount": 4
+        },
+        {
+          "name": "jsonResponse",
+          "params": [
+            "body"
+          ],
+          "exported": false,
+          "lineCount": 8
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "vitest",
+          "specifiers": [
+            "describe",
+            "it",
+            "expect",
+            "vi",
+            "beforeEach",
+            "afterEach"
+          ]
+        },
+        {
+          "source": "./api",
+          "specifiers": [
+            "driveImageUrl",
+            "formatRetryCountdown",
+            "getFriendlyAuthError",
+            "getRetryAfterSec"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 235,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/src/services/api.ts": {
+      "filePath": "spmb-frontend/src/services/api.ts",
+      "contentHash": "668a5efeca76c2da1f81b9ee9198bd9486384c38de604d369026a9c8a0b9d1cd",
+      "functions": [
+        {
+          "name": "isCacheValid",
+          "params": [
+            "entry"
+          ],
+          "returnType": "boolean",
+          "exported": false,
+          "lineCount": 3
+        },
+        {
+          "name": "getMasterCache",
+          "params": [
+            "key"
+          ],
+          "returnType": "T | null",
+          "exported": false,
+          "lineCount": 9
+        },
+        {
+          "name": "setMasterCache",
+          "params": [
+            "key",
+            "data"
+          ],
+          "returnType": "void",
+          "exported": false,
+          "lineCount": 3
+        },
+        {
+          "name": "clearMasterCache",
+          "params": [
+            "key"
+          ],
+          "returnType": "void",
+          "exported": true,
+          "lineCount": 9
+        },
+        {
+          "name": "makeFailure",
+          "params": [
+            "message",
+            "kind",
+            "statusCode",
+            "code",
+            "retryAfterSec"
+          ],
+          "returnType": "RequestFailure",
+          "exported": false,
+          "lineCount": 8
+        },
+        {
+          "name": "isRetryable",
+          "params": [
+            "err"
+          ],
+          "returnType": "boolean",
+          "exported": false,
+          "lineCount": 10
+        },
+        {
+          "name": "getRetryAfterSec",
+          "params": [
+            "err"
+          ],
+          "returnType": "number",
+          "exported": true,
+          "lineCount": 9
+        },
+        {
+          "name": "getSessionToken",
+          "params": [],
+          "returnType": "string",
+          "exported": true,
+          "lineCount": 7
+        },
+        {
+          "name": "setSessionToken",
+          "params": [
+            "token"
+          ],
+          "returnType": "void",
+          "exported": true,
+          "lineCount": 11
+        },
+        {
+          "name": "clearSessionToken",
+          "params": [],
+          "returnType": "void",
+          "exported": true,
+          "lineCount": 7
+        },
+        {
+          "name": "getStoredUser",
+          "params": [],
+          "returnType": "T | null",
+          "exported": true,
+          "lineCount": 10
+        },
+        {
+          "name": "writeStoredUser",
+          "params": [
+            "user"
+          ],
+          "returnType": "void",
+          "exported": true,
+          "lineCount": 11
+        },
+        {
+          "name": "formatRetryCountdown",
+          "params": [
+            "totalSec"
+          ],
+          "returnType": "string",
+          "exported": true,
+          "lineCount": 6
+        },
+        {
+          "name": "driveImageUrl",
+          "params": [
+            "fileIdOrUrl",
+            "size"
+          ],
+          "returnType": "string",
+          "exported": true,
+          "lineCount": 7
+        },
+        {
+          "name": "checkBackendHealth",
+          "params": [],
+          "returnType": "Promise<{ ok: boolean; serverBuild?: string }>",
+          "exported": true,
+          "lineCount": 11
+        },
+        {
+          "name": "getFriendlyAuthError",
+          "params": [
+            "err"
+          ],
+          "returnType": "string",
+          "exported": true,
+          "lineCount": 7
+        },
+        {
+          "name": "getTimeoutMs",
+          "params": [
+            "action"
+          ],
+          "returnType": "number",
+          "exported": false,
+          "lineCount": 3
+        },
+        {
+          "name": "performRequest",
+          "params": [
+            "action",
+            "body"
+          ],
+          "returnType": "Promise<ApiResponse>",
+          "exported": false,
+          "lineCount": 29
+        },
+        {
+          "name": "request",
+          "params": [
+            "action",
+            "payload"
+          ],
+          "returnType": "Promise<ApiResponse>",
+          "exported": false,
+          "lineCount": 35
+        }
+      ],
+      "classes": [],
+      "imports": [],
+      "exports": [
+        "clearMasterCache",
+        "_internals",
+        "getRetryAfterSec",
+        "getSessionToken",
+        "setSessionToken",
+        "clearSessionToken",
+        "getStoredUser",
+        "writeStoredUser",
+        "formatRetryCountdown",
+        "driveImageUrl",
+        "checkBackendHealth",
+        "getFriendlyAuthError",
+        "api"
+      ],
+      "totalLines": 501,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/src/services/pendingAuth.test.ts": {
+      "filePath": "spmb-frontend/src/services/pendingAuth.test.ts",
+      "contentHash": "12ff9f1a99f426419db158117332e61fd93965dac526034884a666254cbb51c1",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "vitest",
+          "specifiers": [
+            "describe",
+            "it",
+            "expect",
+            "beforeEach"
+          ]
+        },
+        {
+          "source": "./pendingAuth",
+          "specifiers": [
+            "setPendingRegistration",
+            "readPendingRegistration",
+            "clearPendingRegistration"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 76,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/src/services/pendingAuth.ts": {
+      "filePath": "spmb-frontend/src/services/pendingAuth.ts",
+      "contentHash": "9a8ce2fc79660e4f311231d1e5bfc16c65a7f54a968bb5578f5a0068df8151a9",
+      "functions": [
+        {
+          "name": "setPendingRegistration",
+          "params": [
+            "data"
+          ],
+          "returnType": "void",
+          "exported": true,
+          "lineCount": 7
+        },
+        {
+          "name": "readPendingRegistration",
+          "params": [],
+          "returnType": "PendingRegistrationResult | null",
+          "exported": true,
+          "lineCount": 17
+        },
+        {
+          "name": "clearPendingRegistration",
+          "params": [],
+          "returnType": "void",
+          "exported": true,
+          "lineCount": 7
+        }
+      ],
+      "classes": [],
+      "imports": [],
+      "exports": [
+        "setPendingRegistration",
+        "readPendingRegistration",
+        "clearPendingRegistration"
+      ],
+      "totalLines": 50,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/src/store/authStore.test.ts": {
+      "filePath": "spmb-frontend/src/store/authStore.test.ts",
+      "contentHash": "9b322377a17f7156cedcd6135a26b0fd80afdeeb7817760759f0d05bd1c73c36",
+      "functions": [
+        {
+          "name": "makeLoginResult",
+          "params": [
+            "role"
+          ],
+          "exported": false,
+          "lineCount": 8
+        },
+        {
+          "name": "resetStore",
+          "params": [],
+          "exported": false,
+          "lineCount": 9
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "vitest",
+          "specifiers": [
+            "describe",
+            "it",
+            "expect",
+            "vi",
+            "beforeEach"
+          ]
+        },
+        {
+          "source": "./authStore",
+          "specifiers": [
+            "useAuthStore"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 229,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/src/store/authStore.ts": {
+      "filePath": "spmb-frontend/src/store/authStore.ts",
+      "contentHash": "918dd8e358057af981748a802305a4bee7a4c5c82d2828e3d46a661000b50a5c",
+      "functions": [
+        {
+          "name": "normalizeRole",
+          "params": [
+            "raw"
+          ],
+          "returnType": "Role",
+          "exported": false,
+          "lineCount": 6
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "zustand",
+          "specifiers": [
+            "create"
+          ]
+        },
+        {
+          "source": "../types",
+          "specifiers": [
+            "User",
+            "Role"
+          ]
+        },
+        {
+          "source": "../services/api",
+          "specifiers": [
+            "api",
+            "getSessionToken",
+            "setSessionToken",
+            "clearSessionToken",
+            "getStoredUser",
+            "writeStoredUser"
+          ]
+        }
+      ],
+      "exports": [
+        "useAuthStore"
+      ],
+      "totalLines": 141,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/src/store/studentStore.ts": {
+      "filePath": "spmb-frontend/src/store/studentStore.ts",
+      "contentHash": "d683a33aaec55edad3b0df74c7d10d51e24158e8e1b1d7d4307be24d47822244",
+      "functions": [
+        {
+          "name": "isFilled",
+          "params": [
+            "value"
+          ],
+          "exported": false,
+          "lineCount": 1
+        },
+        {
+          "name": "isDataPribadiLengkap",
+          "params": [
+            "data"
+          ],
+          "exported": true,
+          "lineCount": 12
+        },
+        {
+          "name": "isAlamatLengkap",
+          "params": [
+            "data"
+          ],
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "isPendaftaranAwalLengkap",
+          "params": [
+            "data"
+          ],
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "mapApiToData",
+          "params": [
+            "apiData"
+          ],
+          "returnType": "DataSiswa",
+          "exported": false,
+          "lineCount": 53
+        },
+        {
+          "name": "mapDataToApi",
+          "params": [
+            "data"
+          ],
+          "returnType": "Record<string, unknown>",
+          "exported": false,
+          "lineCount": 48
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "zustand",
+          "specifiers": [
+            "create"
+          ]
+        },
+        {
+          "source": "../types",
+          "specifiers": [
+            "DataSiswa",
+            "StepInfo"
+          ]
+        },
+        {
+          "source": "../services/api",
+          "specifiers": [
+            "api"
+          ]
+        },
+        {
+          "source": "../utils/dateUtils",
+          "specifiers": [
+            "formatWIBDateInput"
+          ]
+        }
+      ],
+      "exports": [
+        "isDataPribadiLengkap",
+        "isAlamatLengkap",
+        "isPendaftaranAwalLengkap",
+        "useStudentStore"
+      ],
+      "totalLines": 349,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/src/test/setup.ts": {
+      "filePath": "spmb-frontend/src/test/setup.ts",
+      "contentHash": "fb34f26454961a653c1dc9cc6357644170a11a11eb4e6c46e918ac8a0542da0d",
+      "functions": [
+        {
+          "name": "createMemoryStorage",
+          "params": [],
+          "returnType": "MinimalStorage",
+          "exported": false,
+          "lineCount": 13
+        },
+        {
+          "name": "isWorkingStorage",
+          "params": [
+            "candidate"
+          ],
+          "exported": false,
+          "lineCount": 7
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "vitest",
+          "specifiers": [
+            "afterEach"
+          ]
+        },
+        {
+          "source": "@testing-library/react",
+          "specifiers": [
+            "cleanup"
+          ]
+        },
+        {
+          "source": "@testing-library/jest-dom/vitest",
+          "specifiers": []
+        }
+      ],
+      "exports": [],
+      "totalLines": 57,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/src/types/index.ts": {
+      "filePath": "spmb-frontend/src/types/index.ts",
+      "contentHash": "2f9601f7eb53a7d429a531b39eddab315613ccc3cd48c77c8123559ec5fbff1e",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 130,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/src/utils/dateUtils.ts": {
+      "filePath": "spmb-frontend/src/utils/dateUtils.ts",
+      "contentHash": "13a469f2d0b7bc512ed3b2b34ea896a307d3a375a999855dcd115605dd9a6bc0",
+      "functions": [
+        {
+          "name": "formatWIB",
+          "params": [
+            "dateStr"
+          ],
+          "returnType": "string",
+          "exported": true,
+          "lineCount": 19
+        },
+        {
+          "name": "formatWIBShort",
+          "params": [
+            "dateStr"
+          ],
+          "returnType": "string",
+          "exported": true,
+          "lineCount": 16
+        },
+        {
+          "name": "getWIBParts",
+          "params": [
+            "date"
+          ],
+          "returnType": "{ y: number; m: number; d: number; h: number; min: number }",
+          "exported": false,
+          "lineCount": 19
+        },
+        {
+          "name": "getSapaanWIB",
+          "params": [],
+          "returnType": "'Pagi' | 'Siang' | 'Sore' | 'Malam'",
+          "exported": true,
+          "lineCount": 7
+        },
+        {
+          "name": "isTimeSentinel",
+          "params": [
+            "value"
+          ],
+          "returnType": "boolean",
+          "exported": false,
+          "lineCount": 5
+        },
+        {
+          "name": "timeFromTimeSentinel",
+          "params": [
+            "value"
+          ],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 7
+        },
+        {
+          "name": "formatWIBDateInput",
+          "params": [
+            "value"
+          ],
+          "returnType": "string",
+          "exported": true,
+          "lineCount": 11
+        },
+        {
+          "name": "formatWIBTime",
+          "params": [
+            "value"
+          ],
+          "returnType": "string",
+          "exported": true,
+          "lineCount": 10
+        }
+      ],
+      "classes": [],
+      "imports": [],
+      "exports": [
+        "formatWIB",
+        "formatWIBShort",
+        "getSapaanWIB",
+        "formatWIBDateInput",
+        "formatWIBTime"
+      ],
+      "totalLines": 102,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/src/utils/formImage.ts": {
+      "filePath": "spmb-frontend/src/utils/formImage.ts",
+      "contentHash": "4ced94c2cbe6c60ff9b75af856f6ae5a70c4b17799358c4bac144a341e7f6739",
+      "functions": [
+        {
+          "name": "waitSettle",
+          "params": [
+            "ms"
+          ],
+          "returnType": "Promise<void>",
+          "exported": false,
+          "lineCount": 3
+        },
+        {
+          "name": "errorMessage",
+          "params": [
+            "err"
+          ],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 3
+        },
+        {
+          "name": "getArea",
+          "params": [],
+          "returnType": "HTMLElement",
+          "exported": false,
+          "lineCount": 5
+        },
+        {
+          "name": "waitForImages",
+          "params": [
+            "root"
+          ],
+          "returnType": "Promise<void>",
+          "exported": false,
+          "lineCount": 18
+        },
+        {
+          "name": "renderWithSnapshot",
+          "params": [
+            "area"
+          ],
+          "returnType": "Promise<string>",
+          "exported": false,
+          "lineCount": 10
+        },
+        {
+          "name": "renderWithCanvas",
+          "params": [
+            "area"
+          ],
+          "returnType": "Promise<string>",
+          "exported": false,
+          "lineCount": 13
+        },
+        {
+          "name": "renderFormJpeg",
+          "params": [
+            "node"
+          ],
+          "returnType": "Promise<string>",
+          "exported": true,
+          "lineCount": 26
+        },
+        {
+          "name": "downloadJpeg",
+          "params": [
+            "dataUrl",
+            "filename"
+          ],
+          "returnType": "Promise<void>",
+          "exported": true,
+          "lineCount": 8
+        },
+        {
+          "name": "printJpeg",
+          "params": [
+            "dataUrl"
+          ],
+          "returnType": "Promise<void>",
+          "exported": true,
+          "lineCount": 89
+        }
+      ],
+      "classes": [],
+      "imports": [],
+      "exports": [
+        "F4_PIXEL_WIDTH",
+        "F4_PIXEL_HEIGHT",
+        "renderFormJpeg",
+        "downloadJpeg",
+        "printJpeg"
+      ],
+      "totalLines": 195,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/src/utils/imageCompress.ts": {
+      "filePath": "spmb-frontend/src/utils/imageCompress.ts",
+      "contentHash": "a372e323a5e520812793a39ee6b3ea59c8ccf6122d97d8c00f7d4f89f55343c4",
+      "functions": [
+        {
+          "name": "compressAndCropImage",
+          "params": [
+            "file",
+            "options"
+          ],
+          "returnType": "Promise<string>",
+          "exported": true,
+          "lineCount": 56
+        }
+      ],
+      "classes": [],
+      "imports": [],
+      "exports": [
+        "compressAndCropImage"
+      ],
+      "totalLines": 65,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/src/utils/kartuPrint.ts": {
+      "filePath": "spmb-frontend/src/utils/kartuPrint.ts",
+      "contentHash": "a3218ae3970f846e4d4a2a44c5758503d0e0347f31c77e73ca63ec6fe6cd16a9",
+      "functions": [
+        {
+          "name": "chunkIntoSheets",
+          "params": [
+            "items",
+            "perSheet"
+          ],
+          "returnType": "(T | null)[][]",
+          "exported": true,
+          "lineCount": 10
+        },
+        {
+          "name": "a4SheetCss",
+          "params": [],
+          "returnType": "string",
+          "exported": true,
+          "lineCount": 26
+        },
+        {
+          "name": "kartuPrintCss",
+          "params": [],
+          "returnType": "string",
+          "exported": true,
+          "lineCount": 24
+        },
+        {
+          "name": "a4PrintCss",
+          "params": [],
+          "returnType": "string",
+          "exported": true,
+          "lineCount": 37
+        },
+        {
+          "name": "a4SinglePrintCss",
+          "params": [],
+          "returnType": "string",
+          "exported": true,
+          "lineCount": 27
+        }
+      ],
+      "classes": [],
+      "imports": [],
+      "exports": [
+        "KARTU_W_MM",
+        "KARTU_H_MM",
+        "KARTU_PADDING_MM",
+        "KARTU_CONTENT_W_MM",
+        "QR_SIZE_MM",
+        "QR_PLATE_PAD_MM",
+        "QR_GAP_MM",
+        "QR_LABEL_MAX_W_MM",
+        "QR_COL_W_MM",
+        "QR_ROW_W_MM",
+        "QR_MAX_GAP_MM",
+        "QR_SIDE_MARGIN_MM",
+        "A4_W_MM",
+        "A4_H_MM",
+        "A4_GRID_COLS",
+        "A4_GRID_ROWS",
+        "A4_MAX_CARDS",
+        "A4_SHEET_OFFSET_X_MM",
+        "A4_SHEET_OFFSET_Y_MM",
+        "chunkIntoSheets",
+        "a4SheetCss",
+        "kartuPrintCss",
+        "a4PrintCss",
+        "a4SinglePrintCss"
+      ],
+      "totalLines": 222,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/src/utils/ocr.ts": {
+      "filePath": "spmb-frontend/src/utils/ocr.ts",
+      "contentHash": "a4d509b4300ab24daac2ebfe98a5fd46950a463ff214ece9d0c93eb3cbb811a3",
+      "functions": [
+        {
+          "name": "preprocessDokumen",
+          "params": [
+            "file"
+          ],
+          "returnType": "Promise<{ blob: Blob; base64: string; dataUrl: string }>",
+          "exported": true,
+          "lineCount": 47
+        },
+        {
+          "name": "runOcr",
+          "params": [
+            "gambar",
+            "onProgress"
+          ],
+          "returnType": "Promise<string>",
+          "exported": true,
+          "lineCount": 17
+        },
+        {
+          "name": "normalisasi",
+          "params": [
+            "teks"
+          ],
+          "returnType": "string[]",
+          "exported": false,
+          "lineCount": 8
+        },
+        {
+          "name": "bersihkan",
+          "params": [
+            "nilai"
+          ],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 7
+        },
+        {
+          "name": "potongLabel",
+          "params": [
+            "nilai"
+          ],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 5
+        },
+        {
+          "name": "extractAlamat",
+          "params": [
+            "teksMentah"
+          ],
+          "returnType": "HasilEkstraksiAlamat",
+          "exported": true,
+          "lineCount": 54
+        }
+      ],
+      "classes": [],
+      "imports": [],
+      "exports": [
+        "preprocessDokumen",
+        "runOcr",
+        "extractAlamat"
+      ],
+      "totalLines": 171,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/src/utils/waGroup.test.tsx": {
+      "filePath": "spmb-frontend/src/utils/waGroup.test.tsx",
+      "contentHash": "fda3a0f9426e56f4da5fbd3015f27373c501fb85debc8f710f587d4b7e714743",
+      "functions": [
+        {
+          "name": "countModules",
+          "params": [
+            "html"
+          ],
+          "returnType": "number",
+          "exported": false,
+          "lineCount": 3
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "vitest",
+          "specifiers": [
+            "describe",
+            "it",
+            "expect"
+          ]
+        },
+        {
+          "source": "react-dom/server",
+          "specifiers": [
+            "renderToStaticMarkup"
+          ]
+        },
+        {
+          "source": "qrcode.react",
+          "specifiers": [
+            "QRCodeSVG"
+          ]
+        },
+        {
+          "source": "./waGroup",
+          "specifiers": [
+            "WHATSAPP_LOGO_SRC",
+            "QR_MODULE_COLOR",
+            "findLinkGroupWa"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 114,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/src/utils/waGroup.ts": {
+      "filePath": "spmb-frontend/src/utils/waGroup.ts",
+      "contentHash": "d733b8c46a9f15cc26c9625addb0e1cd999fb83cd7747e6b4c4e7bf59746bc1b",
+      "functions": [
+        {
+          "name": "findLinkGroupWa",
+          "params": [
+            "rows",
+            "gelombang"
+          ],
+          "returnType": "string",
+          "exported": true,
+          "lineCount": 9
+        }
+      ],
+      "classes": [],
+      "imports": [],
+      "exports": [
+        "QR_MODULE_COLOR",
+        "WHATSAPP_LOGO_SRC",
+        "findLinkGroupWa"
+      ],
+      "totalLines": 25,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/src/vite-env.d.ts": {
+      "filePath": "spmb-frontend/src/vite-env.d.ts",
+      "contentHash": "65996936fbb042915f7b74a200fcdde7e410f32a669b1ab9597cfaa4b0faddb5",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 2,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/tailwind.config.js": {
+      "filePath": "spmb-frontend/tailwind.config.js",
+      "contentHash": "4901c60e439a0a60d33869fb60d60f515582d9a849ea3550d9a13ce3ffa1861c",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 23,
+      "hasStructuralAnalysis": true
+    },
+    "spmb-frontend/test-output.txt": {
+      "filePath": "spmb-frontend/test-output.txt",
+      "contentHash": "0245fd854baa801d53b13dfb0971c3e5a170fd31efc61e4d406df139ec7ca00f",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 260,
+      "hasStructuralAnalysis": false
+    },
+    "spmb-frontend/tsconfig.app.json": {
+      "filePath": "spmb-frontend/tsconfig.app.json",
+      "contentHash": "15de47f71c24b7dfa95c382c8c01561481cd5365ef8c97ab27016461af2af77a",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 27,
+      "hasStructuralAnalysis": false
+    },
+    "spmb-frontend/tsconfig.json": {
+      "filePath": "spmb-frontend/tsconfig.json",
+      "contentHash": "770b4140bbb581e2dfd9ea9946ffc9c75a1d86ba7d2db5f77c83e37cbdf9d808",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 8,
+      "hasStructuralAnalysis": false
+    },
+    "spmb-frontend/tsconfig.node.json": {
+      "filePath": "spmb-frontend/tsconfig.node.json",
+      "contentHash": "cdf03296db009821b4da76adbc99712072f85fa48731d5c0b4e7f8d28a82f453",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 25,
+      "hasStructuralAnalysis": false
+    },
+    "spmb-frontend/vite.config.ts": {
+      "filePath": "spmb-frontend/vite.config.ts",
+      "contentHash": "0fc6ee89dc0a0813f9894ecd3956bce10507e98be5d1c6251360da29ba922223",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "vitest/config",
+          "specifiers": [
+            "defineConfig"
+          ]
+        },
+        {
+          "source": "@vitejs/plugin-react",
+          "specifiers": [
+            "react"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 31,
+      "hasStructuralAnalysis": true
+    }
+  }
+}

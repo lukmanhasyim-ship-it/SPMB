@@ -1,0 +1,2510 @@
+{
+  "version": 1,
+  "generatedAt": "2026-11-18T02:59:15.495Z",
+  "files": {
+    "backend-gas/.clasp.json": {
+      "overview": "Berkas konfigurasi clasp ini menghubungkan direktori backend-gas lokal dengan project Google Apps Script yang sudah dideploy. Berkas ini dipakai pada langkah Entry Point Backend untuk menjelaskan bagaimana perubahan kode `.gs` dikirim ke deployment yang sama. Isinya sangat ringkas: hanya `scriptId` dan `rootDir` dalam satu baris JSON.",
+      "sections": [
+        {
+          "title": "Pemetaan project clasp",
+          "lineRange": [
+            1,
+            1
+          ],
+          "explanation": "Satu baris JSON ini berisi `scriptId`, yaitu pengenal unik project Apps Script di Google, dan `rootDir` yang ditetapkan sebagai `.` sehingga clasp membaca berkas dari folder tempat berkas ini berada. Menyimpan `scriptId` di sini membuat perintah `clasp push` dan `clasp redeploy` selalu menargetkan project yang sama tanpa perlu mengetik ID manual. Perlu diingat bahwa `redeploy` mempertahankan URL Web App yang dipakai frontend, sedangkan `deploy` akan membuat URL baru yang belum dikenal aplikasi.",
+          "tourOrder": 8
+        }
+      ]
+    },
+    "backend-gas/appsscript.json": {
+      "overview": "Manifest Google Apps Script ini mendefinisikan lingkungan runtime dan izin yang diminta backend SPMB. Ia melengkapi langkah Entry Point Backend dengan menjelaskan zona waktu, runtime V8, cakupan OAuth, serta pengaturan Web App. Pengaturan di sini menentukan layanan Google apa yang bisa dipanggil kode `.gs` dan bagaimana aplikasi diekspos ke publik.",
+      "sections": [
+        {
+          "title": "Konfigurasi runtime manifest",
+          "lineRange": [
+            1,
+            5
+          ],
+          "explanation": "Bagian awal manifest menetapkan `timeZone` menjadi `Asia/Jakarta` sehingga fungsi tanggal seperti `Utilities.formatDate` menghasilkan WIB secara konsisten. `exceptionLogging` memakai `STACKDRIVER` agar galat otomatis tercatat di Cloud Logging, dan `runtimeVersion` memakai V8 sehingga kode `.gs` mendukung sintaks JavaScript modern. Objek `dependencies` sengaja dikosongkan karena proyek tidak memakai library eksternal terpasang.",
+          "tourOrder": 8
+        },
+        {
+          "title": "Cakupan OAuth",
+          "lineRange": [
+            6,
+            11
+          ],
+          "explanation": "Array `oauthScopes` mendaftarkan izin yang diminta dari pemilik deployment: Spreadsheets untuk database, `script.external_request` untuk verifikasi token ke Google, Drive untuk menyimpan berkas, dan Calendar untuk event serta pengingat. Setiap cakupan harus sesuai dengan layanan yang benar-benar dipakai, karena cakupan yang berlebih memicu peringatan keamanan saat deployment. Mengubah daftar ini biasanya mengharuskan persetujuan ulang saat pengguna pertama kali menjalankan Web App.",
+          "tourOrder": 8
+        },
+        {
+          "title": "Konfigurasi Web App",
+          "lineRange": [
+            12,
+            16
+          ],
+          "explanation": "Blok `webapp` mengatur `executeAs` menjadi `USER_DEPLOYING`, artinya kode berjalan dengan identitas pemilik deployment, bukan pengguna yang mengunjungi. Nilai `access` sebesar `ANYONE_ANONYMOUS` mengizinkan frontend memanggil endpoint tanpa sesi Google, sehingga kontrol akses sepenuhnya dilakukan di dalam kode lewat token sesi dan peran. Kombinasi ini lazim untuk API yang melayani banyak pengguna dengan satu akun layanan.",
+          "tourOrder": 8
+        }
+      ]
+    },
+    "backend-gas/Code.gs": {
+      "overview": "Code.gs adalah pintu masuk Web App Apps Script sekaligus router pusat seluruh API SPMB. Berkas ini menjadi fokus langkah Entry Point Backend karena fans-out-nya paling tinggi: ia mengorkestrasi hampir semua handler lain. Di sini request dipetakan ke handler berdasarkan `action`, dijaga oleh pemeriksaan peran, lalu dibungkus menjadi respons JSON.",
+      "sections": [
+        {
+          "title": "Tabel route dan peran",
+          "lineRange": [
+            1,
+            51
+          ],
+          "explanation": "Objek `ROUTES` memetakan setiap nilai `action` ke fungsi `handler` dan daftar `roles` yang diizinkan. Komentar di atasnya menjelaskan bahwa `auth` dan `register` menangani verifikasi token mereka sendiri sehingga guard dilewati di `doPost`. Pendekatan tabel terpusat ini membuat penambahan endpoint menjadi satu baris konfigurasi dan memudahkan audit hak akses, karena semua keputusan otorisasi berkumpul di satu tempat.",
+          "tourOrder": 8
+        },
+        {
+          "title": "Health check dan CORS",
+          "lineRange": [
+            53,
+            63
+          ],
+          "explanation": "`doGet` mengembalikan status `ok` beserta `serverBuild` untuk health check dan membantu mendeteksi frontend yang lebih baru dari backend. `doOptions` menjawab permintaan preflight CORS dengan badan kosong bertipe teks. Keduanya memakai `ContentService.createTextOutput` karena Web App Apps Script tidak mengembalikan objek response seperti server Node.",
+          "tourOrder": 8
+        },
+        {
+          "title": "Router utama doPost",
+          "lineRange": [
+            65,
+            105
+          ],
+          "explanation": "`doPost` mengurai `e.postData.contents` sebagai JSON, menangkap `action`, lalu menangani `setup` secara khusus sebelum masuk ke tabel `ROUTES`. Aksi `setup` menghubungkan sheet dan menyimpan `GOOGLE_CLIENT_ID` ke Script Properties. Untuk aksi biasa, fungsi memastikan sheet siap lewat `initializeSheets()`, memanggil `requireAuth_` untuk semua aksi selain `auth` dan `register`, lalu menjalankan handler. Blok `catch` mencatat stack trace dan mengembalikan pesan generik agar detail internal tidak bocor ke klien.",
+          "tourOrder": 8
+        },
+        {
+          "title": "Output JSON",
+          "lineRange": [
+            107,
+            111
+          ],
+          "explanation": "`jsonOutput` menyerialisasi objek menjadi JSON dan menetapkan MIME type JSON melalui `ContentService`. Memusatkan pembuatan respons menjaga konsistensi format di seluruh handler dan mengurangi risiko lupa mengatur header. Semua jalur kembali di `doPost` memakai helper ini, termasuk jalur galat.",
+          "tourOrder": 8
+        },
+        {
+          "title": "Waktu WIB",
+          "lineRange": [
+            113,
+            115
+          ],
+          "explanation": "`getWIBTime` memformat waktu saat ini ke zona `GMT+7` dengan pola `yyyy-MM-dd HH:mm:ss`. Fungsi ini dipakai bersama oleh handler lain, misalnya MplsHandler.gs, untuk mencatat jam absensi dan izin. Menetapkan zona secara eksplisit menghindari ketergantungan pada pengaturan zona default skrip.",
+          "tourOrder": 8
+        },
+        {
+          "title": "Normalisasi nomor telepon",
+          "lineRange": [
+            117,
+            133
+          ],
+          "explanation": "`normalizePhone_` lebih dulu mencoba `PhoneLib.normalizeIndoPhone(raw)` di dalam `try/catch` agar kegagalan library tidak menghentikan request. Jika hasilnya kosong, fallback membersihkan semua karakter non-angka dan mengubah awalan `0` menjadi `62`, atau mempertahankan awalan `62` yang sudah ada. Hasil berupa digit tanpa tanda `+` menjaga format nomor tetap seragam di sheet, sejalan dengan penyimpanan telepon sebagai teks.",
+          "tourOrder": 8
+        }
+      ]
+    },
+    "backend-gas/DriveHandler.gs": {
+      "overview": "DriveHandler.gs menangani unggahan berkas calon murid ke Google Drive dan merupakan ujung akhir alur OCR dan unggah pada langkah tersebut. Handler `handleUpload` menerima data Base64 dari frontend, memvalidasinya, lalu menyimpan berkas ke folder bersama. Berkas ini menunjukkan bagaimana batas ukuran dan pembatasan laju diterapkan di sisi server sebagai lapisan pertahanan kedua.",
+      "sections": [
+        {
+          "title": "Konstanta batas unggah",
+          "lineRange": [
+            1,
+            3
+          ],
+          "explanation": "`ALLOWED_UPLOAD_MIMES` membatasi jenis berkas pada JPG, PNG, WEBP, dan PDF. `MAX_UPLOAD_BYTES` menetapkan batas 10 MB sebagai pengaman server. Komentar menjelaskan bahwa batas UX lebih ketat di frontend, yaitu input 10 MB yang dikompres menjadi di bawah 300 KB, sehingga server hanya bertugas menolak penyalahgunaan.",
+          "tourOrder": 11
+        },
+        {
+          "title": "Validasi unggahan",
+          "lineRange": [
+            5,
+            34
+          ],
+          "explanation": "`handleUpload` membersihkan nama berkas dari karakter berbahaya seperti `/` dan `\\`, lalu memeriksa MIME type, keberadaan `fileData`, dan keberadaan `session`. Fungsi memanggil `rateLimit_(session.email, 'upload', 50, 3600)` untuk membatasi 50 unggahan per jam. Data URL dipisahkan dari prefiks `data:...;base64,` dengan `split(',')[1]`, lalu ukuran diestimasi sebagai `base64.length * 3 / 4` sebelum dibandingkan dengan batas. Validasi dilakukan berurutan agar galat paling murah dicek lebih dulu.",
+          "tourOrder": 11
+        },
+        {
+          "title": "Penyimpanan ke Drive",
+          "lineRange": [
+            36,
+            70
+          ],
+          "explanation": "Folder diambil dari Script Property `DRIVE_FOLDER_ID`; bila tidak ada atau tidak valid, fungsi membuat folder `SPMB_Uploads` baru dan menyimpan ID-nya. `Utilities.newBlob` mengubah hasil `base64Decode` menjadi blob bertipe MIME dan nama berkas yang sudah dibersihkan, lalu `folder.createFile` menyimpannya. `setSharing` dengan `ANYONE_WITH_LINK` dan izin `VIEW` diperlukan agar gambar dan PDF bisa dirender aplikasi. Blok `catch` mencatat galat dan mengembalikan pesan umum agar informasi internal tidak terekspos.",
+          "tourOrder": 11
+        }
+      ]
+    },
+    "backend-gas/MplsHandler.gs": {
+      "overview": "MplsHandler.gs mengimplementasikan seluruh endpoint MPLS yang dipetakan di Code.gs, mulai dari pencarian peserta hingga pencatatan absensi dan izin. Berkas ini menutup siklus langkah Modul MPLS & Absensi di sisi server. Perhatikan penggunaan LockService untuk mencegah dua pemindaian bersamaan menulis baris ganda, serta normalisasi tanggal dan jam WIB sebelum data disimpan atau dikirim.",
+      "sections": [
+        {
+          "title": "Normalisasi tanggal waktu",
+          "lineRange": [
+            1,
+            35
+          ],
+          "explanation": "`getWIBDate_` menghasilkan tanggal WIB hari ini dalam format `yyyy-MM-dd`. `normalizeWIBDate_` menangani fakta bahwa Google Sheets otomatis mengubah string tanggal menjadi objek `Date`, lalu menormalkannya kembali ke string; pola regex juga memotong bagian jam dari string ISO. `normalizeWIBTime_` melakukan hal serupa untuk jam, baik dari `Date` maupun string yang mengandung pola `HH:mm:ss`. Normalisasi yang konsisten penting karena perbandingan tanggal di seluruh handler memakai string.",
+          "tourOrder": 13
+        },
+        {
+          "title": "Bersihkan baris & sesi absen",
+          "lineRange": [
+            37,
+            59
+          ],
+          "explanation": "`cleanKehadiranRow_` menyalin baris tanpa `_rowIndex` lalu menormalkan `tanggal` dan `jam`, serta menghitung `keterangan` otomatis. `getAbsenKeterangan_` memetakan jam menjadi `Absen Pagi` (06.00-10.59), `Absen Siang` (11.00-16.59), atau `Absen Malam` (17.00-05.59). With this keterangan, sistem dapat mendeteksi absensi ganda dalam satu sesi tanpa menyimpan kolom sesi tersendiri.",
+          "tourOrder": 13
+        },
+        {
+          "title": "Lookup peserta MPLS",
+          "lineRange": [
+            61,
+            103
+          ],
+          "explanation": "`handleMplsLookupById` mencari siswa lewat `findRowByKey('Siswa', 'id_pendaftaran', ...)`, yang cocok dengan kartu berkode QR. Fungsi lalu mengumpulkan baris kehadiran dan izin untuk tanggal yang diminta dan menandai `hadir_hari_ini`. Tanggal kosong akan diisi `getWIBDate_`, dan `sesi_sekarang` dihitung dari jam WIB aktual. Respons menggabungkan identitas siswa dengan riwayat harian agar layar pemindaian langsung menampilkan status lengkap.",
+          "tourOrder": 13
+        },
+        {
+          "title": "Catat kehadiran",
+          "lineRange": [
+            105,
+            188
+          ],
+          "explanation": "`handleMplsAddKehadiran` mengambil lock skrip dengan `tryLock(10000)` dan mengembalikan pesan sibuk bila gagal. Setiap jalur galat melepaskan lock secara eksplisit sebelum `return` agar tidak terjadi kebuntuan. Fungsi menolak absensi bila sesi yang sama sudah tercatat, dan membatasi maksimal tiga kali absensi per hari. ID kehadiran dibuat dari timestamp dalam basis 36, lalu baris ditambahkan ke `Kehadiran_MPLS` dengan menyalin identitas siswa agar data tidak bergantung pada join.",
+          "tourOrder": 13
+        },
+        {
+          "title": "Ambil data kehadiran",
+          "lineRange": [
+            190,
+            211
+          ],
+          "explanation": "`handleMplsGetKehadiran` membaca seluruh baris `Kehadiran_MPLS`. Tanpa parameter `tanggal`, fungsi mengembalikan semua data yang sudah dibersihkan; dengan tanggal, hasil difilter setelah dinormalkan. Pola ini memberi dashboard fleksibilitas untuk menampilkan rekap total maupun tampilan per hari dengan satu endpoint.",
+          "tourOrder": 13
+        },
+        {
+          "title": "Bersihkan baris izin",
+          "lineRange": [
+            213,
+            224
+          ],
+          "explanation": "`cleanIzinRow_` mirip dengan `cleanKehadiranRow_`, tetapi menormalkan `created_at` sebagai jam dan tidak menghitung keterangan sesi. Menyalin hanya kunci selain `_rowIndex` menjaga payload respons tetap bersih dari metadata internal Sheets. Pemisahan helper ini menghindari duplikasi logika normalisasi di antara handler izin.",
+          "tourOrder": 13
+        },
+        {
+          "title": "Catat izin",
+          "lineRange": [
+            226,
+            302
+          ],
+          "explanation": "`handleMplsAddIzin` juga memakai LockService dan memvalidasi `id_pendaftaran` serta `jenis_izin`. Fungsi menolak izin kedua untuk siswa yang sama pada hari yang sama dan menyarankan menghapus izin lama terlebih dahulu. ID izin memakai prefiks `IZN-` plus timestamp basis 36. Seperti absensi, identitas siswa disalin ke baris baru dan `created_at` diisi dari `getWIBTime()` agar konsisten dengan zona waktu.",
+          "tourOrder": 13
+        },
+        {
+          "title": "Ambil data izin",
+          "lineRange": [
+            304,
+            325
+          ],
+          "explanation": "`handleMplsGetIzin` mengambil seluruh baris `Izin_MPLS`, lalu mengembalikan semuanya bila `tanggal` kosong atau hanya baris yang cocok bila tanggal diberikan. Setiap baris dibersihkan melalui `cleanIzinRow_` sebelum dikirim. Struktur ini sejajar dengan `handleMplsGetKehadiran`, sehingga memudahkan dashboard mengonsumsi dua jenis data dengan pola yang sama.",
+          "tourOrder": 13
+        },
+        {
+          "title": "Hapus izin",
+          "lineRange": [
+            327,
+            337
+          ],
+          "explanation": "`handleMplsDeleteIzin` memvalidasi `id_izin`, lalu memanggil `deleteRowsByKey('Izin_MPLS', 'id_izin', idIzin)`. Bila tidak ada baris yang terhapus, fungsi mengembalikan galat `Izin tidak ditemukan` daripada berhasil diam-diam. Ini memberi umpan balik yang jelas ke UI saat pengguna menghapus izin untuk menggantinya.",
+          "tourOrder": 13
+        }
+      ]
+    },
+    "backend-gas/Security.gs": {
+      "overview": "Security.gs adalah fondasi keamanan backend yang dipakai Code.gs dan handler lain pada langkah Keamanan & Penyimpanan Sheets. Berkas ini mengelola sesi berbasis CacheService, verifikasi token Google, resolusi peran, dan pembatasan laju. Memahaminya penting karena setiap request terlindungi mengambil keputusan otorisasi dari fungsi-fungsi di sini.",
+      "sections": [
+        {
+          "title": "Konstanta TTL sesi",
+          "lineRange": [
+            1,
+            6
+          ],
+          "explanation": "Komentar pembuka menjelaskan bahwa CacheService membatasi TTL maksimal enam jam per entri, sehingga `SESSION_TTL_SEC` ditetapkan `6 * 60 * 60`. Menyamakan TTL sesi dengan batas layanan mencegah penulisan cache gagal karena nilai melebihi kuota. Konstanta ini dipakai baik saat membuat sesi maupun saat menyimpan entri cache.",
+          "tourOrder": 9
+        },
+        {
+          "title": "Manajemen sesi",
+          "lineRange": [
+            9,
+            35
+          ],
+          "explanation": "`createSession_` membuat token dari dua UUID yang digabung setelah tanda hubung dihapus, menyimpan `email`, `role`, dan `exp` di CacheService dengan kunci `sess:<token>`. Email dinormalkan ke huruf kecil agar perbandingan konsisten. `getSession_` mengambil entri, mengurai JSON di dalam `try/catch`, dan menolak sesi yang kedaluwarsa atau tidak lengkap. `revokeSession_` menghapus kunci saat logout. Pola cache-aside ini cepat, tetapi bergantung pada masa berlaku CacheService karena tidak ada penyimpanan permanen.",
+          "tourOrder": 9
+        },
+        {
+          "title": "Resolusi peran",
+          "lineRange": [
+            38,
+            46
+          ],
+          "explanation": "`resolveRole_` menentukan peran dari email dengan prioritas sheet Admin, lalu Guru, lalu Siswa. Nilai `role` dari sheet Admin dipakai apa adanya dengan fallback `admin`, sedangkan Guru memakai fallback `guru_smp`. Jika tidak ada yang cocok, fungsi mengembalikan `new` agar alur registrasi dapat membedakan pengguna baru. Urutan prioritas mencegah akun admin yang kebetulan juga terdaftar sebagai siswa mendapat peran yang salah.",
+          "tourOrder": 9
+        },
+        {
+          "title": "Verifikasi token Google",
+          "lineRange": [
+            49,
+            64
+          ],
+          "explanation": "`verifyGoogleTokenStrict_` memanggil `verifyGoogleToken_` lalu menolak token bila `email_verified` bernilai `false`. Fungsi juga membandingkan `payload.aud` dengan `GOOGLE_CLIENT_ID` dari Script Properties bila keduanya tersedia. Pemeriksaan audience ini memastikan token yang diterbitkan untuk aplikasi lain tidak bisa dipakai. Hasilnya berupa objek `{ valid, payload }` atau `{ valid: false, error }` yang dikonsumsi alur auth.",
+          "tourOrder": 9
+        },
+        {
+          "title": "Guard otorisasi",
+          "lineRange": [
+            67,
+            75
+          ],
+          "explanation": "`requireAuth_` menerima `token` atau `sessionToken` dari parameter, lalu memuat sesi lewat `getSession_`. Bila sesi tidak valid, fungsi mengembalikan pesan agar pengguna login ulang. Bila `allowedRoles` tidak kosong dan peran sesi tidak ada di dalamnya, fungsi mengembalikan `Akses ditolak`. Format kembalian `{ session }` atau `{ error }` memungkinkan Code.gs bercabang tanpa melempar exception.",
+          "tourOrder": 9
+        },
+        {
+          "title": "Pembatasan laju",
+          "lineRange": [
+            79,
+            117
+          ],
+          "explanation": "`checkRateLimit_` memakai fixed-window dengan dua kunci cache, yaitu penghitung dan waktu mulai jendela. Bila jendela belum ada atau sudah kedaluwarsa, waktu mulai dan penghitung direset. Setiap pemanggilan menambah penghitung; bila melebihi batas, fungsi mengembalikan `retryAfterSec` agar frontend bisa menampilkan hitung mundur. TTL penghitung sengaja disimpan sebagai sisa waktu jendela, bukan di-reset tiap hit, sehingga jendela tidak bergeser. `rateLimit_` adalah pembungkus kompatibilitas yang mengembalikan boolean bagi pemanggil lama.",
+          "tourOrder": 9
+        },
+        {
+          "title": "Reset pembatasan laju",
+          "lineRange": [
+            120,
+            126
+          ],
+          "explanation": "`resetRateLimit_` menghapus kedua kunci cache untuk email dan scope tertentu. Tujuannya adalah membebaskan pengguna yang sudah berhasil menyelesaikan aksi dari penghitung, sehingga tidak ikut terkena hukuman percobaan gagal sebelumnya. Fungsi berhenti lebih awal bila email kosong untuk menghindari penulisan kunci cache yang tidak bermakna.",
+          "tourOrder": 9
+        }
+      ]
+    },
+    "backend-gas/SheetManager.gs": {
+      "overview": "SheetManager.gs merupakan lapisan abstraksi database Google Sheets dan pondasi bagi hampir semua handler backend. Langkah Keamanan & Penyimpanan Sheets menunjuk berkas ini karena ia menyediakan koneksi spreadsheet, skema 13 sheet, dan operasi CRUD baris. Berkas ini juga menyimpan logika migrasi sekali jalan yang menjaga spreadsheet lama tetap kompatibel setelah skema berubah.",
+      "sections": [
+        {
+          "title": "Koneksi spreadsheet",
+          "lineRange": [
+            1,
+            32
+          ],
+          "explanation": "Variabel `SHEET_ID` dibaca dari Script Properties saat skrip dimuat. `setupSheet` menolak pengalihan ulang bila ID sudah tersimpan, memvalidasi ID yang diberikan lewat `SpreadsheetApp.openById`, atau membuat spreadsheet baru berjudul `SPMB - Data` bila belum ada. `ensureSpreadsheet_` membuka sheet berdasarkan ID dan memanggil `setupSheet` sebagai fallback. Guard ini mencegah API mengarah ke spreadsheet yang salah setelah koneksi awal dibuat.",
+          "tourOrder": 9
+        },
+        {
+          "title": "Ambil semua baris",
+          "lineRange": [
+            34,
+            57
+          ],
+          "explanation": "`getSheet` mengambil sheet berdasarkan nama dan membuatnya bila belum ada. `getAllRows` membaca `getDataRange().getValues()`, memakai baris pertama sebagai header, lalu mengubah setiap baris menjadi objek dengan header sebagai kunci. Fungsi mengembalikan array kosong bila hanya ada header. Konversi ini menjadi dasar bagi handler yang memetakan kolom Sheets ke objek JavaScript.",
+          "tourOrder": 9
+        },
+        {
+          "title": "Cari baris per kunci",
+          "lineRange": [
+            59,
+            78
+          ],
+          "explanation": "`findRowByKey` mencari baris pertama yang kolom kuncinya sama dengan nilai yang diminta, dengan perbandingan lewat `String(...)` agar angka dan teks tidak bentrok. Fungsi menyimpan `_rowIndex = i + 1` karena baris spreadsheet berbasis satu. Metadata ini dipakai `updateRow` untuk menulis ke baris yang tepat. Fungsi mengembalikan `null` bila header tidak ditemukan atau tidak ada baris yang cocok.",
+          "tourOrder": 9
+        },
+        {
+          "title": "Tambah baris",
+          "lineRange": [
+            80,
+            111
+          ],
+          "explanation": "`addRow` mendeteksi header dengan mengabaikan sel kosong, karena sheet kosong atau berisi `['']` tidak boleh dianggap memiliki header. Bila tidak ada header, header dibuat dari kunci objek `data` dan ditulis lebih dulu. Setiap baris disusun mengikuti urutan header, sehingga kolom yang tidak ada dalam data ditulis sebagai string kosong. Parameter opsional `textColumns` memaksa format `@` agar nilai seperti nomor telepon tidak diubah menjadi angka oleh Sheets.",
+          "tourOrder": 9
+        },
+        {
+          "title": "Perbarui baris",
+          "lineRange": [
+            113,
+            132
+          ],
+          "explanation": "`updateRow` memakai `findRowByKey` untuk menemukan baris, lalu menulis hanya kunci yang tersedia di objek `data`. Dengan demikian, field yang tidak dikirim tidak ikut ditimpa. Untuk `textColumns`, fungsi menetapkan format teks sebelum menulis nilai. Fungsi mengembalikan `false` bila baris tidak ditemukan, memberi sinyal kepada handler untuk menangani kondisi tersebut.",
+          "tourOrder": 9
+        },
+        {
+          "title": "Hapus baris",
+          "lineRange": [
+            134,
+            162
+          ],
+          "explanation": "`deleteRowsByKey` menghapus semua baris yang kuncinya cocok, dengan iterasi dari bawah ke atas agar indeks baris tidak bergeser saat penghapusan. Fungsi mengembalikan jumlah baris yang terhapus. `clearAllRows_` membersihkan seluruh isi sheet kecuali header dengan cara yang sama, yaitu menghapus dari baris terakhir menuju baris kedua. Kedua fungsi mengandalkan `_rowIndex` hanya secara implisit lewat posisi baris saat ini.",
+          "tourOrder": 9
+        },
+        {
+          "title": "Pastikan header",
+          "lineRange": [
+            164,
+            183
+          ],
+          "explanation": "`ensureHeaders` menganggap sheet kosong bila tidak ada data, atau hanya satu sel berisi string kosong. Bila kosong, sheet dibersihkan dan header ditulis dari awal. Bila sudah ada header, fungsi hanya menambahkan kolom yang belum ada di ujung kanan. Strategi ini memungkinkan kolom baru ditambahkan ke spreadsheet yang sudah berisi data tanpa menghapus baris lama.",
+          "tourOrder": 9
+        },
+        {
+          "title": "Utilitas debugging",
+          "lineRange": [
+            185,
+            256
+          ],
+          "explanation": "`debugSiswa` adalah fungsi diagnostik yang mencetak jumlah baris, daftar header, dan keberadaan kolom `telepon_siswa` ke Logger. Bila diberikan email, fungsi mencari baris yang cocok, mencetak seluruh nilainya, lalu mencoba menulis dan membaca kembali nilai uji untuk memverifikasi format teks. Nilai uji dibersihkan setelahnya. Ini bukan jalur API produksi, melainkan alat untuk menyelidiki masalah tipe data pada sheet.",
+          "tourOrder": 9
+        },
+        {
+          "title": "Inisialisasi skema",
+          "lineRange": [
+            258,
+            346
+          ],
+          "explanation": "`initializeSheets` menjalankan `migrateJurusanKode_` dan `dropColumns_` lebih dulu, lalu memeriksa penanda `SCHEMA_READY_V12`. Bila penanda sudah ada, fungsi hanya memanggil `seedInitialData()` dan berhenti sehingga `ensureHeaders` tidak diulang setiap request. Bila belum, fungsi memanggil `ensureHeaders` untuk seluruh sheet, mulai dari `Siswa` hingga `Telepon_Siswa`, lalu menulis penanda versi. Menaikkan `SCHEMA_VERSION` adalah cara resmi menjalankan ulang migrasi struktur setelah deploy.",
+          "tourOrder": 9
+        },
+        {
+          "title": "Migrasi & drop kolom",
+          "lineRange": [
+            348,
+            419
+          ],
+          "explanation": "`migrateJurusanKode_` mengubah kode jurusan lama seperti PPLG dan TJKT menjadi RPL dan TKJ sekali saja, dengan penanda `JURUSAN_MIGRASI_V1`. Perubahan ditulis sekaligus lewat `setValues` dengan format teks agar kode tidak berubah tipe. `dropColumns_` menghapus `estimasi_penghasilan_ortu` dan `pilihan_alternatif` yang sudah tidak dipakai, dengan penanda `SISWA_DROP_COLUMNS_V1`. Keduanya memakai penanda di Script Properties agar migrasi bersifat idempoten dan aman dipanggil berulang.",
+          "tourOrder": 9
+        }
+      ]
+    },
+    "docs/graph/ARCHITECTURE_GRAPH.md": {
+      "overview": "Dokumen ini adalah peta arsitektur SPMB yang dipakai pada langkah Peta Arsitektur & Dependensi sebagai kompas awal penelusuran kode. Ia merangkum tumpukan teknologi, struktur direktori, modul backend, alur data, serta daftar berkas kritis untuk pemeliharaan. Dengan membacanya lebih dulu, pembaca dapat menempatkan setiap berkas yang dikunjungi berikutnya ke dalam gambaran sistem yang utuh.",
+      "sections": [
+        {
+          "title": "Gambaran umum arsitektur",
+          "lineRange": [
+            1,
+            14
+          ],
+          "explanation": "Pembukaan menjelaskan tujuan dokumen, yaitu memudahkan pemahaman arsitektur dan alur data agar perbaikan lebih terarah. Bagian Overview merangkum SPMB sebagai aplikasi web serverless dengan frontend React 18, TypeScript, dan Vite, backend Google Apps Script, database Google Sheets, penyimpanan Drive, autentikasi Google Identity Services, serta hosting Firebase. Ringkasan ini menjadi kerangka bagi seluruh bagian berikutnya.",
+          "tourOrder": 2
+        },
+        {
+          "title": "Diagram arsitektur",
+          "lineRange": [
+            15,
+            29
+          ],
+          "explanation": "Bagian Arsitektur Tingkat Tinggi memuat diagram Mermaid yang menunjukkan browser pengguna menuju SPA di Firebase Hosting, lalu ke Web App Apps Script. Dari backend, garis mengarah ke Sheets, Drive, Calendar, dan Google Identity Services. Panah balik dari layanan-layanan tersebut menggambarkan bahwa hasil pemrosesan kembali ke API sebelum ditampilkan. Diagram ini membantu membedakan peran tiap layanan Google dengan cepat.",
+          "tourOrder": 2
+        },
+        {
+          "title": "Arsitektur frontend",
+          "lineRange": [
+            31,
+            73
+          ],
+          "explanation": "Bagian ini memetakan struktur direktori `spmb-frontend/src`, mulai dari `App.tsx` sebagai router dan `ProtectedRoute`, halaman per peran, hingga lapisan `services`, `store`, `hooks`, `utils`, dan `types`. Tabel routing merangkum akses public, siswa, admin, guru, dan panitia MPLS. Penjelasan API Layer menyoroti auto-retry dengan exponential backoff yang tidak dipakai untuk aksi non-idempoten, timeout 30 detik atau 120 detik untuk aksi berat, pengelolaan sesi di localStorage, serta helper URL gambar Drive.",
+          "tourOrder": 2
+        },
+        {
+          "title": "Arsitektur backend",
+          "lineRange": [
+            74,
+            113
+          ],
+          "explanation": "Bagian backend menjelaskan tiga entry point, yaitu `doGet` untuk health check, `doPost` sebagai router utama, dan `doOptions` untuk CORS preflight. Tabel Module Breakdown memasangkan setiap berkas `.gs` dengan tanggung jawabnya, dari Code.gs sebagai router hingga PhoneLib.gs dan SeedData.gs. Bagian Database Schema dan Security Features merangkum 13 sheet otomatis, token sesi ber expiry, rate limiting, kontrol akses per peran, LockService, dan verifikasi token Google.",
+          "tourOrder": 2
+        },
+        {
+          "title": "Alur data",
+          "lineRange": [
+            114,
+            149
+          ],
+          "explanation": "Diagram sequence pada bagian Data Flow menggambarkan registrasi dan login, mulai dari Google Sign-In, pengambilan ID token, POST `{action:'auth'}`, verifikasi token, hingga pengalihan sesuai peran. Bagian ini juga merangkum alur wizard pendaftaran yang memanggil `api.call('updateSiswa')`, operasi admin, dan alur MPLS dari pemindaian QR sampai `mplsAddKehadiran`. Ringkasan ini menghubungkan langkah-langkah tour yang akan datang.",
+          "tourOrder": 2
+        },
+        {
+          "title": "Berkas kritis",
+          "lineRange": [
+            150,
+            169
+          ],
+          "explanation": "Dua tabel pada bagian Key Files untuk Maintenance mencantumkan berkas yang paling sering berubah saat fitur baru ditambahkan. Di frontend, `App.tsx`, `api.ts`, `authStore.ts`, `types/index.ts`, dan `constants.ts` disebut karena menyangkut routing, komunikasi API, tipe, dan opsi dropdown. Di backend, `Code.gs`, `SheetManager.gs`, `AuthHandler.gs`, `Security.gs`, dan `SiswaHandler.gs` menjadi pusat perubahan. Daftar ini berguna untuk memperkirakan dampak sebuah request.",
+          "tourOrder": 2
+        },
+        {
+          "title": "Dependensi",
+          "lineRange": [
+            170,
+            186
+          ],
+          "explanation": "Bagian Dependencies Graph memisahkan dependensi frontend dan backend. Frontend memakai react-router-dom, zustand, lucide-react, qrcode.react, html5-qrcode, tesseract.js, xlsx, dan Vite. Backend bergantung pada runtime V8 serta layanan bawaan seperti SpreadsheetApp, DriveApp, CalendarApp, PropertiesService, LockService, dan UrlFetchApp, dengan google-libphonenumber dibundel lewat PhoneLib.gs. Mengetahui batas ini membantu memilih solusi yang memang tersedia di lingkungan Apps Script.",
+          "tourOrder": 2
+        },
+        {
+          "title": "Tips pemeliharaan",
+          "lineRange": [
+            187,
+            223
+          ],
+          "explanation": "Bagian Tips Maintenance memberi langkah konkret untuk menambah route atau field, antara lain mendaftarkan action di `ROUTES` Code.gs dan menyamakan tipe di `src/types/`. Panduan debugging membedakan DevTools Network untuk frontend dan Apps Script Execution logs untuk backend. Catatan deployment mengingatkan `npm run build` lalu Firebase Hosting, serta `clasp push` diikuti redeploy Web App. Quick Reference di akhir memetakan fitur ke pasangan berkas frontend dan backend yang relevan.",
+          "tourOrder": 2
+        }
+      ]
+    },
+    "docs/graph/DEPENDENCY_MAP.md": {
+      "overview": "DEPENDENCY_MAP.md melengkapi peta arsitektur dengan fokus pada hubungan frontend dan backend yang dibahas pada langkah Peta Arsitektur & Dependensi. Dokumen ini memetakan setiap action API ke handler, peran yang diizinkan, dan komponen frontend pemanggilnya. Ia juga berisi panduan analisis dampak ketika sebuah kontrak diubah, sehingga cocok dipakai sebelum menyentuh kode.",
+      "sections": [
+        {
+          "title": "Tujuan peta dependensi",
+          "lineRange": [
+            1,
+            4
+          ],
+          "explanation": "Dua baris pembuka menyatakan bahwa peta ini berguna untuk melacak dampak saat melakukan perubahan. Penegasan ini menentukan cara membaca seluruh dokumen: setiap baris tabel bukan sekadar daftar, melainkan rantai ketergantungan yang harus diperiksa sebelum mengubah action, tipe, peran, atau skema.",
+          "tourOrder": 2
+        },
+        {
+          "title": "Pemetaan endpoint API",
+          "lineRange": [
+            5,
+            47
+          ],
+          "explanation": "Tabel API Endpoint Mapping mencantumkan kolom Action, Handler, Roles, Frontend Usage, dan Keterangan untuk seluruh endpoint SPMB. Baris-barisnya menunjukkan bahwa `updateSiswa` dipakai `StudentWizard`, `upload` dipakai wizard untuk mengirim berkas, dan endpoint `mpls*` dipakai `MplsScan`, `MplsIzin`, atau `MplsDashboard`. Peran seperti `admin`, `guru_smp`, dan `panitia_mpls` tercantum per action sehingga pembaca dapat mengecek apakah perubahan hak akses perlu sinkron dengan `ROUTES` di Code.gs.",
+          "tourOrder": 2
+        },
+        {
+          "title": "Dependensi komponen",
+          "lineRange": [
+            49,
+            61
+          ],
+          "explanation": "Bagian Component Dependencies merangkum bahwa halaman login, student, admin, guru, dan mpls semuanya bergantung pada `services/api.ts` dan `store/authStore.ts`, dengan halaman student juga memakai `studentStore.ts`. Catatan Shared Components mengingatkan bahwa komponen di `src/components/` dipakai lintas peran. Informasi ini membantu memperkirakan luas perubahan sebelum mengubah store atau komponen bersama.",
+          "tourOrder": 2
+        },
+        {
+          "title": "Panduan analisis dampak",
+          "lineRange": [
+            63,
+            70
+          ],
+          "explanation": "Lima poin terakhir memberi daftar pemeriksaan: mengubah action berarti mencari semua pemanggilan `api.call()`, mengubah tipe data berarti menyamakan `src/types/` dengan respons backend, mengubah peran berarti memperbarui App.tsx dan `ROUTES`, mengubah skema sheet berarti menyentuh SheetManager.gs dan handler terkait, serta mengubah auth flow berarti menyelaraskan authStore.ts, api.ts, AuthHandler.gs, dan Security.gs. Pola ini menegaskan bahwa perubahan kecil di kontrak sering merambat ke beberapa lapisan.",
+          "tourOrder": 2
+        }
+      ]
+    },
+    "README.md": {
+      "overview": "README.md akar proyek adalah pintu masuk dokumentasi yang dibaca pada langkah Gambaran Umum Proyek. Berkas ini menjelaskan tujuan portal SPMB SMKS Al Azhar Sempu, alur dan fitur per peran, rute frontend, tumpukan teknologi, langkah instalasi, konfigurasi lingkungan, deployment, dan keamanan. Membacanya lebih dulu memberi rujukan bersama untuk menafsirkan berkas-berkas teknis yang dikunjungi setelahnya.",
+      "sections": [
+        {
+          "title": "Pengantar & fitur peran",
+          "lineRange": [
+            1,
+            18
+          ],
+          "explanation": "Pembukaan menjelaskan bahwa SPMB adalah portal pendaftaran murid baru berbasis web yang mengelola proses dari pengisian formulir hingga pendataan MPLS. Semua pengguna masuk lewat Google Sign-In dan diarahkan sesuai perannya. Tabel Alur dan Fitur Utama membedakan calon murid, admin, guru SMKS, guru SMP/MTs, dan panitia MPLS. Pemisahan peran di awal ini membantu membaca halaman dan endpoint berikutnya sesuai konteksnya.",
+          "tourOrder": 1
+        },
+        {
+          "title": "Rute & tumpukan teknologi",
+          "lineRange": [
+            19,
+            35
+          ],
+          "explanation": "Tabel Rute Frontend merangkum area publik, siswa, admin, guru, dan MPLS beserta rute utama masing-masing. Tabel Tech Stack memetakan lapisan frontend ke React 18, TypeScript, Vite, Tailwind, Zustand, React Router, qrcode.react, html5-qrcode, tesseract.js, xlsx, dan alat pengujian. Lapisan backend memakai Google Apps Script V8, Sheets, Drive, Calendar, Identity Services, LockService, dan google-libphonenumber. Kedua tabel ini merangkum keputusan teknologi yang dijelaskan lebih rinci di dokumentasi lain.",
+          "tourOrder": 1
+        },
+        {
+          "title": "Struktur proyek",
+          "lineRange": [
+            36,
+            71
+          ],
+          "explanation": "Blok Struktur Proyek memetakan direktori `spmb-frontend/`, `backend-gas/`, `logo.svg`, dan `RPD.md` beserta peran tiap berkas. Di backend tampak Code.gs sebagai router, SheetManager.gs sebagai pengelola skema, serta handler untuk auth, siswa, admin, konfigurasi, engagement, calendar, timeline, MPLS, dan Drive. Ringkasan ini berfungsi seperti peta direktori sebelum pembaca masuk ke kode sumber.",
+          "tourOrder": 1
+        },
+        {
+          "title": "Setup backend lokal",
+          "lineRange": [
+            73,
+            109
+          ],
+          "explanation": "Bagian Menjalankan Secara Lokal dimulai dengan prasyarat seperti Node.js 18, akun Google pemilik spreadsheet, dan OAuth Client ID. Langkah backend meminta menyalin berkas `.gs` dan `appsscript.json`, mengisi Script Properties `SHEET_ID` dan `GOOGLE_CLIENT_ID`, lalu melakukan deploy Web App dengan `Execute as Me` dan akses `Anyone`. Catatan penting menjelaskan bahwa PhoneLib.gs adalah bundle hasil esbuild yang tidak boleh diedit manual, dan skema dibuat otomatis oleh `initializeSheets()` saat API pertama dipanggil.",
+          "tourOrder": 1
+        },
+        {
+          "title": "Setup frontend & login",
+          "lineRange": [
+            111,
+            147
+          ],
+          "explanation": "Bagian setup frontend memandu `npm install`, menyalin `.env.example` menjadi `.env`, mengisi `VITE_API_URL` dan `VITE_GOOGLE_CLIENT_ID`, lalu menjalankan `npm run dev` di port 5173. Tersedia pula varian PowerShell `Copy-Item` untuk pengguna Windows. Bagian Login Pertama membedakan calon murid baru yang masuk ke wizard, admin atau guru yang harus terdaftar di sheet `Admin`, dan Guru SMP/MTs yang mendaftar mandiri lewat halaman Registrasi.",
+          "tourOrder": 1
+        },
+        {
+          "title": "Variabel lingkungan",
+          "lineRange": [
+            149,
+            154
+          ],
+          "explanation": "Tabel singkat ini menjelaskan dua variabel yang wajib diisi. `VITE_API_URL` menunjuk ke URL Web App Apps Script berakhiran `/exec`, sedangkan `VITE_GOOGLE_CLIENT_ID` dipakai frontend dan divalidasi sebagai `aud` token di backend. Keduanya menjadi jembatan konfigurasi antara langkah Fondasi Build & Konfigurasi dan alur autentikasi.",
+          "tourOrder": 1
+        },
+        {
+          "title": "Deployment produksi",
+          "lineRange": [
+            156,
+            192
+          ],
+          "explanation": "Bagian backend menjelaskan alur clasp dengan `push`, `deployments`, dan `redeploy`, disertai peringatan keras agar tidak memakai `clasp deploy` untuk rilis rutin karena akan menghasilkan URL baru yang tidak dikenal frontend. Bagian frontend menjelaskan `npm run build` lalu `npx firebase deploy --only hosting` ke proyek `spmbskalzar`. Catatan OAuth mengingatkan bahwa origin produksi harus terdaftar di Authorized JavaScript origins.",
+          "tourOrder": 1
+        },
+        {
+          "title": "Validasi & pengujian",
+          "lineRange": [
+            194,
+            202
+          ],
+          "explanation": "Empat perintah dirangkum di sini: `npm run lint` untuk ESLint, `npm run test` untuk unit dan komponen dengan Vitest serta Testing Library, `npm run build` untuk typecheck `tsc -b` dan build produksi Vite, serta `npm run e2e` untuk Playwright. Urutan ini mencerminkan lapisan pemeriksaan dari gaya kode hingga perilaku end-to-end sebelum rilis.",
+          "tourOrder": 1
+        },
+        {
+          "title": "Ringkasan keamanan",
+          "lineRange": [
+            204,
+            213
+          ],
+          "explanation": "Bagian Keamanan merangkum validasi token Google di server dengan pemeriksaan `aud` dan `email_verified`, sesi acak ber-TTL enam jam di Cache, otorisasi peran di server, isolasi data antarsekolah untuk `guru_smp`, LockService terhadap race condition, rate limiting, serta unggahan terkendali yang dikompres di browser. Ringkasan ini mengarahkan pembaca ke Security.gs dan DriveHandler.gs pada langkah-langkah berikutnya.",
+          "tourOrder": 1
+        },
+        {
+          "title": "Skema data & referensi",
+          "lineRange": [
+            214,
+            247
+          ],
+          "explanation": "Tabel Struktur Data Google Sheets mendaftar 13 sheet beserta kegunanya, termasuk `Siswa`, `Telepon_Siswa`, `Pengaturan_Gelombang`, hingga `Timeline_SPMB`. Catatan migrasi skema menjelaskan bahwa kolom atau sheet baru ditambahkan otomatis oleh `ensureHeaders()` setelah `SCHEMA_VERSION` dinaikkan. Dokumen ditutup dengan tautan ke dokumentasi API backend dan RPD, lalu pernyataan lisensi private.",
+          "tourOrder": 1
+        }
+      ]
+    },
+    "RPD.md": {
+      "overview": "RPD.md adalah dokumen rancangan teknis yang dibaca pada langkah Keamanan & Penyimpanan Sheets untuk melihat gambaran awal sistem. Berkas ini berisi cetak biru alur autentikasi, desain SPA, skema Google Sheets versi awal, analisis celah kritis, dan arah visual UI/UX. Membacanya membantu memahami mengapa beberapa keputusan implementasi saat ini ada, sekaligus mencatat bagian mana yang sudah berkembang dari rancangan semula.",
+      "sections": [
+        {
+          "title": "Pendahuluan RPD",
+          "lineRange": [
+            1,
+            9
+          ],
+          "explanation": "Judul dan bagian pendahuluan menyebut Sistem Penerimaan Murid Baru SMKS Al Azhar Sempu dengan arsitektur serverless memakai Google Apps Script, Sheets, Drive, dan OAuth 2.0. Paragraf pembuka menjelaskan bahwa prototipe mengadopsi ekosistem cloud gratis untuk menekan biaya infrastruktur tanpa mengorbankan keamanan dan pengalaman pengguna. Dokumen ini diposisikan sebagai cetak biru teknis, bukan dokumentasi API final.",
+          "tourOrder": 9
+        },
+        {
+          "title": "Autentikasi & pengalihan peran",
+          "lineRange": [
+            11,
+            17
+          ],
+          "explanation": "Bagian ini merangkum Unified Login, yaitu semua pengguna memakai satu tombol Google OAuth 2.0 di halaman depan. Role Detection dilakukan backend dengan memeriksa email terhadap daftar otorisasi admin. Pengalihan dinamis membedakan siswa yang menuju wizard 5 langkah dan admin yang menuju dashboard. Rincian wizard mencakup NISN opsional, alasan memilih program keahlian, koordinat rumah di peta, unggah berkas, dan kartu digital berkode QR.",
+          "tourOrder": 9
+        },
+        {
+          "title": "Arsitektur & state",
+          "lineRange": [
+            19,
+            48
+          ],
+          "explanation": "Bagian Arsitektur & Desain Interaksi menegaskan pendekatan Single Page Application yang responsif, dengan perpindahan antarmuka di sisi klien setelah verifikasi peran oleh backend. Diagram ASCII menggambarkan alur dari HALAMAN LOGIN UTAMA melalui Google OAuth 2.0 ke BACKEND ROLE DETECTION, lalu bercabang ke PORTAL SISWA dan DASHBOARD ADMIN. Cabang siswa memuat wizard lima langkah dan kartu digital, sementara cabang admin memuat statistik, tabel pendaftar, kontrol tahun ajaran, dan broadcast.",
+          "tourOrder": 9
+        },
+        {
+          "title": "Skema sheet Siswa",
+          "lineRange": [
+            49,
+            89
+          ],
+          "explanation": "Bagian Skema Database Terintegrasi menyebut empat lembar kerja, lalu tabel Sheet 1 memerinci kolom `Siswa`. `id_pendaftaran` berperan sebagai kunci dengan format SPMB-[TA]-[GEL]-[RANDOM_HEX]. Tabel mencatat bahwa `nisn` bersifat opsional dan `nik` wajib 16 digit, serta `pilihan_alternatif` sudah tidak dipakai sejak v69. Kolom seperti `koordinat_maps`, `status_pendaftaran`, dan `waktu_daftar` menjadi rujukan awal bagi field yang kini tersebar di skema SheetManager.gs.",
+          "tourOrder": 9
+        },
+        {
+          "title": "Skema sheet pendukung",
+          "lineRange": [
+            90,
+            116
+          ],
+          "explanation": "Tiga bagian berikutnya menjelaskan sheet pendukung. `Pengaturan_Gelombang` menyimpan jadwal, tautan grup WhatsApp, dan status yang diatur admin. `Sistem_Config` menyimpan variabel operasional seperti `TAHUN_AJARAN_AKTIF` serta daftar email admin yang berhak masuk. `Informasi_Event` mencatat notifikasi massal yang dikirim ke calon siswa. Tabel contoh memberi gambaran nilai yang diharapkan pada masing-masing sheet.",
+          "tourOrder": 9
+        },
+        {
+          "title": "Mitigasi celah keamanan",
+          "lineRange": [
+            117,
+            124
+          ],
+          "explanation": "Bagian Analisis dan Mitigasi Celah Kritis memuat tiga proteksi utama. Race condition dicegah dengan `LockService.getPublicLock()` yang mengunci database selama maksimal 30 detik saat pendaftaran. Streamlining berkas dilakukan lewat konversi Base64 berbasis Promise di browser agar kuota upload Apps Script tidak terlampaui. Admin Control Area Shield memisahkan panel administrasi dari akun siswa. Bagian ini menjelaskan latar belakang praktik LockService dan kompresi berkas yang dibahas lebih lanjut di kode.",
+          "tourOrder": 9
+        },
+        {
+          "title": "Desain UI/UX",
+          "lineRange": [
+            125,
+            133
+          ],
+          "explanation": "Bagian terakhir memperkenalkan prinsip Clean Emerald Glassmorphism yang memadukan nuansa islami modern dengan efisiensi teknis. Sistem wizard 5 langkah disebut untuk mengurangi beban kognitif pendaftar. Respons visual mencakup step tracker yang berubah warna, kartu preview menyerupai tiket VIP dengan foto dan QR real-time, serta floating bar semi-transparan dengan efek blur. Ini memberi konteks desain bagi komponen wizard dan kartu yang dikunjungi di tour berikutnya.",
+          "tourOrder": 9
+        }
+      ]
+    },
+    "spmb-frontend/.env.example": {
+      "overview": "Berkas `.env.example` adalah template variabel lingkungan frontend yang dibahas pada langkah Fondasi Build & Konfigurasi. Isinya hanya dua variabel, tetapi keduanya menentukan ke mana aplikasi mengirim request dan bagaimana tombol Google Sign-In divalidasi. Menyalin berkas ini menjadi `.env` adalah langkah wajib sebelum frontend dapat login atau memuat data.",
+      "sections": [
+        {
+          "title": "URL Web App API",
+          "lineRange": [
+            1,
+            1
+          ],
+          "explanation": "`VITE_API_URL` diisi dengan URL Web App Apps Script berformat `https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec`. Nilai `YOUR_SCRIPT_ID` harus diganti dengan ID deployment yang sebenarnya. Lapisan `services/api.ts` memakai variabel ini sebagai basis setiap pemanggilan `action`, sehingga salah isi akan membuat seluruh request gagal. Awalan `VITE_` menandakan bahwa nilai ini disuntikkan Vite ke bundle frontend saat build.",
+          "tourOrder": 3
+        },
+        {
+          "title": "Client ID Google",
+          "lineRange": [
+            2,
+            2
+          ],
+          "explanation": "`VITE_GOOGLE_CLIENT_ID` berisi OAuth Client ID aplikasi Google dengan akhiran `.apps.googleusercontent.com`. Nilai ini dipakai Google Identity Services di browser dan juga disimpan sebagai `GOOGLE_CLIENT_ID` di Script Properties backend untuk memeriksa `aud` token. Karena dua sisi harus memakai Client ID yang sama, mengubahnya hanya di frontend akan menyebabkan token ditolak server.",
+          "tourOrder": 3
+        }
+      ]
+    },
+    "spmb-frontend/e2e/wizard.spec.ts": {
+      "overview": "Berkas ini berisi spesifikasi end-to-end Playwright untuk wizard pendaftaran siswa. Tujuan utamanya adalah memastikan tampilan langkah awal dan langkah akhir wizard tetap benar setelah perubahan UI. Karena ia menguji rute `/student/wizard`, berkas ini berpasangan dengan `wizard.spec.ts` dan `playwright.config.ts` pada langkah turnya ke-14 tentang pengujian dan deployment.",
+      "sections": [
+        {
+          "title": "Impor dan helper e2e",
+          "lineRange": [
+            1,
+            2
+          ],
+          "explanation": "Baris pertama mengimpor `test` dan `expect` dari `@playwright/test`, yaitu API dasar untuk mendefinisikan dan memverifikasi pengujian. Baris berikutnya mengimpor `mockBackend` dan `seedSession` dari `./helpers`. Pemisahan helper ini menjaga spesifikasi tetap pendek dan membuat setup backend tiruan dapat dipakai ulang oleh spesifikasi lain."
+        },
+        {
+          "title": "Setup backend dan sesi",
+          "lineRange": [
+            4,
+            8
+          ],
+          "explanation": "Blok `test.describe` mengelompokkan seluruh pengujian wizard ke dalam satu kelompok bernama 'Wizard pendaftaran siswa'. Hook `beforeEach` dijalankan sebelum setiap test untuk memasang mock backend melalui `mockBackend(page)` lalu menanam sesi bertipe `siswa` lewat `seedSession`. Dengan demikian setiap skenario berangkat dari kondisi autentikasi yang sama dan tidak bergantung pada backend sungguhan."
+        },
+        {
+          "title": "Uji mode awal",
+          "lineRange": [
+            10,
+            14
+          ],
+          "explanation": "Test pertama membuka URL `/student/wizard?mode=awal&step=1`, lalu memastikan teks 'Pilihan Program Keahlian' terlihat. Query parameter `mode=awal` memberi tahu wizard bahwa ini adalah pengisian formulir baru, sehingga langkah 1 menampilkan pilihan jurusan. Pemakaian `.first()` mengatasi kemungkinan teks muncul lebih dari satu kali di halaman."
+        },
+        {
+          "title": "Uji mode final",
+          "lineRange": [
+            16,
+            20
+          ],
+          "explanation": "Test kedua membuka `/student/wizard?mode=final&step=4` dan memeriksa kemunculan 'Data Orang Tua/Wali'. Mode `final` merepresentasikan tahap penyempurnaan data setelah pendaftaran awal, sehingga wizard langsung menempatkan pengguna pada langkah 4. Kedua test bersama-sama memverifikasi bahwa navigasi berbasis query parameter bekerja untuk dua jalur alur yang berbeda."
+        }
+      ]
+    },
+    "spmb-frontend/firebase.json": {
+      "overview": "Berkas ini adalah konfigurasi Firebase Hosting untuk hasil build frontend SPMB. Ia menentukan bahwa direktori `dist/` yang dipublikasikan, sekaligus mengarahkan seluruh permintaan rute ke `index.html`. Peran ini mendukung langkah turnya ke-3 dan ke-14, karena memastikan aplikasi React dengan client-side routing tetap bisa dibuka langsung pada URL mana pun setelah deployment.",
+      "sections": [
+        {
+          "title": "Konfigurasi hosting",
+          "lineRange": [
+            1,
+            8
+          ],
+          "explanation": "Objek `hosting` membuka konfigurasi layanan Hosting Firebase. Properti `public: \"dist\"` menunjukkan bahwa hanya hasil build Vite yang disajikan, bukan sumber proyek. Daftar `ignore` mengecualikan `firebase.json`, berkas tersembunyi (`**/.*`), dan `**/node_modules/**` agar tidak ikut ter-upload. Ini menjaga artifact deployment tetap bersih dan aman."
+        },
+        {
+          "title": "Rewrite SPA",
+          "lineRange": [
+            9,
+            15
+          ],
+          "explanation": "Aturan `rewrites` memetakan seluruh pola sumber `**` ke tujuan `/index.html`. Tanpa rewrite ini, membuka rute seperti `/student/dashboard` secara langsung akan menghasilkan 404 karena server mencari berkas fisik yang tidak ada. Dengan rewrite, halaman beranda SPA selalu dimuat dan React Router yang kemudian menentukan tampilan sesuai URL, membuat refresh halaman menjadi aman."
+        }
+      ]
+    },
+    "spmb-frontend/index.html": {
+      "overview": "Ini adalah dokumen HTML dasar yang menjadi pintu masuk aplikasi frontend. Ia menyediakan elemen root tempat React dipasang, memuat skrip Google Identity Services untuk autentikasi, dan menunjuk `/src/main.tsx` sebagai entry point. Berkas ini termasuk dalam langkah turnya ke-4 mengenai titik masuk dan routing, karena merupakan sambungan pertama antara browser dan kode aplikasi.",
+      "sections": [
+        {
+          "title": "Head dan metadata",
+          "lineRange": [
+            1,
+            9
+          ],
+          "explanation": "Elemen `<html lang=\"id\">` menetapkan bahasa dokumen sebagai Bahasa Indonesia, membantu aksesibilitas dan mesin pencari. Di dalam `<head>` terdapat charset UTF-8, tautan favicon `logo.svg`, meta viewport untuk tampilan responsif di perangkat mobile, serta judul tab 'SPMB - SMKS AL AZHAR SEMPU'. Skrip Google Identity Services dimuat dengan `async defer` agar tidak memblokir parsing HTML, karena dibutuhkan LoginPage saat pengguna memilih Masuk dengan Google."
+        },
+        {
+          "title": "Root dan entry point",
+          "lineRange": [
+            10,
+            14
+          ],
+          "explanation": "Di dalam `<body>` terdapat `<div id=\"root\">`, yaitu kontainer kosong yang akan diisi oleh `createRoot` di `main.tsx`. Setelah itu, skrip bertipe module merujuk ke `/src/main.tsx`, menandakan titik awal proses bundling oleh Vite. Pemisahan antara elemen root statis dan logika React ini adalah pola standar aplikasi React modern."
+        }
+      ]
+    },
+    "spmb-frontend/package.json": {
+      "overview": "Berkas ini adalah manifest npm untuk paket `spmb-frontend` yang merangkum identitas proyek, skrip pengembangan, dan seluruh dependensi. Ia menjadi rujukan utama pada langkah turnya ke-3 tentang fondasi build dan konfigurasi, karena dari sinilah diketahui bahwa proyek memakai React 18, Vite, TypeScript, Tailwind, Zustand, Vitest, dan Playwright. Versi pustaka yang tercantum juga menjelaskan pilihan teknis yang dibahas di langkah-langkah berikutnya, seperti OCR dan pemindaian QR.",
+      "sections": [
+        {
+          "title": "Identitas dan skrip",
+          "lineRange": [
+            1,
+            14
+          ],
+          "explanation": "Bagian awal menetapkan nama paket `spmb-frontend`, sifat `private: true` agar tidak terbit ke npm, dan `type: module` sehingga berkas `.js` diperlakukan sebagai ES module. Objek `scripts` mendefinisikan seluruh perintah kerja: `dev` untuk Vite dengan HMR, `build` yang menjalankan `tsc -b` sebelum `vite build`, `lint`, `preview`, `test` lewat Vitest, `test:watch`, serta `e2e` lewat Playwright. Urutan pada `build` penting karena typecheck gagal lebih awal sebelum bundling dilakukan."
+        },
+        {
+          "title": "Dependensi runtime",
+          "lineRange": [
+            15,
+            27
+          ],
+          "explanation": "Blok `dependencies` memuat pustaka yang ikut terpasang di aplikasi produksi. React, React DOM, dan React Router menjadi fondasi UI dan routing, sementara Zustand dipakai untuk state global. Pustaka `qrcode.react` dan `html5-qrcode` melayani kartu digital dan absensi MPLS; `tesseract.js` menangani OCR, `xlsx` untuk Excel, `html-to-image` dan `html2canvas` untuk cetak/gambar, dan `lucide-react` menyediakan ikon. Keberadaan pustaka berat ini juga menjadi alasan perlunya code splitting yang dibahas pada langkah konfigurasi build."
+        },
+        {
+          "title": "Dependensi pengembangan",
+          "lineRange": [
+            28,
+            50
+          ],
+          "explanation": "Blok `devDependencies` berisi alat yang hanya dipakai saat pengembangan dan pengujian. Terdapat TypeScript beserta tipe React, Vite dan plugin React-nya, Tailwind dengan PostCSS/Autoprefixer, serta ESLint dan plugin aturan React Hooks/React Refresh. Untuk pengujian, tersedia Vitest, jsdom, Testing Library (DOM, React, jest-dom, user-event), dan Playwright. Menaruh alat-alat ini di luar `dependencies` menjaga ukuran instalasi produksi tetap lebih ringan."
+        }
+      ]
+    },
+    "spmb-frontend/playwright.config.ts": {
+      "overview": "Berkas ini mengonfigurasi cara Playwright menjalankan pengujian end-to-end proyek. Ia menentukan lokasi test, batas waktu, perilaku retry, dan secara otomatis menyiapkan server preview Vite di port 4173 sebelum pengujian dimulai. Bersama `wizard.spec.ts`, berkas ini merupakan bagian dari langkah turnya ke-14 tentang pengujian dan deployment.",
+      "sections": [
+        {
+          "title": "Konfigurasi dasar",
+          "lineRange": [
+            1,
+            10
+          ],
+          "explanation": "Fungsi `defineConfig` dari `@playwright/test` membungkus seluruh opsi konfigurasi. `testDir: './e2e'` membatasi pencarian test pada folder e2e, sementara `timeout: 60_000` memberi waktu satu menit per test. Opsi `retries` bernilai 1 hanya ketika variabel `CI` terset, sehingga pengujian lokal gagal cepat tanpa retry. Di dalam `use`, `baseURL` mengarah ke `http://localhost:4173` sehingga test bisa memakai jalur relatif, dan `trace: 'retain-on-failure'` menyimpan jejak eksekusi hanya saat test gagal untuk membantu debugging."
+        },
+        {
+          "title": "Web server preview",
+          "lineRange": [
+            11,
+            16
+          ],
+          "explanation": "Blok `webServer` memerintahkan Playwright menjalankan `npm run build && npm run preview -- --port 4173 --strictPort` secara otomatis. Artinya pengujian selalu dijalankan terhadap hasil build produksi, bukan dev server, sehingga perilaku yang diuji lebih mendekati kondisi deployment. `reuseExistingServer: !process.env.CI` membolehkan pemakaian server yang sudah berjalan di lokal, tetapi tidak di CI agar hasil tetap bersih. Timeout 180 detik memberi ruang bagi proses build dan preview untuk siap sebelum test dimulai."
+        },
+        {
+          "title": "Projek browser",
+          "lineRange": [
+            17,
+            18
+          ],
+          "explanation": "Opsi `projects` mendefinisikan satu projek bernama `chromium` dengan `browserName: 'chromium'`. Artinya seluruh spesifikasi saat ini dijalankan hanya pada mesin browser Chromium. Struktur ini sengaja dibuat sebagai array agar mudah ditambahkan projek Firefox atau WebKit di kemudian hari tanpa mengubah test itu sendiri."
+        }
+      ]
+    },
+    "spmb-frontend/README.md": {
+      "overview": "Dokumen ini adalah panduan pengembangan dan deployment untuk aplikasi frontend SPMB. Ia merangkum tech stack, langkah instalasi dan konfigurasi lingkungan, daftar skrip npm, prosedur deploy ke Firebase Hosting, serta peta singkat struktur direktori `src/`. Sebagai penutup tour langkah ke-14, berkas ini mengikat kembali seluruh berkas teknis yang telah dibahas menjadi satu alur kerja yang dapat dijalankan pengembang.",
+      "sections": [
+        {
+          "title": "Judul dan tech stack",
+          "lineRange": [
+            1,
+            15
+          ],
+          "explanation": "Bagian pembuka menjelaskan bahwa proyek ini adalah SPA React untuk Sistem Penerimaan Murid Baru SMKS Al Azhar Sempu, sekaligus merujuk ke README utama. Daftar tech stack menyebut React 18, TypeScript, Vite, Tailwind, Zustand, React Router, serta pustaka khusus seperti `qrcode.react`, `html5-qrcode`, `tesseract.js`, dan `xlsx`. Penyebutan Vitest dan Playwright di akhir daftar menegaskan bahwa pengujian merupakan bagian dari tumpukan resmi proyek. Ringkasan ini membantu pembaca memetakan setiap berkas yang dikunjungi tour ke perannya masing-masing."
+        },
+        {
+          "title": "Menjalankan aplikasi",
+          "lineRange": [
+            17,
+            31
+          ],
+          "explanation": "Bagian 'Menjalankan' menunjukkan urutan `npm install`, menyalin `.env.example` menjadi `.env`, lalu `npm run dev` untuk membuka `http://localhost:5173`. Catatan penting mengingat bahwa `VITE_API_URL` harus menunjuk ke deployment Web App Apps Script versi terbaru. Petunjuk `npx clasp deployments` dan `npx clasp redeploy` menjelaskan gotcha umum: ID deployment lama terus melayani kode lama setelah push, sehingga URL harus diperbarui atau di-redploy. Ini menghubungkan konfigurasi frontend langkah ke-3 dengan backend Apps Script langkah ke-8."
+        },
+        {
+          "title": "Daftar skrip",
+          "lineRange": [
+            33,
+            41
+          ],
+          "explanation": "Tabel 'Skrip' menerjemahkan setiap perintah npm ke fungsinya: `dev` untuk server pengembangan dengan HMR, `build` untuk typecheck plus build produksi ke `dist/`, `lint` untuk ESLint, `test` untuk unit dan komponen, serta `e2e` untuk Playwright. Menyajikan informasi ini dalam tabel memudahkan pengembang baru memilih perintah yang tepat tanpa membaca `package.json` baris per baris. Isi tabel ini konsisten dengan bagian `scripts` pada manifest npm."
+        },
+        {
+          "title": "Deploy produksi",
+          "lineRange": [
+            43,
+            53
+          ],
+          "explanation": "Bagian ini menjelaskan bahwa hasil build diterbitkan ke Firebase Hosting pada proyek `spmbskalzar` melalui `npx firebase deploy --only hosting`. Urutan `npm run build` sebelum deploy memastikan direktori `dist/` sudah segar. Peringatan terakhir mengingatkan bahwa *Authorized JavaScript origins* pada OAuth Client Google harus memuat URL hosting produksi dan `http://localhost:5173`, jika tidak alur login Google akan gagal setelah deployment. Ini menutup rangkaian konfigurasi yang dibahas pada langkah ke-3 dan ke-14."
+        },
+        {
+          "title": "Struktur singkat",
+          "lineRange": [
+            55,
+            66
+          ],
+          "explanation": "Diagram 'Struktur Singkat' memetakan direktori utama di dalam `src/`: `pages/` untuk halaman per peran dan wizard lima langkah, `components/` untuk UI kit, `services/api.ts` untuk pemanggil API GAS, `store/` untuk Zustand, `types/` untuk tipe TypeScript, `utils/` untuk utilitas seperti konversi waktu WIB, dan `data/constants.ts` untuk pilihan formulir. Peta ini berfungsi sebagai indeks mental yang mengaitkan file-file yang telah dibaca sejak langkah kelima sampai langkah ketiga belas. Menempatkannya di akhir README memberi pembaca ringkasan sebelum kembali ke kode."
+        }
+      ]
+    },
+    "spmb-frontend/src/App.test.tsx": {
+      "overview": "Berkas ini menguji perilaku routing dan perlindungan rute di `App.tsx` memakai Vitest dan Testing Library. Fokus utamanya adalah memastikan setiap peran hanya bisa mengakses panelnya masing-masing dan pengguna tanpa akses dialihkan ke halaman masuk. Bersama `wizard.spec.ts`, berkas ini melengkapi langkah turnya ke-14 tentang pengujian dan deployment.",
+      "sections": [
+        {
+          "title": "Impor dan mock halaman",
+          "lineRange": [
+            1,
+            31
+          ],
+          "explanation": "Selain mengimpor utilitas render, `MemoryRouter`, dan API Vitest, berkas ini mengimpor `App`, `useAuthStore`, serta tipe `Role` dan `User`. Delapan panggilan `vi.mock` mengganti halaman-halaman berat seperti DashboardSiswa, StudentWizard, AdminLayout, GuruLayout, dan MplsDashboard dengan stub sederhana bertanda `_STUB`. Tujuannya mengisolasi pengujian: yang diuji adalah logika route guard, bukan implementasi tiap halaman. Stub juga membuat assertion memakai teks yang stabil dan mudah dikenali."
+        },
+        {
+          "title": "Helper login dan render",
+          "lineRange": [
+            33,
+            48
+          ],
+          "explanation": "Fungsi `loginAs` mengatur state `useAuthStore` secara langsung: bila perameter `role` kosong, pengguna diset null dan `isLoggedIn: false`; sebaliknya dibuat objek `User` dengan peran yang diminta dan `isLoggedIn: true`. Fungsi `renderApp` membungkus `<App />` di dalam `<MemoryRouter>` dengan `initialEntries` sesuai path yang diuji, sehingga routing dapat disimulasikan tanpa browser sungguhan. Keduanya meringkas delapan skenario menjadi baris test yang pendek dan konsisten."
+        },
+        {
+          "title": "Reset state tiap tes",
+          "lineRange": [
+            50,
+            59
+          ],
+          "explanation": "Hook `beforeEach` membersihkan `localStorage` dan mengembalikan `useAuthStore` ke kondisi awal sebelum setiap test berjalan. Ini mencegah sesi dari test sebelumnya terbawa dan menyebabkan hasil yang tidak deterministik. Pencantuman field `loading` dan `error` memastikan seluruh state autentikasi berada pada nilai default yang diketahui. Pola ini adalah kunci agar pengujian dapat dijalankan dalam urutan mana pun."
+        },
+        {
+          "title": "Guard route dan izin",
+          "lineRange": [
+            61,
+            136
+          ],
+          "explanation": "Blok `describe` pertama berisi sembilan skenario yang mengeksekusi matriks peran dan rute. Tamu yang membuka `/student/dashboard` diharapkan melihat tombol 'Masuk dengan Google' dan tidak melihat stub dashboard, begitu pula siswa yang mencoba `/admin/dashboard`, `/guru/dashboard`, atau `/mpls/dashboard`. Sebaliknya, siswa, admin, `guru_smp`, dan `panitia_mpls` masing-masing berhasil melihat stub panel mereka. Kasus khusus `role: 'new'` dengan `registrationRequired: true` memastikan pengguna baru tetap diblokir, dan path tak dikenal juga dialihkan ke beranda. Secara keseluruhan ini memverifikasi bahwa `ProtectedRoute` memeriksa peran sebelum merender, bukan sekadar menyembunyikan tautan."
+        },
+        {
+          "title": "Banner sesi berakhir",
+          "lineRange": [
+            138,
+            151
+          ],
+          "explanation": "Blok `describe` kedua menguji tampilan notifikasi ketika URL memuat query `session=expired`. Test pertama membuka `/?session=expired` dan mencari teks 'sesi anda berakhir', sedangkan test kedua memastikan banner tidak muncul pada `/` tanpa query tersebut. Assertion keduanya menggunakan `queryByText(...).not.toBeInTheDocument()` untuk menegaskan ketiadaan elemen. Ini membuktikan bahwa tampilan banner sepenuhnya dikendalikan oleh query parameter, bukan oleh state sesi yang tersisa."
+        }
+      ]
+    },
+    "spmb-frontend/src/App.tsx": {
+      "overview": "Komponen `App` adalah kerangka routing utama aplikasi SPMB. Di dalamnya setiap halaman dimuat secara lazy, dibungkus batas `Suspense`, dan sebagian besar rute dilindungi oleh `ProtectedRoute` yang memeriksa peran pengguna. Berdasarkan langkah turnya ke-4, berkas ini menjelaskan bagaimana peran siswa, admin, guru, dan panitia MPLS menentukan halaman yang boleh dibuka.",
+      "sections": [
+        {
+          "title": "Impor dan lazy loading",
+          "lineRange": [
+            1,
+            30
+          ],
+          "explanation": "Baris awal mengimpor `lazy` dan `Suspense` dari React, komponen routing `Routes`, `Route`, `Navigate`, store autentikasi, tipe `Role`, `ErrorBoundary`, serta halaman LoginPage dan RegisterPage. Seluruh halaman lain dideklarasikan dengan `lazy(() => import(...))`, sehingga bundel awal tidak perlu memuat semua fitur sekaligus. Daftar ini mencakup halaman siswa, admin, guru, dan MPLS, mencerminkan empat peran utama yang dibahas tour. Halaman login dan register sengaja diimpor langsung karena merupakan pintu masuk yang hampir selalu dibutuhkan."
+        },
+        {
+          "title": "Suspense wrapper",
+          "lineRange": [
+            32,
+            38
+          ],
+          "explanation": "`SuspenseWrapper` membungkus `children` dengan `<Suspense>` yang menampilkan elemen `.loader` di tengah layar sebagai fallback. Ia juga membungkus konten dalam div `.page-fade-in` agar transisi antarhalaman terasa halus. Menjadikannya komponen tersendiri menghindari pengulangan fallback pada puluhan rute di bawah. Ini adalah contoh penerapan batas Suspense yang disinggung pada langkah turnya ke-4."
+        },
+        {
+          "title": "Protected route",
+          "lineRange": [
+            40,
+            47
+          ],
+          "explanation": "`ProtectedRoute` menerima `children` dan properti `role` yang bertipe `Role | Role[]`. Ia mengambil `isLoggedIn` dan `user` dari `useAuthStore`, lalu langsung mengalihkan ke `/` dengan `<Navigate replace />` bila salah satunya tidak ada. Pemeriksaan izin mendukung satu peran maupun array peran memakai `Array.isArray`, sehingga rute guru dapat menerima dua peran sekaligus. Pengalihan terjadi sebelum children dirender, artinya halaman terlindungi tidak pernah dipasang untuk pengguna tanpa izin—pola yang diuji di `App.test.tsx`."
+        },
+        {
+          "title": "Rute siswa dan publik",
+          "lineRange": [
+            49,
+            84
+          ],
+          "explanation": "Fungsi `App` membuka `<ErrorBoundary>` lalu `<Routes>`. Rute `/` menampilkan LoginPage dan `/register` menampilkan RegisterPage tanpa perlindungan. Tiga rute siswa—`/student/dashboard`, `/student/wizard`, dan `/student/kartu-pendaftaran`—semuanya menggunakan `ProtectedRoute role=\"siswa\"` dengan `SuspenseWrapper` di dalamnya. Struktur ini menghubungkan langkah autentikasi ke-6 dengan wizard ke-10 dan kartu ke-12 dalam satu jalur peran siswa."
+        },
+        {
+          "title": "Rute admin",
+          "lineRange": [
+            85,
+            106
+          ],
+          "explanation": "Rute `/admin` dilindungi peran `admin` dan memakai `AdminLayout` sebagai layout induk. Rute index mengalihkan ke `/admin/dashboard`, sementara rute anak mencakup dashboard, daftar siswa, pendaftaran siswa, referral, gelombang, timeline, broadcast, formulir, cetak kartu, dan manajemen admin. Semua rute anak tetap membungkus komponennya dengan `SuspenseWrapper`. Menyusun halaman-halaman ini sebagai nested routes memungkinkan layout admin tetap terpasang saat pengguna berpindah antarhalaman."
+        },
+        {
+          "title": "Rute guru",
+          "lineRange": [
+            107,
+            121
+          ],
+          "explanation": "Rute `/guru` dilindungi oleh array peran `['guru', 'guru_smp']`, menunjukkan bagaimana fitur `ProtectedRoute` menerima beberapa peran sekaligus. Layout induknya adalah `GuruLayout`, dengan index yang mengalihkan ke dashboard. Anak rutenya terdiri dari dashboard, daftarkan siswa, dan formulir—yang terakhir memakai ulang komponen `AdminFormulir`. Pemanfaatan ulang ini menghemat duplikasi kode antara panel admin dan guru."
+        },
+        {
+          "title": "Rute MPLS dan fallback",
+          "lineRange": [
+            122,
+            144
+          ],
+          "explanation": "Rute `/mpls` hanya terbuka untuk `panitia_mpls` dan memakai `MplsLayout` sebagai induk. Index mengarah ke dashboard, disusul rute scan, izin, dan informasi yang seluruhnya dibungkus `SuspenseWrapper`. Setelah itu, rute `*` mengalihkan path yang tidak dikenal ke `/`, sehingga URL salah tidak menghasilkan halaman kosong. Penutupan tag `Routes`, `ErrorBoundary`, dan fungsi `App` diakhiri dengan `export default App` yang dipakai `main.tsx`."
+        }
+      ]
+    },
+    "spmb-frontend/src/components/kartu/BuktiPendaftaranCard.tsx": {
+      "overview": "Komponen ini merender kartu bukti pendaftaran digital yang menampilkan identitas siswa, ringkasan data pendaftaran, dan dua buah kode QR. Kartu dirancang dalam satuan milimeter agar ukurannya tetap konsisten antara tampilan layar dan hasil cetak. Bersama `KartuPendaftaran.tsx`, `kartuPrint.ts`, dan `useKartuPrint.ts`, komponen ini merupakan inti dari langkah turnya ke-12 tentang kartu dan cetak bukti.",
+      "sections": [
+        {
+          "title": "Impor dan tipe data",
+          "lineRange": [
+            1,
+            26
+          ],
+          "explanation": "Impor mencakup `QRCodeSVG` dari `qrcode.react`, warna modul QR dan sumber logo WhatsApp dari `utils/waGroup`, serta konstanta dimensi kartu dan QR dari `utils/kartuPrint`. Antarmuka `KartuData` mendefinisikan data yang harus disediakan pemanggil, mulai dari nama, email, ID pendaftaran, jurusan, gelombang, tahun ajaran, waktu daftar, status, hingga foto, inisial, dan tautan grup WhatsApp opsional. Antarmuka `BuktiPendaftaranCardProps` menambahkan `id` dan `className` agar komponen mudah disisipkan dan diberi gaya tambahan. Konstanta `QR_SIZE_PX` dan `QR_LOGO_PX` mengatur resolusi internal QR dan ukuran logo di tengahnya. Menaruh kontrak data di sini membuat kartu dapat dipakai ulang oleh halaman siswa maupun admin."
+        },
+        {
+          "title": "Inisialisasi kartu",
+          "lineRange": [
+            28,
+            42
+          ],
+          "explanation": "Fungsi komponen menerima `data`, `id`, dan `className` dengan nilai default string kosong. Variable `linkGroupWa` dibersihkan dengan `.trim()` dan `hasWaLink` menentukan apakah tautan grup WhatsApp tersedia. Array `rows` menyusun lima baris informasi—Program Keahlian, Gelombang, Tahun Ajaran, Waktu Daftar, dan Status—dengan tanda '-' sebagai fallback bila suatu field kosong. Pola ini mencegah tampilan rusak ketika data dari store belum lengkap."
+        },
+        {
+          "title": "Kontainer dan identitas",
+          "lineRange": [
+            44,
+            69
+          ],
+          "explanation": "Elemen root menggunakan `id` dari props dan gaya inline berupa `width`/`height` dalam satuan `mm` yang diambil dari konstanta `kartuPrint`. Properti `printColorAdjust: 'exact'` beserta prefiks WebKit memastikan latar gelap tetap tercetak sesuai warna. Kelas Tailwind `print:rounded-none print:shadow-none` menyesuaikan tampilan saat dicetak, sementara `p-[3mm]` memberi padding presisi. Di dalamnya, header menampilkan logo dengan filter `brightness-0 invert` agar kontras di latar gelap, di samping teks nama sekolah dan label 'Bukti Pendaftaran Resmi'."
+        },
+        {
+          "title": "Foto dan data siswa",
+          "lineRange": [
+            71,
+            94
+          ],
+          "explanation": "Bagian ini menampilkan foto profil berbentuk lingkaran berdiameter 15 mm. Jika `data.fotoUrl` ada, gambar dirender dengan `object-cover`; jika tidak, ditampilkan inisial dari `data.initials`, `data.nama`, atau tanda '?' melalui `.charAt(0)`. Di sebelahnya, nama, email, dan ID pendaftaran ditampilkan dengan kelas `truncate` agar teks panjang tidak merusak tata letak kartu. Pemilihan warna `text-brand-green-light` untuk ID pendaftaran memberi penekanan visual pada identitas utama."
+        },
+        {
+          "title": "Baris informasi",
+          "lineRange": [
+            96,
+            108
+          ],
+          "explanation": "Array `rows` dipetakan menjadi baris label-nilai dengan `justify-between`, sehingga label di kiri dan nilai di kanan. Garis pemisah `border-b` hanya ditambahkan pada semua baris kecuali yang terakhir, menggunakan indeks `i < rows.length - 1`. Font sangat kecil (`text-[6pt]`) dipilih karena kartu berukuran fisik terbatas. Hasilnya adalah ringkasan data yang padat namun tetap terbaca saat dicetak."
+        },
+        {
+          "title": "Dua kode QR",
+          "lineRange": [
+            110,
+            175
+          ],
+          "explanation": "Area bawah memakai `mt-auto` untuk mendorong dua QR ke dasar kartu, dengan jarak diambil dari `QR_GAP_MM`. QR pertama mengarah ke tautan grup WhatsApp bila `hasWaLink` bernilai benar, memakai level koreksi 'H' dan logo WhatsApp dengan `excavate: true`; jika tidak, QR berisi ID pendaftaran dengan level 'L'. QR kedua selalu berisi ID pendaftaran dan berfungsi untuk verifikasi data, sehingga tersedia dua jalur: bergabung ke grup atau mencocokkan data pendaftaran. Label di bawah tiap QR dijelaskan dengan lebar maksimum `QR_LABEL_MAX_W_MM` agar tidak melebar. Seluruh ukuran memakai satuan mm dan warna modul dari konstanta bersama, menjaga konsistensi dengan sistem cetak kartu."
+        }
+      ]
+    },
+    "spmb-frontend/src/data/constants.ts": {
+      "overview": "Berkas ini kumpulan konstanta data master yang dipakai bersama di seluruh aplikasi, mulai dari pilihan jurusan dan agama sampai kategori referral dan jenis izin. Ia merupakan modul dengan fan-in tinggi pada langkah turnya ke-5 tentang kontrak data dan konstanta. Perubahan pada nilai-nilai di sini merambat ke banyak halaman formulir, sehingga konsistensi antarmuka bergantung pada berkas ini.",
+      "sections": [
+        {
+          "title": "Jurusan dan agama",
+          "lineRange": [
+            1,
+            16
+          ],
+          "explanation": "`DATA_JURUSAN` berupa array objek `value`/`label` dengan `as const`, sehingga nilai kode seperti 'AK' atau 'RPL' menjadi literal type yang aman secara statis. Pemisahan `value` dan `label` memungkinkan formulir mengirim kode singkat ke backend sambil menampilkan nama lengkap ke pengguna. `DATA_AGAMA` adalah array string sederhana berisi enam pilihan agama. Perbedaan bentuk ini menunjukkan bahwa konstanta disesuaikan dengan kebutuhan masing-masing field."
+        },
+        {
+          "title": "Tinggal bersama dan penghasilan",
+          "lineRange": [
+            18,
+            30
+          ],
+          "explanation": "`DATA_TINGGAL_BERSAMA` memuat tiga pilihan tempat tinggal siswa: Orang Tua, Wali, dan Pondok. `DATA_ESTIMASI_PENGHASILAN` berisi rentang penghasilan dalam format mata uang Rupiah dan ditutup dengan `as const` agar nilai tidak bisa diubah. Keduanya dipakai oleh field-field pada wizard siswa yang terkait data ekonomi dan sosial. Penggunaan string siap tampil menyederhanakan rendering pilihan tanpa perlu fungsi format tambahan."
+        },
+        {
+          "title": "Kategori referral",
+          "lineRange": [
+            32,
+            41
+          ],
+          "explanation": "`DATA_KATEGORI_REFERRAL` adalah array objek dengan `value` dan `label` yang identik, berisi sumber informasi pendaftaran seperti Admin/Panitia SPMB, guru, siswa, alumni, dan lainnya. Meskipun nilainya sama, struktur objek dipertahankan agar konsisten dengan pola `DATA_JURUSAN` dan mudah dipakai pada komponen select. Pilihan ini membantu panitia memetakan asal calon murid, yang kemudian muncul pada panel admin."
+        },
+        {
+          "title": "Prospek karir",
+          "lineRange": [
+            43,
+            99
+          ],
+          "explanation": "`DATA_PROSPEK_KARIR` bertipe `Record<string, string[]>` dan memetakan kode jurusan ke sembilan narasi prospek karier. Array untuk RPL, TKJ, TKR, AK, dan DPB selalu diakhiri kalimat tentang melanjutkan ke perguruan tinggi yang relevan, memberi pesan yang konsisten di setiap jurusan. Isi yang memotivasi ini ditujukan untuk halaman pengenalan program keahlian pada wizard awal. Pemakaian kode jurusan sebagai kunci memungkinkan tampilan dipilih langsung dari jurusan yang sedang dilihat siswa."
+        },
+        {
+          "title": "Jenis izin",
+          "lineRange": [
+            101,
+            101
+          ],
+          "explanation": "`DATA_JENIS_IZIN` memuat tiga kategori alasan izin: Sakit, Keperluan Keluarga, dan Lainnya. Konstanta ini melayani fitur pengajuan izin MPLS yang dibahas pada langkah turnya ke-13. Letaknya di berkas constants yang sama menyatukan seluruh kosakata formulir, sehingga perubahan pada daftar izin cukup dilakukan di satu tempat."
+        }
+      ]
+    },
+    "spmb-frontend/src/hooks/useKartuPrint.ts": {
+      "overview": "Hook kustom ini mengelola proses pencetakan kartu dengan aman. Ia menyimpan mode cetak (`kartu` atau `a4`), menunda pemanggilan `window.print()` sampai area cetak benar-benar ter-render, dan menjaga area tersebut tetap ter-mount hingga dialog cetak ditutup. Hook ini adalah bagian dari langkah turnya ke-12, tempat dijelaskan bahwa penundaan print mencegah hasil cetak terpotong atau menampilkan keadaan transisi.",
+      "sections": [
+        {
+          "title": "Tipe dan state mode",
+          "lineRange": [
+            1,
+            12
+          ],
+          "explanation": "Impor `useCallback`, `useEffect`, dan `useState` dari React menjadi dasar hook ini. Tipe `KartuPrintMode` membatasi mode yang sah hanya `'kartu'` atau `'a4'`. State `mode` bertipe `KartuPrintMode | null` berfungsi sebagai sakelar: bila null, area cetak tidak dirender sama sekali, sehingga tidak muncul ganda di layar. Komentar di atas fungsi menjelaskan bahwa area cetak sengaja hanya dipasang ketika mode tidak null agar `@page` dari stylesheet cetak ikut terpasang tepat waktu."
+        },
+        {
+          "title": "Efek pembersihan",
+          "lineRange": [
+            14,
+            26
+          ],
+          "explanation": "Efek ini berjalan setiap kali `mode` berubah dan langsung kembali bila mode masih null. Ia mendaftarkan event listener `afterprint` yang mengembalikan `mode` ke null begitu dialog cetak ditutup browser. Sebagai jaring pengaman, `setTimeout` 5 menit juga memanggil `clear`, mengantisipasi browser yang tidak pernah memicu `afterprint`. Fungsi cleanup menghapus listener dan membatalkan timer untuk mencegah kebocoran memori atau state update setelah komponen unmount."
+        },
+        {
+          "title": "Fungsi print",
+          "lineRange": [
+            28,
+            37
+          ],
+          "explanation": "Fungsi `print` dibungkus `useCallback` agar identitasnya stabil di antara render. Ia menerima mode berikutnya, menyimpannya lewat `setMode(next)`, lalu menunggu dua `requestAnimationFrame` bertingkat sebelum memanggil `window.print()`. Dua frame ini memberi waktu bagi browser meng-paint area cetak yang baru dipasang, termasuk aturan CSS cetak yang menyertainya. Nilai yang dikembalikan hook adalah objek `{ mode, print }`, sehingga komponen pemanggil dapat merender area cetak sekaligus memicu proses print."
+        }
+      ]
+    },
+    "spmb-frontend/src/main.tsx": {
+      "overview": "Berkas ini adalah titik masuk eksekusi aplikasi frontend. Sebelum React dipasang, ia memulihkan sesi autentikasi dari penyimpanan lokal, lalu membuat root React di dalam elemen `#root` dengan StrictMode dan BrowserRouter. Bersama `index.html` dan `App.tsx`, berkas ini melengkapi langkah turnya ke-4 tentang titik masuk dan routing.",
+      "sections": [
+        {
+          "title": "Impor dan restore sesi",
+          "lineRange": [
+            1,
+            8
+          ],
+          "explanation": "Impor mencakup `StrictMode` dan `createRoot` dari React, `BrowserRouter` dari React Router, stylesheet global `./index.css`, komponen `App`, dan `useAuthStore`. Baris `useAuthStore.getState().restoreSession()` dijalankan sebelum render untuk mengembalikan data sesi pengguna reload halaman. Memanggilnya lebih awal penting agar komponen yang dibaca `App` sudah melihat state autentikasi yang benar saat render pertama, sehingga route guard tidak salah mengalihkan pengguna."
+        },
+        {
+          "title": "Mount React root",
+          "lineRange": [
+            10,
+            21
+          ],
+          "explanation": "`createRoot(document.getElementById('root')!)` memasang aplikasi ke elemen root yang disediakan `index.html`; tanda seru menegaskan bahwa elemen tersebut dijamin ada. `<StrictMode>` mengaktifkan pemeriksaan tambahan selama pengembangan, seperti mendeteksi efek yang tidak aman. `<BrowserRouter>` dengan opsi `future` `v7_startTransition` dan `v7_relativeSplatPath` mengaktifkan lebih awal perilaku router React Router versi berikutnya. `<App />` ditempatkan di dalam router sehingga seluruh halaman memiliki konteks routing, menutup rangkaian bootstrap pada langkah ke-4."
+        }
+      ]
+    },
+    "spmb-frontend/src/pages/login/LoginPage.tsx": {
+      "overview": "Halaman ini adalah gerbang autentikasi bagi calon murid, admin, guru, dan panitia MPLS. Ia mengorkestrasi Google Identity Services, pemeriksaan kesehatan backend, cooldown rate-limit, serta pengalihan berdasarkan peran hasil login. Bersama authStore dan pendingAuth, halaman ini menjadi fokus langkah 6 dalam tur: menjaga sesi dan progres pendaftaran sebelum formulir selesai. Data pendaftar baru disimpan sementara lewat setPendingRegistration sebelum pengguna diarahkan ke /register.",
+      "sections": [
+        {
+          "title": "Impor dan konten statis",
+          "lineRange": [
+            1,
+            24
+          ],
+          "explanation": "Blok impor mengambil hook React, router, ikon, authStore, pembantu API, dan komponen Card. Dua konstanta di bawahnya, `LOGIN_JURUSAN` dan `CARA_DAFTAR_STEPS`, menyimpan konten statis untuk panel branding dan modal panduan. Memisahkan konten ini dari komponen membuat daftar jurusan dan langkah pendaftaran mudah diubah tanpa menyentuh logika render."
+        },
+        {
+          "title": "State dan health-check",
+          "lineRange": [
+            26,
+            56
+          ],
+          "explanation": "Komponen menggabungkan state lokal (loading, error, cooldown, status backend) dengan `login` dan `loading` dari authStore. `inFlightRef` mencegah callback Google dipicu dua kali karena ini bukan state yang memicu render. Efek pertama melakukan health-check backend sekali saat mount dan memakai flag `cancelled` agar tidak ada setState setelah unmount. Efek kedua menjalankan hitung mundur cooldown setiap detik selama `cooldownSec` lebih dari nol.",
+          "tourOrder": 6
+        },
+        {
+          "title": "Alur login Google",
+          "lineRange": [
+            58,
+            151
+          ],
+          "explanation": "`failWithCooldown` menerjemahkan error menjadi pesan ramah sekaligus mengaktifkan cooldown dari `getRetryAfterSec`. `handleGoogleClick` menolak klik ganda, memeriksa konfigurasi Client ID dan ketersediaan GIS, lalu meminta access token. Callback `cb` menukar token ke endpoint userinfo Google, meneruskan email, nama, dan foto ke `login`, lalu mengalihkan ke dashboard sesuai peran; peran `new` menyimpan data lewat `setPendingRegistration` dan menuju /register. Pola `done()` dipanggil di semua cabang agar status loading selalu dimatikan.",
+          "tourOrder": 6
+        },
+        {
+          "title": "Panel branding kiri",
+          "lineRange": [
+            153,
+            209
+          ],
+          "explanation": "Panel kiri hanya tampil pada layar besar (`lg:flex`) dan berisi logo, tagline, serta daftar kompetensi keahlian. Elemen dekoratif memakai kelas animasi seperti `animate-float` dan `animate-fade-in-up` dengan jeda lewat `animationDelay`. Ini adalah presentasi visual murni tanpa state maupun interaksi."
+        },
+        {
+          "title": "Kartu masuk dan tombol",
+          "lineRange": [
+            211,
+            303
+          ],
+          "explanation": "Kartu kanan memuat judul, peringatan backend mati, tombol login Google, dan keterangan sesi kedaluwarsa serta error lokal. Tombol dinonaktifkan saat loading atau cooldown, dengan label yang menampilkan sisa waktu lewat `formatRetryCountdown`. Di bawahnya terdapat tombol Cara Daftar yang membuka modal panduan.",
+          "tourOrder": 6
+        },
+        {
+          "title": "Modal panduan pendaftaran",
+          "lineRange": [
+            305,
+            359
+          ],
+          "explanation": "Modal dirender bersyarat saat `caraDaftarOpen` bernilai benar dan dapat ditutup lewat klik backdrop maupun tombol X. Daftar langkah dibangun dari `CARA_DAFTAR_STEPS` dengan ikon dinamis yang diekstrak sebagai komponen `Icon`. Perhatikan `e.stopPropagation()` pada panel dalam agar klik di dalam modal tidak diteruskan ke penutup backdrop."
+        }
+      ]
+    },
+    "spmb-frontend/src/pages/mpls/MplsDashboard.tsx": {
+      "overview": "Dashboard MPLS ini merangkum kehadiran dan izin siswa baru untuk satu tanggal, lalu mengekspornya ke beberapa lembar Excel. Komponen menggabungkan data dari tiga endpoint api, membangun baris rekap gabungan, dan menghitung statistik per program keahlian. Ia menutup langkah 13 tur dengan mengubah hasil pemindaian QR menjadi laporan yang bisa dibagikan.",
+      "sections": [
+        {
+          "title": "Impor dan tanggal WIB",
+          "lineRange": [
+            1,
+            15
+          ],
+          "explanation": "Impor memuat komponen UI, api, tipe `KehadiranMpls` dan `IzinMpls`, serta `formatWIBShort`. `todayWIB()` memakai `toLocaleDateString('en-CA', { timeZone: 'Asia/Jakarta' })` agar tanggal default mengikuti WIB dan berformat `YYYY-MM-DD` yang diterima input date."
+        },
+        {
+          "title": "Model dan gabungan rekap",
+          "lineRange": [
+            17,
+            64
+          ],
+          "explanation": "`RekapRow` menyatukan bentuk data kehadiran dan izin ke dalam satu tipe tabular. `buildRekap` memetakan keduanya ke array yang sama, menandai `status`, memotong waktu menjadi lima karakter, dan menggabungkan jenis izin dengan catatan. Baris diurutkan berdasarkan `waktu` agar tampilan tabel kronologis.",
+          "tourOrder": 13
+        },
+        {
+          "title": "Ekspor dan pengelompokan",
+          "lineRange": [
+            66,
+            106
+          ],
+          "explanation": "`buildExportSheet` membuat worksheet xlsx dengan header berbahasa Indonesia dan lebar kolom `!cols`. `groupByTanggal` mengumpulkan baris memakai Map lalu mengurutkannya, sementara `sheetNameFromTanggal` membersihkan karakter terlarang nama sheet dan membatasi panjang 31 karakter sesuai aturan Excel.",
+          "tourOrder": 13
+        },
+        {
+          "title": "State dan pengambilan data",
+          "lineRange": [
+            108,
+            153
+          ],
+          "explanation": "State menyimpan kehadiran, izin, total siswa, flag loading/error/exporting, dan tanggal yang dipilih. `fetchData` memanggil tiga endpoint secara paralel dengan `Promise.all`, lalu mengisi state hanya bila `status === 'ok'`. Efek dengan dependency `tanggal` memuat ulang data setiap kali pengguna mengganti tanggal; komentar eslint-disable disengaja karena `fetchData` tidak distabilkan.",
+          "tourOrder": 13
+        },
+        {
+          "title": "Handler ekspor",
+          "lineRange": [
+            155,
+            192
+          ],
+          "explanation": "`handleExport` mengekspor hanya data hari yang dipilih, sedangkan `handleExportAll` mengambil seluruh data lalu membuat satu sheet per tanggal. Pustaka `xlsx` di-import secara dinamis agar tidak masuk bundel awal. Keduanya memakai `XLSX.writeFile` untuk memicu unduhan di browser.",
+          "tourOrder": 13
+        },
+        {
+          "title": "Agregasi statistik",
+          "lineRange": [
+            194,
+            203
+          ],
+          "explanation": "`jurusanCounts` menghitung kehadiran per program keahlian dengan pola reduce. `persenHadir` membagi jumlah kehadiran dengan total siswa, dijaga agar tidak dibagi nol. `rekapRows` dihitung ulang dari `buildRekap` untuk dipakai tabel maupun tombol ekspor."
+        },
+        {
+          "title": "Header dan kartu statistik",
+          "lineRange": [
+            204,
+            254
+          ],
+          "explanation": "Header menampilkan nama petugas dari authStore, tanggal terformat, tombol Muat Ulang, dan tautan ke halaman scan. Blok error muncul bersyarat dengan pesan dari cabang catch. Empat `StatCard` merangkum total siswa, hadir, izin, dan persentase kehadiran."
+        },
+        {
+          "title": "Distribusi dan tabel rekap",
+          "lineRange": [
+            256,
+            358
+          ],
+          "explanation": "Bagian ini menampilkan `ProgressBar` per jurusan hanya bila ada data. Tabel rekap dirender bersyarat: Loader saat loading, pesan kosong bila tidak ada baris, atau baris tabel dengan badge status Hadir/Izin. Input date di header mengubah state `tanggal` dan dengan sendirinya memicu pengambilan data ulang.",
+          "tourOrder": 13
+        }
+      ]
+    },
+    "spmb-frontend/src/pages/mpls/MplsScan.tsx": {
+      "overview": "Halaman ini mencatat absensi MPLS dengan memindai QR pada kartu bukti pendaftaran, dengan input manual ID sebagai cadangan. Pemindaian memakai html5-qrcode yang dimuat secara lazy, lalu melakukan lookup dan penyimpanan kehadiran secara paralel. Antarmukanya menampilkan data siswa, sesi absen yang sudah terpenuhi, serta notifikasi toast, sehingga petugas bisa memindai banyak peserta tanpa konfirmasi di setiap kali.",
+      "sections": [
+        {
+          "title": "Tipe dan ekstraksi ID",
+          "lineRange": [
+            1,
+            46
+          ],
+          "explanation": "Impor menyertakan komponen UI, api, dan tipe `IzinMpls`. `AbsensiHariIni` dan `LookupData` mendeskripsikan respons lookup, termasuk sesi berjalan dan daftar izin. `extractIdPendaftaran` menerima teks QR berupa JSON maupun pola `SPMB-...`, dengan fallback mengembalikan teks apa adanya."
+        },
+        {
+          "title": "State dan kontrol scanner",
+          "lineRange": [
+            48,
+            81
+          ],
+          "explanation": "Ref menyimpan instance scanner, teks pemindaian terakhir, dan timer toast. `showToast` mengganti pesan dan menjadwalkan penutupan setelah tiga detik. `stopCamera` menghentikan serta membersihkan scanner dengan try/catch karena instance bisa saja sudah tidak aktif."
+        },
+        {
+          "title": "Lookup dan simpan absensi",
+          "lineRange": [
+            83,
+            137
+          ],
+          "explanation": "`handleScannedId` memulai `lookupPromise` dan `savePromise` bersamaan agar respons lebih cepat; `savePromise.catch(() => {})` mencegah unhandled rejection sebelum hasilnya ditunggu. Data lookup ditampilkan lebih dulu, lalu hasil simpan meng-update `hadir_hari_ini` dan daftar absensi secara lokal. Jam serta keterangan dari server dipotong menjadi lima karakter untuk keperluan tampilan.",
+          "tourOrder": 13
+        },
+        {
+          "title": "Debounce hasil pindai",
+          "lineRange": [
+            139,
+            153
+          ],
+          "explanation": "`handleDecodedText` mengabaikan teks yang sama dalam lima detik agar satu kartu tidak tercatat berulang saat kamera terus menyala. Setelah lolos, teks diekstrak menjadi ID pendaftaran dan diteruskan ke `handleScannedId`.",
+          "tourOrder": 13
+        },
+        {
+          "title": "Kamera dan input manual",
+          "lineRange": [
+            155,
+            226
+          ],
+          "explanation": "`startCamera` memuat `html5-qrcode` secara dinamis dan membatasi format hanya QR_CODE dengan kamera belakang. Konfigurasi fps dan qrbox menyeimbangkan kecepatan serta kemudahan bidik. `handleManual` memakai jalur yang sama dengan pemindaian, sementara cleanup di useEffect menghentikan scanner dan timer saat unmount. `resetScan` mengosongkan hasil dan state debounce.",
+          "tourOrder": 13
+        },
+        {
+          "title": "UI pemindai",
+          "lineRange": [
+            228,
+            310
+          ],
+          "explanation": "Kolom kiri menampilkan judul, area reader dengan id `mpls-qr-reader`, indikator Memulai kamera, serta tombol Mulai/Stop. Pesan kegagalan kamera muncul dalam kotak amber. Di bawahnya terdapat input manual dengan placeholder contoh ID pendaftaran."
+        },
+        {
+          "title": "UI hasil dan status sesi",
+          "lineRange": [
+            312,
+            476
+          ],
+          "explanation": "Kolom kanan berganti-ganti menampilkan error, pesan sukses, placeholder, atau kartu data siswa. Kartu tersebut memetakan `SESSIONS` untuk menunjukkan sesi yang sudah tercatat beserta petugas dan jamnya. Blok bawah membedakan kondisi masih menyimpan, sesi ini sudah dicatat, batas tiga kali tercapai, atau siap dicatat otomatis.",
+          "tourOrder": 13
+        }
+      ]
+    },
+    "spmb-frontend/src/pages/student/components/ScanAlamatModal.tsx": {
+      "overview": "Modal ini mengotomatisasi pengisian alamat dari foto Kartu Keluarga atau KTP melalui OCR langsung di browser. Pengguna memilih jenis dokumen, mengunggah gambar, melihat progres, lalu mengoreksi field yang diekstrak sebelum menerapkannya. Hasil OCR beserta arsip gambar base64 diteruskan ke Step3Alamat, menjadikannya jembatan antara dokumen fisik dan formulir digital pada langkah 11 tur.",
+      "sections": [
+        {
+          "title": "Impor dan field",
+          "lineRange": [
+            1,
+            28
+          ],
+          "explanation": "Impor memuat utilitas `preprocessDokumen`, `runOcr`, dan `extractAlamat` dari `utils/ocr`. `Fase` membatasi alur menjadi pilih, proses, dan hasil. `FIELDS` mendefinisikan pasangan key-label untuk input yang bisa dikoreksi pengguna."
+        },
+        {
+          "title": "State dan reset modal",
+          "lineRange": [
+            30,
+            56
+          ],
+          "explanation": "State melacak fase, jenis dokumen, preview, progres, teks status, hasil ekstraksi, teks mentah, dan error. `arsipRef` menyimpan base64 gambar tanpa memicu render. Efek pada `open` mengembalikan semua state ke awal setiap kali modal dibuka, dan baris `if (!open) return null` memastikan tidak ada DOM saat tertutup."
+        },
+        {
+          "title": "Pipa OCR",
+          "lineRange": [
+            58,
+            103
+          ],
+          "explanation": "`prosesFile` memvalidasi tipe gambar dan batas 8MB sebelum memasuki fase proses. Gambar dipra proses, base64-nya disimpan, lalu dijalankan OCR dengan callback progres; hasilnya diekstrak menjadi field alamat. `handleUbahHasil` memungkinkan koreksi per field, sementara `gunakanData` mengirim hasil dan arsip ke induk lewat `onApply`.",
+          "tourOrder": 11
+        },
+        {
+          "title": "Header dan pilih dokumen",
+          "lineRange": [
+            105,
+            174
+          ],
+          "explanation": "Modal memakai penutup fixed dengan backdrop; penutupan lewat klik luar hanya aktif pada fase pilih agar proses tidak terganggu. Tombol KK/KTP berganti-ganti gaya aktif. Fase pilih menampilkan area unggah dan input file tersembunyi yang dipicu lewat `fileRef.current?.click()`."
+        },
+        {
+          "title": "Tampilan proses",
+          "lineRange": [
+            176,
+            205
+          ],
+          "explanation": "Fase proses menampilkan preview gambar, bilah progres yang lebarannya dihitung dari `progress * 100`, serta spinner disertai teks status. Menampilkan dokumen yang sedang diproses membantu pengguna memastikan foto terbaca dengan benar.",
+          "tourOrder": 11
+        },
+        {
+          "title": "Tampilan hasil",
+          "lineRange": [
+            207,
+            273
+          ],
+          "explanation": "Jumlah field yang ditemukan menentukan banner hijau atau amber; teksnya secara eksplisit mengingatkan pengguna untuk memeriksa dan mengoreksi hasil. Field alamat dan lima field dari `FIELDS` dirender sebagai InputField yang bisa diubah. Elemen details berisi teks mentah membuka ruang debugging, lalu tombol Ulangi Scan dan Gunakan Data menutup alur.",
+          "tourOrder": 11
+        }
+      ]
+    },
+    "spmb-frontend/src/pages/student/components/StepLayout.tsx": {
+      "overview": "Komponen ini adalah kerangka tampilan bersama untuk setiap langkah wizard pendaftaran. Ia membungkus judul, ProgressBar, konten langkah, dan tombol Sebelumnya/Selanjutnya ke dalam satu struktur yang konsisten. Dengan menerima callback dan flag sebagai props, StepLayout tetap murni secara UI sementara logika navigasi tinggal di StudentWizard dan tiap step.",
+      "sections": [
+        {
+          "title": "Props dan default",
+          "lineRange": [
+            1,
+            32
+          ],
+          "explanation": "`StepLayoutProps` mendefinisikan judul, subtitle, daftar `StepInfo`, nomor langkah, children, serta callback navigasi. Flag `isFirst`, `isLast`, dan `loading` diberi nilai default agar pemanggil tidak harus selalu mengirimnya. Pola children ReactNode membuat komponen ini menjadi wrapper generik untuk semua step."
+        },
+        {
+          "title": "Header dan progres",
+          "lineRange": [
+            33,
+            51
+          ],
+          "explanation": "Header menampilkan judul tetap Form Pendaftaran dan subtitle umum. `ProgressBar` menerima `steps` dan `currentStep` di dalam Card tersendiri. Kartu berikutnya menampilkan judul serta subtitle spesifik langkah di atas `children`.",
+          "tourOrder": 10
+        },
+        {
+          "title": "Tombol navigasi",
+          "lineRange": [
+            53,
+            72
+          ],
+          "explanation": "Tombol Sebelumnya dinonaktifkan pada langkah pertama atau saat loading. Tombol Selanjutnya hanya dirender bila `onNext` diberikan, dengan label berganti menjadi Selesai pada langkah terakhir. Ikon panah-kanan juga disembunyikan pada langkah terakhir.",
+          "tourOrder": 10
+        }
+      ]
+    },
+    "spmb-frontend/src/pages/student/KartuPendaftaran.tsx": {
+      "overview": "Halaman ini menampilkan kartu bukti pendaftaran digital sekaligus menyiapkan dua mode cetak. Data diambil dari studentStore dan authStore, divalidasi kelengkapannya, lalu dikemas menjadi `KartuData` untuk BuktiPendaftaranCard. Tautan grup WhatsApp diambil dari data gelombang, dan CSS cetak dipilih sesuai mode pada langkah 12 tur.",
+      "sections": [
+        {
+          "title": "Impor",
+          "lineRange": [
+            1,
+            15
+          ],
+          "explanation": "Impor menggabungkan router, store, komponen kartu, konstanta jurusan, utilitas tanggal dan WA, modul CSS cetak, serta hook `useKartuPrint`. Kehadiran `kartuPrintCss` dan `a4SinglePrintCss` menunjukkan bahwa halaman ini menangani dua format kertas."
+        },
+        {
+          "title": "Efek pemuatan data",
+          "lineRange": [
+            17,
+            51
+          ],
+          "explanation": "Efek pertama memuat data siswa bila belum ada ID dan email pengguna tersedia. Efek kedua mengalihkan kembali ke dashboard bila data tidak lengkap setelah loading selesai. Efek ketiga mengambil daftar gelombang untuk mencari tautan grup WA, memakai flag `cancelled` agar setState tidak terjadi setelah unmount."
+        },
+        {
+          "title": "Guard dan data kartu",
+          "lineRange": [
+            53,
+            91
+          ],
+          "explanation": "Dua guard menampilkan Loader atau pesan data belum siap sebelum rendering utama. `jurusanLabel` menerjemahkan kode jurusan menjadi label dari `DATA_JURUSAN`. Objek `kartuData` mengumpulkan identitas, foto, waktu daftar yang diformat WIB, serta tautan WA; variabel `css` memilih aturan cetak sesuai `printMode`.",
+          "tourOrder": 12
+        },
+        {
+          "title": "Render dan cetak",
+          "lineRange": [
+            93,
+            150
+          ],
+          "explanation": "Saat printMode aktif, tag style menyuntikkan CSS cetak dan dua salinan kartu dirender: satu untuk layar dan satu di dalam `kartu-print-root` untuk kertas. Tombol Cetak Kartu 65x95mm dan Cetak A4 memanggil `handlePrint` dengan mode berbeda. Tautan Finalisasi Profile menuju wizard mode final untuk melengkapi data orang tua dan berkas.",
+          "tourOrder": 12
+        }
+      ]
+    },
+    "spmb-frontend/src/pages/student/steps/Step3Alamat.tsx": {
+      "overview": "Langkah ketiga wizard ini mengelola alamat domisili, titik koordinat, dan pemindaian dokumen pendukung. Pengguna bisa mengisi manual, memakai GPS dengan reverse geocoding Nominatim, atau menerapkan hasil OCR dari ScanAlamatModal. Semua perubahan masuk ke studentStore, sehingga alamat dan berkas arsip ikut tersimpan saat pendaftaran difinalisasi pada langkah 10 tur.",
+      "sections": [
+        {
+          "title": "Impor dan state",
+          "lineRange": [
+            1,
+            27
+          ],
+          "explanation": "Impor memuat StepLayout, modal scan, InputField, dan api. `defaultPosition` menjadi titik awal peta di sekitar lokasi sekolah. State lokal melacak posisi, status deteksi, pesan error, dan visibilitas modal scan."
+        },
+        {
+          "title": "Terapkan hasil scan",
+          "lineRange": [
+            29,
+            49
+          ],
+          "explanation": "`handleApplyScan` menulis field alamat ke store hanya bila hasil OCR tidak kosong, dengan fallback ke nilai lama. Arsip base64 diunggah lewat `api.upload` memakai nama file yang dibersihkan dari karakter non-alfanumerik. URL hasil unggah disimpan sebagai `dokumenAlamatUrl`, dan kegagalan unggah sengaja diabaikan agar tidak menghalangi pengisian alamat.",
+          "tourOrder": 10
+        },
+        {
+          "title": "Sinkronisasi koordinat",
+          "lineRange": [
+            51,
+            67
+          ],
+          "explanation": "Efek pertama menguraikan `koordinatMaps` dari store menjadi pasangan latitude-longitude bila formatnya valid. `handleChange` menjadi penangan umum untuk seluruh InputField dengan memakai atribut `name` sebagai kunci update. Ini menjaga satu jalur penulisan data ke store."
+        },
+        {
+          "title": "Reverse geocoding",
+          "lineRange": [
+            69,
+            87
+          ],
+          "explanation": "`fetchAddress` memanggil endpoint Nominatim dengan bahasa Indonesia dan `addressdetails=1`. Ia memilih field alamat secara berurutan, misalnya `road` lalu `path` lalu `dusun`, dengan nilai lama sebagai fallback terakhir. Blok catch sengaja dikosongkan karena kegagalan geocoding tidak boleh menggagalkan penyimpanan koordinat.",
+          "tourOrder": 10
+        },
+        {
+          "title": "Geolokasi",
+          "lineRange": [
+            91,
+            128
+          ],
+          "explanation": "`handleGetLocation` menolak browser tanpa geolocation dan koneksi non-HTTPS selain localhost. Fungsi `fetchLocation` melakukan percobaan ulang dengan akurasi lebih rendah bila error code 3, lalu menerjemahkan kode error menjadi pesan yang mudah dipahami. Saat berhasil, posisi, koordinat empat desimal, dan alamat hasil reverse geocoding diperbarui sekaligus.",
+          "tourOrder": 10
+        },
+        {
+          "title": "Validasi dan lanjut",
+          "lineRange": [
+            130,
+            139
+          ],
+          "explanation": "`handleNext` memastikan field wajib Dusun, Desa, Kecamatan, dan Kabupaten terisi sebelum memanggil `completeStep(3)`. `mapsOpenUrl` disiapkan untuk tautan Google Maps di bagian tampilan. Perhatikan bahwa validasi memakai alert sederhana, bukan pesan inline."
+        },
+        {
+          "title": "Formulir alamat",
+          "lineRange": [
+            141,
+            224
+          ],
+          "explanation": "StepLayout membungkus seluruh konten dengan judul Alamat & Titik Koordinat dan callback navigasi. Kartu Scan Dokumen membuka modal OCR. InputField disusun dalam grid responsif untuk dusun, RT/RW, desa, kecamatan, kabupaten, kode pos, dan koordinat; empat di antaranya bertanda required.",
+          "tourOrder": 10
+        },
+        {
+          "title": "Peta dan modal",
+          "lineRange": [
+            226,
+            294
+          ],
+          "explanation": "Kartu preview memuat iframe Google Maps dengan URL berbasis `position`, tombol Lokasi Saya, pesan error, serta dua tautan untuk membuka Maps di HP atau web. `ScanAlamatModal` dirender di akhir dengan callback `onApply={handleApplyScan}`. Kombinasi ini menutup siklus dari dokumen fisik hingga koordinat terverifikasi.",
+          "tourOrder": 10
+        }
+      ]
+    },
+    "spmb-frontend/src/pages/student/StudentWizard.tsx": {
+      "overview": "Wizard ini mengoordinasikan lima langkah formulir pendaftaran, terbagi atas mode awal (langkah 1-3) dan mode final (langkah 4-5). Ia membaca mode dan langkah dari query string, memuat data siswa sekali, lalu menentukan langkah mana yang dirender. Navigasi antarlangkah diatur lewat store, setelah itu pengguna dialihkan ke kartu pendaftaran atau dashboard bergantung mode, sesuai langkah 10 tur.",
+      "sections": [
+        {
+          "title": "Impor dan store",
+          "lineRange": [
+            1,
+            20
+          ],
+          "explanation": "Impor memuat kelima komponen step dan dua store. Selektor Zustand diambil satu per satu agar komponen hanya berlangganan bagian state yang dipakai. Ref `loaded` mencegah `loadSiswa` dipanggil lebih dari sekali."
+        },
+        {
+          "title": "Mode dan langkah awal",
+          "lineRange": [
+            22,
+            29
+          ],
+          "explanation": "`mode` dibaca dari query `mode` dengan default `awal`; `stepParam` dari query `step`. `maxStep` membatasi 3 untuk mode awal dan 5 untuk final. `initialStep` dibatasi rentangnya dengan `Math.max`/`Math.min`, atau jatuh ke `getCurrentStep()` dari store bila tidak ada parameter.",
+          "tourOrder": 10
+        },
+        {
+          "title": "Muat data siswa",
+          "lineRange": [
+            31,
+            36
+          ],
+          "explanation": "Efek ini memanggil `loadSiswa` hanya bila belum ada ID pendaftaran, email pengguna tersedia, dan ref `loaded` masih false. Menandai ref sebelum memanggil mencegah pemanggilan ulang akibat perubahan dependency."
+        },
+        {
+          "title": "Navigasi langkah",
+          "lineRange": [
+            38,
+            65
+          ],
+          "explanation": "`handleStepComplete` memeriksa langkah berikutnya dari store. Pada mode awal, bila langkah lebih dari 3 dan status masih Draft, ia memanggil `selesaikanPendaftaranAwal` lalu menuju /student/kartu-pendaftaran; jika tidak, ia menuju URL wizard dengan langkah berikutnya. Mode final melakukan hal serupa dengan batas 5 dan berakhir di dashboard. `handleBack` kembali ke dashboard.",
+          "tourOrder": 10
+        },
+        {
+          "title": "Render step",
+          "lineRange": [
+            67,
+            92
+          ],
+          "explanation": "`renderStep` memilih komponen lewat switch terpisah untuk tiap mode, dengan `Step1Jurusan` atau `Step4Ortu` sebagai default. Semua step menerima pasangan callback yang sama, sehingga kontrak antarmuka tetap konsisten. Komponen hanya mengembalikan hasil `renderStep()` tanpa wrapper tambahan.",
+          "tourOrder": 10
+        }
+      ]
+    },
+    "spmb-frontend/src/services/api.test.ts": {
+      "overview": "Berkas ini menguji klien API terpusat dengan Vitest dan mock fetch, menjaga perilaku yang dijelaskan langkah 7 tur tetap benar. Pengujian mencakup pembentukan body permintaan, penanganan sesi, timeout, retry selektif, dan pembatasan retry pada aksi sensitif. Helper `loadApi` mereset modul di setiap kasus agar konstanta seperti API_URL dan cache bisa diuji ulang.",
+      "sections": [
+        {
+          "title": "Setup dan helper",
+          "lineRange": [
+            1,
+            32
+          ],
+          "explanation": "Vitest menyediakan describe, it, expect, vi, dan hook. `TEST_API_URL`, `TOKEN_KEY`, dan `USER_KEY` meniru konfigurasi serta kunci localStorage produksi. `loadApi` memakai `vi.resetModules()` sehingga setiap tes mendapat modul api dengan env segar; `jsonResponse` menyederhanakan mock respons. beforeEach membersihkan localStorage, sedangkan afterEach mengembalikan env, global, dan timer."
+        },
+        {
+          "title": "Pesan error ramah",
+          "lineRange": [
+            34,
+            56
+          ],
+          "explanation": "`it.each` memetakan berbagai pesan mentah ke potongan pesan ramah, misalnya sesi berakhir dan koneksi bermasalah. Dua kasus tambahan memastikan pesan asli dipertahankan bila tidak ada pola yang cocok dan fallback dipakai untuk error kosong. Ini menguji `getFriendlyAuthError` tanpa melibatkan jaringan."
+        },
+        {
+          "title": "Konfigurasi dan body",
+          "lineRange": [
+            58,
+            87
+          ],
+          "explanation": "Kasus pertama memastikan `VITE_API_URL` kosong menimbulkan error jelas dan fetch tidak dipanggil. Kasus kedua memasang token di localStorage lalu memeriksa bahwa body JSON memuat `action`, `email`, dan `token`. Keduanya membuktikan kontrak permintaan yang diharapkan backend.",
+          "tourOrder": 7
+        },
+        {
+          "title": "Sesi dan timeout",
+          "lineRange": [
+            89,
+            127
+          ],
+          "explanation": "Skenario AUTH_REQUIRED memastikan token dan data pengguna dihapus serta redirect ke /?session=expired lewat spy `_internals.authRedirect`. Tes timeout memakai fake timer dan abort listener pada `init.signal`, lalu memastikan pesan habis waktu muncul tanpa retry.",
+          "tourOrder": 7
+        },
+        {
+          "title": "Retry selektif",
+          "lineRange": [
+            129,
+            170
+          ],
+          "explanation": "Tiga kasus memeriksa retry pada network error dan HTTP 500, lalu memastikan kegagalan berakhir dengan pesan yang benar. Backoff disubstitusi fungsi instan agar tes berjalan cepat. Kasus HTTP 404 menegaskan tidak ada retry karena biasanya menandakan URL basi.",
+          "tourOrder": 7
+        },
+        {
+          "title": "Pengecualian retry",
+          "lineRange": [
+            172,
+            208
+          ],
+          "explanation": "Aksi auth sengaja tidak di-retry agar satu klik sama dengan satu hit dan tidak mempercepat rate-limit. HTTP 400 juga tidak di-retry karena kesalahan klien bersifat permanen. Register sebagai aksi non-idempoten diuji tidak diulang walaupun terjadi network error.",
+          "tourOrder": 7
+        },
+        {
+          "title": "Rate-limit dan utilitas",
+          "lineRange": [
+            210,
+            234
+          ],
+          "explanation": "Tes terakhir pada blok request memastikan kode `RATE_LIMITED` dan `retryAfterSec` diteruskan ke helper. Blok helpers baru menguji `driveImageUrl` menghasilkan URL thumbnail stabil, baik dari ID maupun URL lama, serta `formatRetryCountdown` yang membentuk MM:SS.",
+          "tourOrder": 7
+        }
+      ]
+    },
+    "spmb-frontend/src/services/api.ts": {
+      "overview": "Modul ini adalah klien API terpusat dengan fan-in tertinggi di proyek: hampir semua halaman memanggil objek `api` di sini. Ia membungkus fetch dengan timeout, retry selektif, cache data master, manajemen token sesi, serta penerjemahan error menjadi pesan ramah. Langkah 7 tur menyoroti perannya sebagai simpul yang menghubungkan frontend ke Web App Apps Script.",
+      "sections": [
+        {
+          "title": "Cache master data",
+          "lineRange": [
+            1,
+            60
+          ],
+          "explanation": "`CacheEntry` menyimpan data beserta timestamp dengan TTL lima menit. `masterCache` menampung tiga kunci: gelombang, config, dan timeline. `isCacheValid`, `getMasterCache`, dan `setMasterCache` mengelola validitas; `clearMasterCache` bisa menghapus satu kunci atau semuanya.",
+          "tourOrder": 7
+        },
+        {
+          "title": "Konstanta dan tipe",
+          "lineRange": [
+            61,
+            98
+          ],
+          "explanation": "Konstanta mencakup URL API dari env, kunci localStorage, timeout default dan berat, jeda backoff, serta batas percobaan. `HEAVY_ACTIONS` memakai timeout lebih panjang, sementara `NO_RETRY_ACTIONS` mencegah pengulangan aksi sensitif kuota. `_internals` diekspos agar tes bisa mengganti backoff dan redirect.",
+          "tourOrder": 7
+        },
+        {
+          "title": "Retry dan sesi",
+          "lineRange": [
+            100,
+            181
+          ],
+          "explanation": "`isRetryable` mengizinkan network error, 429, dan 5xx, tetapi menolak timeout serta 404 karena keduanya bukan gangguan sementara. `getRetryAfterSec` membaca field retryAfterSec atau pola dalam pesan dengan batas 3600 detik. Fungsi token dan pengguna membungkus localStorage dengan try/catch agar storage yang diblokir tidak merusak aplikasi.",
+          "tourOrder": 7
+        },
+        {
+          "title": "Penerjemah error",
+          "lineRange": [
+            183,
+            233
+          ],
+          "explanation": "`FRIENDLY_ERROR_PATTERNS` memetakan pesan backend dan jaringan ke teks yang dapat ditindaklanjuti pengguna. `formatRetryCountdown` membentuk MM:SS, sementara `driveImageUrl` menormalkan URL Drive ke endpoint thumbnail yang stabil. `checkBackendHealth` melakukan GET sederhana untuk mendeteksi URL basi; `getFriendlyAuthError` memilih pola pertama yang cocok."
+        },
+        {
+          "title": "performRequest",
+          "lineRange": [
+            235,
+            267
+          ],
+          "explanation": "`performRequest` membuat AbortController dan timer yang disesuaikan dengan aksi. Fetch memakai header `text/plain` untuk menghindari preflight CORS pada Apps Script. Cabang catch membedakan abort karena timeout dari kegagalan jaringan biasa, dan `finally` selalu membersihkan timer.",
+          "tourOrder": 7
+        },
+        {
+          "title": "Loop request",
+          "lineRange": [
+            269,
+            303
+          ],
+          "explanation": "`request` menolak bila API_URL kosong, lalu menyusun body dengan `action`, payload, dan token. Jumlah percobaan ditentukan oleh `NO_RETRY_ACTIONS`. Bila respons bertanda error, kode AUTH_REQUIRED membersihkan sesi dan memicu redirect; error lain dilempar lalu diteruskan ke mekanisme retry bila memenuhi syarat.",
+          "tourOrder": 7
+        },
+        {
+          "title": "Endpoint dasar",
+          "lineRange": [
+            305,
+            361
+          ],
+          "explanation": "Grup `upload` dan `auth` memetakan ke aksi backend dengan nama yang sama; `register` menerima opsi tambahan seperti `registerAs`. Grup `siswa` menyediakan operasi baca, tulis, hapus, dan hapus massal, sementara `referral` hanya membaca statistik dan opsi."
+        },
+        {
+          "title": "Endpoint master",
+          "lineRange": [
+            363,
+            403
+          ],
+          "explanation": "`gelombang.get` dan `config.get` memakai cache: langsung mengembalikan data bila masih valid, atau memanggil request lalu mengisi cache jika tidak. Operasi update dan delete secara eksplisit menghapus cache terkait agar data basi tidak dipakai setelah perubahan.",
+          "tourOrder": 7
+        },
+        {
+          "title": "Endpoint lainnya",
+          "lineRange": [
+            405,
+            500
+          ],
+          "explanation": "Blok `broadcast` mengelola event, engagement, komentar, dan pengingat. `admin` mengelola daftar admin dan guru. `mpls` memetakan seluruh kebutuhan absensi, dan `timeline` mengikuti pola cache yang sama dengan gelombang serta config pada operasi get dan invalidasi pada update/delete."
+        }
+      ]
+    },
+    "spmb-frontend/src/services/pendingAuth.ts": {
+      "overview": "Modul kecil ini menyimpan data pendaftaran sementara di localStorage antara proses login Google dan selesainya formulir. Data disimpan dengan cap waktu dan dianggap kedaluwarsa setelah 30 menit. Ia melengkapi langkah 6 tur dengan menjaga kelanjutan pendaftaran bila pengguna belum langsung menyelesaikan wizard.",
+      "sections": [
+        {
+          "title": "Konstanta dan tipe",
+          "lineRange": [
+            1,
+            15
+          ],
+          "explanation": "`PENDING_KEY` menentukan kunci localStorage dan `MAX_AGE_MS` menetapkan masa berlaku 30 menit. `PendingRegistration` memuat email, nama, foto, token, dan createdAt. `PendingRegistrationResult` membungkus data bersama flag `expired` agar pemanggil bisa membedakan data lama dan baru."
+        },
+        {
+          "title": "Tulis data",
+          "lineRange": [
+            17,
+            23
+          ],
+          "explanation": "`setPendingRegistration` menambahkan `createdAt: Date.now()` sebelum menyimpan JSON. Blok try/catch sengaja dikosongkan karena localStorage bisa tidak tersedia, misalnya pada mode privat browser.",
+          "tourOrder": 6
+        },
+        {
+          "title": "Baca dan validasi",
+          "lineRange": [
+            25,
+            41
+          ],
+          "explanation": "`readPendingRegistration` mengembalikan null bila tidak ada data, lalu menghapus entri bila email atau token hilang. Ia menghitung `expired` dari selisih waktu saat ini dengan createdAt; data kedaluwarsa dibersihkan tetapi tetap dikembalikan beserta flag agar UI bisa memberi tahu pengguna. Kesalahan parsing juga memicu pembersihan.",
+          "tourOrder": 6
+        },
+        {
+          "title": "Hapus data",
+          "lineRange": [
+            43,
+            49
+          ],
+          "explanation": "`clearPendingRegistration` hanya menghapus kunci dari localStorage dengan perlindungan try/catch yang sama. Fungsi ini dipakai baik oleh validasi internal maupun oleh pemanggil yang ingin membatalkan pendaftaran tertunda."
+        }
+      ]
+    },
+    "spmb-frontend/src/store/authStore.ts": {
+      "overview": "Store Zustand ini menjadi sumber kebenaran untuk sesi pengguna: peran, status login, loading, dan error. Ia menormalisasi peran dari backend, menyimpan atau menghapus token lewat helper api, serta menyediakan alur login, register, logout, dan restoreSession. Bersama LoginPage dan pendingAuth, store ini merupakan inti dari langkah 6 tur tentang autentikasi.",
+      "sections": [
+        {
+          "title": "Normalisasi peran",
+          "lineRange": [
+            1,
+            19
+          ],
+          "explanation": "Impor memuat `create` dari Zustand, tipe `User` dan `Role`, serta helper sesi dari api. `KNOWN_ROLES` mencantumkan peran yang dikenal. `normalizeRole` mengembalikan peran bila termasuk daftar, sebaliknya `new` agar pengguna baru dibedakan dari peran yang sudah terdaftar.",
+          "tourOrder": 6
+        },
+        {
+          "title": "Kontrak state",
+          "lineRange": [
+            21,
+            39
+          ],
+          "explanation": "`AuthState` mendefinisikan data pengguna, flag isLoggedIn dan registrationRequired, loading, error, beserta aksi-aksi utama. Tanda tangan `login` dan `register` mengembalikan peran, sehingga pemanggil bisa langsung menentukan rute tujuan."
+        },
+        {
+          "title": "Store dan restore",
+          "lineRange": [
+            41,
+            57
+          ],
+          "explanation": "`create` menginisialisasi state kosong. `restoreSession` hanya menganggap sesi valid bila data pengguna dan token sama-sama ada; jika tidak, keduanya dihapus. Ini dipanggil saat aplikasi dimulai agar halaman yang dimuat ulang tidak kehilangan identitas pengguna.",
+          "tourOrder": 6
+        },
+        {
+          "title": "Login",
+          "lineRange": [
+            59,
+            99
+          ],
+          "explanation": "`login` memanggil `api.auth.login`, lalu membangun objek `User` dari respons dengan peran yang sudah dinormalisasi. Token disimpan bila ada, dan flag `loggedIn` ditentukan dari peran bukan `new`. Data pengguna hanya ditulis ke localStorage bila benar-benar login; cabang catch menyimpan pesan error dan mengembalikan null.",
+          "tourOrder": 6
+        },
+        {
+          "title": "Register",
+          "lineRange": [
+            101,
+            129
+          ],
+          "explanation": "`register` memanggil `api.auth.register` dengan opsi opsional untuk guru SMP. Peran hasil registrasi dibatasi hanya `guru_smp` atau `siswa`, lalu pengguna ditandai login dan disimpan. Berbeda dari login, kegagalan di sini melempar error lagi agar form bisa menampilkannya.",
+          "tourOrder": 6
+        },
+        {
+          "title": "Logout dan clearError",
+          "lineRange": [
+            131,
+            140
+          ],
+          "explanation": "`logout` menghapus token serta data pengguna lalu mengembalikan seluruh state ke awal. `clearError` hanya mengosongkan pesan error tanpa mengubah sesi, berguna untuk menutup notifikasi."
+        }
+      ]
+    },
+    "spmb-frontend/src/store/studentStore.ts": {
+      "overview": "Store Zustand ini menjadi pusat state wizard pendaftaran siswa: formulir, status langkah, progres, loading, dan error. Modul ini menjembatani komponen wizard dengan api.ts lewat pemetaan snake_case API ke camelCase UI, sekaligus menyimpan logika validasi dan transisi status. Dalam tur langkah 10, studentStore menjelaskan bagaimana lima langkah wizard tetap konsisten saat data dimuat, disimpan, dan difinalisasi.",
+      "sections": [
+        {
+          "title": "Impor dan langkah wizard",
+          "lineRange": [
+            1,
+            12
+          ],
+          "explanation": "Empat impor memberi store akses ke create dari Zustand, kontrak DataSiswa dan StepInfo, klien api, serta formatter tanggal WIB. Konstanta STEPS mendefinisikan lima langkah tetap dengan nomor dan label, semuanya dimulai dengan selesai: false. Menyimpan daftar ini sebagai konstanta membuat urutan wizard mudah dipetakan ke progres dan status selesai.",
+          "tourOrder": 10
+        },
+        {
+          "title": "State awal formulir",
+          "lineRange": [
+            14,
+            64
+          ],
+          "explanation": "initialState mengisi seluruh field DataSiswa dengan string kosong agar input terkontrol tidak menerima undefined. Status awalnya Draft dan waktuDaftar masih kosong sampai finalisasi. Store selalu menyalin objek ini dengan spread saat dibutuhkan, sehingga reset tidak mengubah template bersama.",
+          "tourOrder": 10
+        },
+        {
+          "title": "Validator kelengkapan data",
+          "lineRange": [
+            66,
+            87
+          ],
+          "explanation": "isFilled hanya menganggap field terisi bila hasil trim tidak kosong. isDataPribadiLengkap memeriksa delapan field identitas dan menambahkan syarat panjang NIK tepat 16, sedangkan isAlamatLengkap mencakup dusun, desa, kecamatan, kabupaten, dan koordinatMaps. isPendaftaranAwalLengkap menggabungkan jurusan, data pribadi, dan alamat untuk menandai tiga langkah awal. Validasi ini dipakai ulang saat memuat data dari API, bukan hanya saat tombol ditekan.",
+          "tourOrder": 10
+        },
+        {
+          "title": "Pemetaan respons API",
+          "lineRange": [
+            89,
+            141
+          ],
+          "explanation": "mapApiToData menerima Record<string, unknown> dan mengubah kunci snake_case dari backend menjadi field camelCase yang dipakai komponen. Nilai yang tidak ada jatuh ke string kosong, tanggal dinormalisasi dengan formatWIBDateInput, dan field bersifat union dilemparkan ke tipe DataSiswa yang sesuai. Status default Draft menjaga data lama tetap valid. Perlu dicatat, field fotoProfilBase64, berkasPdfBase64, dan prestasiFotoBase64 sebenarnya diisi dari URL yang datang dari API.",
+          "tourOrder": 10
+        },
+        {
+          "title": "Pemetaan request API",
+          "lineRange": [
+            143,
+            190
+          ],
+          "explanation": "mapDataToApi melakukan arah sebaliknya sebelum data dikirim ke api.siswa.update. Foto profil hanya disertakan sebagai foto_profil_url bila nilainya diawali http, sehingga base64 hasil unggahan tidak otomatis dikirim melalui jalur ini. Field berkas dan foto prestasi juga tidak dimasukkan dalam objek yang dikembalikan. Pola ini memisahkan representasi form dari payload yang benar-benar diterima backend.",
+          "tourOrder": 10
+        },
+        {
+          "title": "Kontrak state store",
+          "lineRange": [
+            192,
+            207
+          ],
+          "explanation": "Interface StudentState merangkum data, steps, loading, dan error sebagai state serta delapan fungsi yang bisa dipanggil komponen. Action mencakup pemuatan, pembaruan parsial, penyimpanan, penandaan langkah, dua transisi status, reset, dan dua selector progres. Dengan mendefinisikan kontrak ini sebelum create, TypeScript dapat mengecek setiap pemanggilan store di halaman wizard.",
+          "tourOrder": 10
+        },
+        {
+          "title": "Inisialisasi dan loadSiswa",
+          "lineRange": [
+            209,
+            244
+          ],
+          "explanation": "create<StudentState> membuat store dengan salinan initialState dan STEPS, lalu loading false serta error null. loadSiswa memanggil api.siswa.get(email), memetakan hasilnya, lalu menyusun completedSteps dari validator dan keberadaan nama orang tua atau berkas. Setelah itu data lama digabung dengan data baru dan flag selesai tiap langkah diperbarui. Cabang gagal menangkap error menjadi pesan, tetapi perlu diperhatikan bahwa hanya respons dengan status `ok` yang secara eksplisit menghentikan loading.",
+          "tourOrder": 10
+        },
+        {
+          "title": "Pembaruan dan simpan data",
+          "lineRange": [
+            246,
+            281
+          ],
+          "explanation": "updateData memakai merge dangkal sehingga komponen cukup mengirim field yang berubah. saveToApi berhenti bila email kosong, lalu mengirim hasil mapDataToApi dan mengelola loading/error secara eksplisit. completeStep menandai langkah selesai lebih dulu agar UI langsung merespons, lalu melakukan update ke API secara fire-and-forget. Gotcha-nya, penanganan gagal pada completeStep menulis langsung ke get().error alih-alih memanggil set, jadi perubahan itu tidak memicu render reaktif.",
+          "tourOrder": 10
+        },
+        {
+          "title": "Transisi status pendaftaran",
+          "lineRange": [
+            283,
+            327
+          ],
+          "explanation": "selesaikanPendaftaranAwal mengubah Draft atau status kosong menjadi Terdaftar dan menandai langkah 1 sampai 3 sebagai selesai. finalisasi mempertahankan Terverifikasi bila sudah demikian, jika tidak statusnya menjadi Selesai dan waktuDaftar diisi ISO timestamp. Keduanya memperbarui state lokal terlebih dahulu, lalu mengirim payload dengan status eksplisit diikuti mapDataToApi dari data terbaru agar lokal dan backend tetap selaras.",
+          "tourOrder": 10
+        },
+        {
+          "title": "Reset dan progres",
+          "lineRange": [
+            329,
+            348
+          ],
+          "explanation": "reset mengembalikan data dan steps ke salinan awal serta menghapus error, tetapi tidak menyentuh loading. getCurrentStep mencari langkah pertama yang belum selesai dan mengembalikan steps.length + 1 bila semua selesai. getProgressPercent menghitung rasio langkah selesai lalu dibulatkan, sehingga cocok ditampilkan sebagai persentase di StepLayout.",
+          "tourOrder": 10
+        }
+      ]
+    },
+    "spmb-frontend/src/types/index.ts": {
+      "overview": "File ini adalah kontrak data statis yang dipakai lintas halaman, store, dan layanan. Union type membatasi nilai domain seperti jurusan, peran, status pendaftaran, dan kategori referral, sedangkan interface mendeskripsikan bentuk objek yang mengalir antara frontend dan Apps Script. Karena fan-in-nya tinggi, perubahan pada tipe di sini akan langsung terasa di banyak komponen pada tur langkah 5.",
+      "sections": [
+        {
+          "title": "Tipe union domain",
+          "lineRange": [
+            1,
+            9
+          ],
+          "explanation": "Sembilan union type di awal file mendefinisikan kosakata tetap domain sekolah. Jurusan, Gelombang, StatusPendaftaran, Role, dan lainnya mencegah nilai bebas seperti salah ejaan peran masuk ke aplikasi. Pola `| ''` tidak dipakai di sini, tetapi beberapa interface di bawah menambahkannya secara eksplisit untuk menampung input formulir yang belum diisi.",
+          "tourOrder": 5
+        },
+        {
+          "title": "Tipe User",
+          "lineRange": [
+            11,
+            17
+          ],
+          "explanation": "User memodelkan akun yang sudah diautentikasi dengan email, nama, dan role wajib. fotoUrl dan asal_sekolah bersifat opsional karena tidak semua pengguna memilikinya. Role inilah yang nantinya dipakai route guard untuk membedakan siswa, admin, guru, dan panitia MPLS.",
+          "tourOrder": 5
+        },
+        {
+          "title": "Kontrak DataSiswa",
+          "lineRange": [
+            19,
+            69
+          ],
+          "explanation": "DataSiswa mengumpulkan seluruh field wizard dalam satu bentuk data, mulai dari pilihan jurusan, identitas, alamat, orang tua, berkas, sampai status pendaftaran. Sebagian besar field bertipe string agar mudah diikat ke input, sementara pilihan terbatas memakai union seperti `Jurusan | ''` atau `Agama | ''`. Field fotoProfilBase64, berkasPdfBase64, dan prestasiFotoBase64 menyimpan hasil unggahan sisi klien, sedangkan idPendaftaran, statusPendaftaran, dan waktuDaftar diisi sistem.",
+          "tourOrder": 5
+        },
+        {
+          "title": "Konfigurasi dan event",
+          "lineRange": [
+            71,
+            95
+          ],
+          "explanation": "GelombangConfig menyimpan rentang tanggal, tautan grup WhatsApp, dan status aktif untuk setiap gelombang. SistemConfig hanya berisi tahun ajaran aktif serta daftar email admin yang dipakai sebagai aturan akses. InformasiEvent menambahkan model pengumuman yang ditargetkan ke gelombang tertentu, lengkap dengan metadata waktu, tempat, dan statusKirim.",
+          "tourOrder": 5
+        },
+        {
+          "title": "Info langkah wizard",
+          "lineRange": [
+            97,
+            101
+          ],
+          "explanation": "StepInfo sangat ringkas: nomor, label, dan flag selesai. Tipe ini dipakai bersama studentStore dan StepLayout untuk menggambarkan daftar langkah sekaligus menghitung progres. Karena hanya berisi tiga field, perubahan format label tidak perlu menyentuh logika progres.",
+          "tourOrder": 5
+        },
+        {
+          "title": "Tipe absensi MPLS",
+          "lineRange": [
+            103,
+            129
+          ],
+          "explanation": "KehadiranMpls dan IzinMpls memakai kunci snake_case yang selaras dengan data backend dan sheet. Keduanya menyimpan identitas pendaftaran, jurusan, gelombang, tanggal, serta siapa yang memindai atau menginput. Field keterangan dan catatan bersifat opsional agar catatan tambahan tidak wajib ada. Tipe ini menutup siklus data dari kartu QR di tur 12 menuju rekap absensi di tur 13.",
+          "tourOrder": 5
+        }
+      ]
+    },
+    "spmb-frontend/src/utils/imageCompress.ts": {
+      "overview": "Utilitas ini menyiapkan berkas gambar di browser sebelum dikirim lebih lanjut. compressAndCropImage membaca File, memotongnya secara terpusat ke rasio 4:5, lalu menghasilkan base64 JPEG dengan ukuran dan kualitas yang bisa diatur. Pada tur langkah 11, modul ini menjadi penghubung antara berkas yang dipilih pengguna dan alur unggah/OCR yang memakai data ringan.",
+      "sections": [
+        {
+          "title": "Konstanta dan opsi",
+          "lineRange": [
+            1,
+            7
+          ],
+          "explanation": "MAX_WIDTH 800 dan QUALITY 0.7 menjadi default ketika pemanggil tidak memberikan opsi. CompressOptions hanya berisi maxWidth dan quality opsional. Operator ?? membuat default hanya dipakai bila opsi memang tidak diberikan.",
+          "tourOrder": 11
+        },
+        {
+          "title": "Inisialisasi kompresi",
+          "lineRange": [
+            9,
+            20
+          ],
+          "explanation": "Fungsi membungkus seluruh alur dalam Promise karena FileReader dan pemuatan Image bersifat asinkron. FileReader mengubah File menjadi data URL, lalu Image memuatnya sebelum canvas 2d dibuat. Jika browser tidak menyediakan context 2d, Promise ditolak lebih awal dengan pesan `Canvas not supported`.",
+          "tourOrder": 11
+        },
+        {
+          "title": "Pemotongan rasio 4:5",
+          "lineRange": [
+            22,
+            41
+          ],
+          "explanation": "Rasio 4/5 dipakai sebagai bentuk potret tetap untuk foto profil atau dokumen. Kode membandingkan rasio sumber, lalu memangkas sisi yang terlalu panjang dan menghitung offset sx/sy agar hasil pemotongan tetap di tengah. Lebar tujuan dibatasi maxWidth, tinggi mengikuti rasio, dan drawImage melakukan crop plus resize dalam satu panggilan.",
+          "tourOrder": 11
+        },
+        {
+          "title": "Konversi ke base64",
+          "lineRange": [
+            43,
+            63
+          ],
+          "explanation": "canvas.toBlob menghasilkan JPEG dengan kualitas dari opsi; bila gagal, Promise ditolak. FileReader kedua mengubah blob menjadi data URL, lalu bagian setelah koma diambil sebagai base64 murni. Mengembalikan string base64 memudahkan pemanggil menaruh hasilnya langsung ke field DataSiswa.",
+          "tourOrder": 11
+        }
+      ]
+    },
+    "spmb-frontend/src/utils/kartuPrint.ts": {
+      "overview": "Modul ini berisi satu sumber kebenaran untuk ukuran kartu pendaftaran, tata letak grid A4, dan CSS yang dipakai baik di pratinjau layar maupun hasil cetak. Konstanta milimeter menjaga kartu 65 x 95 mm dan QR tetap berada di atas ambang scan, sementara helper CSS menghasilkan mode cetak satuan, batch A4, dan A4 satu kartu. Pada tur langkah 12, berkas ini menjelaskan bagaimana KartuPendaftaran dan useKartuPrint mengubah data menjadi bukti fisik yang siap dipotong.",
+      "sections": [
+        {
+          "title": "Dimensi kartu dan grid",
+          "lineRange": [
+            1,
+            39
+          ],
+          "explanation": "KARTU_W_MM, KARTU_H_MM, dan KARTU_PADDING_MM menjadi dasar semua perhitungan. KARTU_CONTENT_W_MM mengurangi padding kiri dan kanan, lalu konstanta QR menjaga ukuran 22 mm, jarak 8 mm, dan margin aman di dalam kartu. Grid A4 memakai 3 kolom x 3 baris, dengan offset X/Y yang dibagi rata agar sembilan slot terpusat di lembar 210 x 297 mm.",
+          "tourOrder": 12
+        },
+        {
+          "title": "Pembagian lebar lembar",
+          "lineRange": [
+            41,
+            55
+          ],
+          "explanation": "chunkIntoSheets memotong array menjadi kelompok sebesar perSheet. Slot yang kurang diisi null sehingga lembar terakhir tetap memiliki sembilan kotak dan garis potong tidak berubah bentuk. Parameter perSheet <= 0 menghasilkan array kosong sebagai penjaga terhadap loop tak hingga.",
+          "tourOrder": 12
+        },
+        {
+          "title": "Reset CSS cetak",
+          "lineRange": [
+            57,
+            97
+          ],
+          "explanation": "RESET_PRINT menghapus margin, padding, dan background halaman, lalu menyembunyikan seluruh elemen body. Pengecualian diberikan kepada `.kartu-print-root` dan turunannya supaya area cetak tetap terlihat. Komentar dalam kode mengingatkan bahwa elemen ini disembunyikan di layar oleh index.css, jadi harus dimunculkan kembali saat print. SCREEN_HIDDEN juga membuang shell tampilan layar.",
+          "tourOrder": 12
+        },
+        {
+          "title": "CSS lembar A4",
+          "lineRange": [
+            99,
+            129
+          ],
+          "explanation": "a4SheetCss dipakai ulang oleh beberapa mode cetak supaya pratinjau dan hasil printer identik. Grid memakai tiga kolom bersebelahan dengan tinggi baris 95 mm tanpa gap, dan padding offset menggeser seluruh grid ke tengah lembar. Outline putus-putus pada kartu serta border `.kartu-slot-kosong` memberi panduan potong tanpa ikut terbaca sebagai desain kartu.",
+          "tourOrder": 12
+        },
+        {
+          "title": "Cetak kartu satuan",
+          "lineRange": [
+            131,
+            154
+          ],
+          "explanation": "kartuPrintCss menetapkan @page 65 x 95 mm dengan margin nol untuk satu kartu. Di dalam @media print, tiap `.kartu` dipaksa mengikuti ukuran kartu, radius dan shadow dihilangkan, dan overflow dipotong. Fungsi ini menyisipkan a4SheetCss serta reset cetak agar mode satuan tetap memakai panduan dan warna yang sama.",
+          "tourOrder": 12
+        },
+        {
+          "title": "Cetak massal A4",
+          "lineRange": [
+            156,
+            192
+          ],
+          "explanation": "a4PrintCss mengubah @page menjadi 210 x 297 mm dan mengizinkan area cetak mengikuti flow normal. Elemen `.a4-sheet` dipaksa penuh satu lembar lalu diberi break-after page untuk memecah antar lembar. Aturan `:last-child` mengembalikan break-after ke auto karena browser dapat menambah satu lembar kosong di akhir.",
+          "tourOrder": 12
+        },
+        {
+          "title": "Cetak A4 satuan",
+          "lineRange": [
+            194,
+            220
+          ],
+          "explanation": "a4SinglePrintCss juga memakai halaman A4, tetapi mengubah `.a4-sheet` menjadi display block agar hanya satu kartu yang ditempatkan. Karena grid tidak dipakai, outline panduan potong pada `.kartu` dimatikan. Ini memberi jalan cetak kartu tunggal di atas kertas A4 tanpa kotak-kotak batch.",
+          "tourOrder": 12
+        }
+      ]
+    },
+    "spmb-frontend/src/utils/ocr.ts": {
+      "overview": "Modul OCR ini mengubah dokumen KK atau KTP menjadi teks alamat yang bisa langsung disalin ke wizard. Alurnya mencakup praproses gambar di canvas, pemanggilan Tesseract.js secara lazy, normalisasi teks, dan ekstraksi field seperti rtRw, desa, kecamatan, kabupaten, serta kodePos. Tur langkah 11 memakai berkas ini untuk menjelaskan mengapa hasil pindai perlu dibersihkan dan tetap dikoreksi pengguna sebelum disimpan.",
+      "sections": [
+        {
+          "title": "Tipe dokumen dan hasil",
+          "lineRange": [
+            1,
+            10
+          ],
+          "explanation": "JenisDokumen membatasi sumber menjadi KK atau KTP. HasilEkstraksiAlamat berisi field opsional karena OCR tidak selalu menemukan setiap bagian alamat. Bentuk ini sengaja longgar agar modal pemindai bisa mengisi sebagian field tanpa harus menggagalkan seluruh proses.",
+          "tourOrder": 11
+        },
+        {
+          "title": "Target dan label status",
+          "lineRange": [
+            12,
+            20
+          ],
+          "explanation": "TARGET_WIDTH 1600 menentukan lebar minimum hasil praproses sebelum OCR. STATUS_LABELS menerjemahkan status internal Tesseract menjadi pesan Bahasa Indonesia yang lebih ramah untuk progress bar. Fallback `Memproses...` menjaga UI tetap informatif ketika muncul status baru yang belum dipetakan.",
+          "tourOrder": 11
+        },
+        {
+          "title": "Praproses gambar",
+          "lineRange": [
+            22,
+            68
+          ],
+          "explanation": "preprocessDokumen pertama-tama membuat ImageBitmap dengan imageOrientation from-image, lalu mencoba fallback tanpa opsi bila browser menolaknya. Gambar hanya diskalakan naik bila lebarnya di bawah TARGET_WIDTH, sehingga pekerjaan canvas tidak berlebihan. Konversi ke grayscale dan kontras 1.35 menonjolkan teks, dengan willReadFrequently dinyatakan karena ImageData dibaca. Fungsi mengembalikan blob untuk OCR, dataUrl untuk pratinjau, dan base64 untuk kebutuhan unggah.",
+          "tourOrder": 11
+        },
+        {
+          "title": "Menjalankan Tesseract",
+          "lineRange": [
+            70,
+            86
+          ],
+          "explanation": "runOcr memakai import dinamis sehingga pustaka Tesseract.js tidak masuk bundel awal. Worker dibuat dengan bahasa ind+eng dan oem 1, lalu callback logger diteruskan ke onProgress setelah diterjemahkan. recognize menghasilkan teks mentah, dan terminate di blok finally memastikan worker ditutup meskipun proses gagal.",
+          "tourOrder": 11
+        },
+        {
+          "title": "Normalisasi teks OCR",
+          "lineRange": [
+            88,
+            115
+          ],
+          "explanation": "normalisasi menyamakan CR, tanda ;|= menjadi :, dan dash panjang menjadi -, lalu merapikan spasi tiap baris. bersihkan membuang bullet atau tanda baca di awal dan akhir nilai. RE_POTONG_LABEL mengenali label berikutnya seperti rt/rw atau kode pos agar nilai field tidak menelan baris tetangga. RE_LANJUTAN_ALAMAT dipakai terpisah untuk menguji apakah baris setelah Alamat benar-benar kelanjutan alamat.",
+          "tourOrder": 11
+        },
+        {
+          "title": "Ekstraksi field alamat",
+          "lineRange": [
+            117,
+            170
+          ],
+          "explanation": "extractAlamat memakai helper cari yang memindai baris demi baris dan langsung memotong nilai dengan potongLabel. Untuk alamat, baris berikutnya hanya digabung bila pendek, tanpa :, dan bukan label lain. Pola rt/rw membatasi hasil pasangan angka, sedangkan desa, kecamatan, dan kabupaten memiliki beberapa alternatif regex. Kode pos diambil dari pola lima digit, dengan fallback digit terakhir dari teks mentah bila label tidak ditemukan. Hasil dikembalikan sebagai objek field opsional siap diterapkan ke formulir.",
+          "tourOrder": 11
+        }
+      ]
+    },
+    "spmb-frontend/vite.config.ts": {
+      "overview": "Konfigurasi Vite ini menyiapkan build frontend sekaligus lingkungan pengujian Vitest. Bagian manualChunks memisahkan pustaka berat seperti xlsx, QR, cetak, OCR, dan vendor React agar bundel awal tetap ringan. Ini mendukung tur langkah 3 tentang fondasi build, sebelum halaman-halaman dimuat lazy lewat React.lazy di App.tsx.",
+      "sections": [
+        {
+          "title": "Impor dan konfigurasi",
+          "lineRange": [
+            1,
+            5
+          ],
+          "explanation": "defineConfig diimpor dari vitest/config, bukan vite, agar opsi test juga dikenal TypeScript. Plugin React dipasang untuk transformasi JSX dan Fast Refresh. Objek konfigurasi dibagi menjadi build dan test sehingga perilaku produksi dan pengujian terlihat berdampingan.",
+          "tourOrder": 3
+        },
+        {
+          "title": "Pemisahan chunk build",
+          "lineRange": [
+            6,
+            21
+          ],
+          "explanation": "manualChunks memeriksa id modul dan mengembalikan nama chunk untuk grup pustaka tertentu. xlsx, html5-qrcode/qrcode.react, html-to-image/html2canvas, dan tesseract.js masuk chunk terpisah, sedangkan React, React DOM, React Router, dan Zustand masuk vendor-react. Modul lain dikembalikan undefined sehingga Rollup menentukan penempatan default. Strategi ini mengurangi bundel awal dan selaras dengan halaman yang dimuat melalui lazy loading.",
+          "tourOrder": 3
+        },
+        {
+          "title": "Konfigurasi Vitest",
+          "lineRange": [
+            22,
+            29
+          ],
+          "explanation": "environment jsdom memungkinkan tes komponen berjalan tanpa browser nyata. setupFiles menunjuk src/test/setup.ts untuk inisialisasi bersama, sedangkan css false dan globals false menjaga tes tetap eksplisit. pool threads mengatur paralelisme, dan include membatasi pencarian ke `src/**/*.test.{ts,tsx}`.",
+          "tourOrder": 3
+        }
+      ]
+    },
+    "spmb-frontend/src/components/ErrorBoundary.tsx": {
+      "overview": "Komponen class React yang menangkap error render dan menampilkan UI fallback dengan opsi muat ulang.",
+      "sections": []
+    },
+    "spmb-frontend/src/components/layout/AppShell.tsx": {
+      "overview": "Layout utama yang menyediakan navigasi responsif, header dengan tanggal WIB, dan kontrol logout untuk halaman admin, guru, dan MPLS.",
+      "sections": []
+    },
+    "spmb-frontend/src/components/ui/Toast.tsx": {
+      "overview": "Komponen notifikasi ringan yang menampilkan pesan sukses atau error beserta tombol tutup.",
+      "sections": []
+    },
+    "spmb-frontend/src/pages/admin/AdminLayout.tsx": {
+      "overview": "Layout khusus halaman admin yang membungkus konten dengan AppShell dan daftar navigasi admin.",
+      "sections": []
+    },
+    "spmb-frontend/src/pages/guru/GuruLayout.tsx": {
+      "overview": "Layout halaman guru yang membungkus konten dengan AppShell dan navigasi khusus peran guru.",
+      "sections": []
+    },
+    "spmb-frontend/src/pages/login/LoginPage.test.tsx": {
+      "overview": "Tes unit untuk halaman login yang mencakup injeksi stub Google Identity Services dan render dengan path awal tertentu.",
+      "sections": []
+    },
+    "spmb-frontend/src/pages/login/RegisterPage.test.tsx": {
+      "overview": "Tes unit halaman registrasi yang menyiapkan data pendaftaran pending valid maupun kedaluwarsa sebelum merender komponen.",
+      "sections": []
+    },
+    "spmb-frontend/src/pages/login/RegisterPage.tsx": {
+      "overview": "Halaman registrasi siswa yang mengumpulkan data diri, mengompres foto, dan mengirim pendaftaran ke backend.",
+      "sections": []
+    },
+    "spmb-frontend/src/pages/mpls/MplsIzin.tsx": {
+      "overview": "Halaman MPLS untuk mencari siswa, melihat, menambah, dan menghapus catatan izin dengan notifikasi toast.",
+      "sections": []
+    },
+    "spmb-frontend/src/pages/mpls/MplsLayout.tsx": {
+      "overview": "Layout halaman MPLS yang membungkus konten dengan AppShell dan navigasi khusus modul MPLS.",
+      "sections": []
+    },
+    "spmb-frontend/src/pages/student/components/ProgressBar.tsx": {
+      "overview": "Komponen indikator progres wizard pendaftaran siswa yang menandai langkah selesai dan langkah saat ini.",
+      "sections": []
+    },
+    "spmb-frontend/src/services/pendingAuth.test.ts": {
+      "overview": "Tes unit untuk utilitas penyimpanan pendaftaran sementara di localStorage, termasuk kasus kedaluwarsa.",
+      "sections": []
+    },
+    "spmb-frontend/src/store/authStore.test.ts": {
+      "overview": "Tes unit untuk store autentikasi Zustand yang memverifikasi normalisasi peran serta alur login dan logout.",
+      "sections": []
+    },
+    "spmb-frontend/src/components/ui/Card.tsx": {
+      "overview": "Komponen kartu UI serbaguna dengan varian standar dan glass, mendukung klik dan efek hover; dipakai sebagai wadah konten di seluruh halaman.",
+      "sections": []
+    },
+    "spmb-frontend/src/components/ui/DonutChart.tsx": {
+      "overview": "Grafik donat SVG yang menghitung proporsi data, merender segmen berwarna, label tengah, dan legenda untuk ringkasan statistik dashboard.",
+      "sections": []
+    },
+    "spmb-frontend/src/components/ui/Loader.tsx": {
+      "overview": "Indikator loading minimalis berupa spinner yang dapat disesuaikan lewat className.",
+      "sections": []
+    },
+    "spmb-frontend/src/components/ui/ProgressBar.tsx": {
+      "overview": "Bilangan progres yang menampilkan persentase dan jumlah dari pasangan count/total dengan warna serta satuan yang dapat diatur.",
+      "sections": []
+    },
+    "spmb-frontend/src/components/ui/StatCard.tsx": {
+      "overview": "Kartu metrik ringkas berisi ikon, label, nilai, dan tone warna; membungkus komponen Card untuk kartu statistik dashboard.",
+      "sections": []
+    },
+    "spmb-frontend/src/pages/admin/AdminBroadcast.tsx": {
+      "overview": "Halaman admin untuk mengelola event broadcast: membuat, menyunting, menghapus, dan mengirim pengumuman bergambar ke gelombang tertentu lewat API.",
+      "sections": []
+    },
+    "spmb-frontend/src/pages/admin/AdminDashboard.tsx": {
+      "overview": "Dashboard admin yang merangkum statistik pendaftar, sebaran jurusan dan gelombang, serta pendaftar terbaru dari beberapa endpoint API.",
+      "sections": []
+    },
+    "spmb-frontend/src/pages/admin/AdminGelombang.tsx": {
+      "overview": "Halaman admin untuk mengelola gelombang pendaftaran, tahun ajaran, status aktif, dan tautan grup WhatsApp.",
+      "sections": []
+    },
+    "spmb-frontend/src/pages/admin/AdminManajemen.tsx": {
+      "overview": "Halaman admin untuk mengelola akun admin dan guru, termasuk tambah, sunting, hapus, dan impor pengguna dari berkas spreadsheet.",
+      "sections": []
+    },
+    "spmb-frontend/src/pages/admin/AdminReferral.tsx": {
+      "overview": "Halaman admin yang menampilkan statistik dan detail referral pendaftar dengan pencarian, ekspansi baris, dan ekspor ke buku kerja Excel.",
+      "sections": []
+    },
+    "spmb-frontend/src/pages/admin/AdminTimeline.tsx": {
+      "overview": "Halaman admin untuk operasi CRUD tahapan timeline pendaftaran dengan validasi urutan numerik dan tanggal mulai/selesai dalam WIB.",
+      "sections": []
+    },
+    "spmb-frontend/src/pages/guru/GuruDashboard.tsx": {
+      "overview": "Dashboard guru yang merangkum total siswa, sebaran jurusan, gelombang, dan status, serta daftar asal sekolah.",
+      "sections": []
+    },
+    "spmb-frontend/src/pages/mpls/MplsInformasi.tsx": {
+      "overview": "Halaman MPLS untuk mengelola informasi dan event: unggah gambar terkompresi, atur target gelombang, serta menyunting data broadcast.",
+      "sections": []
+    },
+    "spmb-frontend/src/pages/student/DashboardSiswa.tsx": {
+      "overview": "Dashboard siswa yang menampilkan progres pendaftaran, gelombang aktif, dan event terkini beserta aksi memulai formulir dan logout.",
+      "sections": []
+    },
+    "spmb-frontend/src/pages/student/components/InstagramPost.tsx": {
+      "overview": "Kartu event bergaya postingan Instagram dengan like, komentar, emoji, pengingat kalender Google, dan waktu relatif berbahasa Indonesia.",
+      "sections": []
+    },
+    "spmb-frontend/src/pages/student/components/TimelineSiswa.tsx": {
+      "overview": "Komponen timeline yang memuat tahapan pendaftaran aktif dari API dan menampilkan status tiap tahap relatif terhadap tanggal hari ini.",
+      "sections": []
+    },
+    "spmb-frontend/src/utils/dateUtils.ts": {
+      "overview": "Kumpulan helper format tanggal dan waktu Asia/Jakarta (WIB), sapaan berdasarkan jam, serta normalisasi nilai untuk input tanggal dan waktu.",
+      "sections": []
+    },
+    "spmb-frontend/src/components/ui/Button.tsx": {
+      "overview": "Komponen tombol UI serbaguna yang mendukung varian, status loading, dan lebar penuh untuk seluruh formulir dan halaman aplikasi.",
+      "sections": []
+    },
+    "spmb-frontend/src/components/ui/InputField.tsx": {
+      "overview": "Komponen field input/textarea yang merender label, validasi, teks bantuan, dan opsi pilihan dengan dukungan tipe serta batas nilai.",
+      "sections": []
+    },
+    "spmb-frontend/src/pages/admin/AdminDaftarSiswa.tsx": {
+      "overview": "Halaman admin untuk mendaftarkan siswa baru: mengelola form pendaftaran lengkap, validasi, pembuatan akun melalui API, dan navigasi ke halaman cetak formulir.",
+      "sections": []
+    },
+    "spmb-frontend/src/pages/admin/AdminSiswa.tsx": {
+      "overview": "Halaman admin untuk mengelola data siswa: pencarian dan filter, ekspor XLSX per jurusan, edit data, serta penghapusan satu atau seluruh data dengan konfirmasi.",
+      "sections": []
+    },
+    "spmb-frontend/src/pages/guru/GuruDaftarSiswa.tsx": {
+      "overview": "Pembungkus tipis untuk halaman AdminDaftarSiswa yang dipakai peran guru, dengan jalur cetak formulir yang disesuaikan.",
+      "sections": []
+    },
+    "spmb-frontend/src/pages/student/StudentWizard.test.tsx": {
+      "overview": "Suite test untuk wizard pendaftaran siswa yang memeriksa navigasi langkah dan perilaku komponen melalui render dengan router.",
+      "sections": []
+    },
+    "spmb-frontend/src/pages/student/components/ReferralFields.tsx": {
+      "overview": "Formulir referensi siswa yang mengambil opsi guru internal dan guru SMP dari API, lalu menyediakan filter kategori dan asal sekolah.",
+      "sections": []
+    },
+    "spmb-frontend/src/pages/student/steps/FormPendaftaranAwal.tsx": {
+      "overview": "Formulir pendaftaran awal siswa yang mengumpulkan data jurusan, identitas, dan alamat beserta koordinat peta, lalu menyimpan status pendaftaran.",
+      "sections": []
+    },
+    "spmb-frontend/src/pages/student/steps/Step1Jurusan.tsx": {
+      "overview": "Langkah pertama wizard untuk memilih jurusan dan prospek karier, dengan validasi sebelum melanjutkan.",
+      "sections": []
+    },
+    "spmb-frontend/src/pages/student/steps/Step2Pribadi.tsx": {
+      "overview": "Langkah wizard untuk mengisi dan memvalidasi data pribadi siswa seperti identitas, tempat lahir, dan agama.",
+      "sections": []
+    },
+    "spmb-frontend/src/pages/student/steps/Step4Ortu.tsx": {
+      "overview": "Langkah wizard untuk mengisi data orang tua/wali serta pilihan tempat tinggal dan estimasi penghasilan.",
+      "sections": []
+    },
+    "spmb-frontend/src/pages/student/steps/Step5Berkas.tsx": {
+      "overview": "Langkah terakhir wizard untuk mengunggah foto dan berkas, mengompres gambar, menyimpan ke API, dan memfinalisasi pendaftaran.",
+      "sections": []
+    },
+    "spmb-frontend/src/components/kartu/BuktiPendaftaranCard.test.tsx": {
+      "overview": "Suite test untuk komponen BuktiPendaftaranCard yang memverifikasi tampilan kartu bukti pendaftaran, tautan grup WhatsApp, dan bentuk data yang dirender.",
+      "sections": []
+    },
+    "spmb-frontend/src/pages/admin/AdminCetakKartu.tsx": {
+      "overview": "Halaman admin untuk mencetak kartu pendaftaran secara terpilih maupun massal, lengkap dengan pencarian siswa, pratinjau tata letak lembar A4, dan data gelombang.",
+      "sections": []
+    },
+    "spmb-frontend/src/pages/admin/AdminFormulir.tsx": {
+      "overview": "Halaman admin untuk mengelola dan mencetak formulir pendaftaran siswa: daftar siswa, pencarian, pratinjau, ekspor JPEG, dan pencetakan kartu.",
+      "sections": []
+    },
+    "spmb-frontend/src/pages/admin/components/FormulirPendaftaran.test.tsx": {
+      "overview": "Test untuk komponen FormulirPendaftaran yang memeriksa hasil render data formulir dan penanganan nilai kosong.",
+      "sections": []
+    },
+    "spmb-frontend/src/pages/admin/components/FormulirPendaftaran.tsx": {
+      "overview": "Komponen formulir pendaftaran yang dirender skala penuh untuk cetak, dengan bagian data pribadi, alamat, dan informasi pendaftaran bertformat WIB.",
+      "sections": []
+    },
+    "spmb-frontend/src/pages/admin/components/KartuPendaftaranAdmin.tsx": {
+      "overview": "Komponen kartu pendaftaran versi admin yang menampilkan data siswa, jurusan, dan tanggal dalam format WIB untuk dicetak.",
+      "sections": []
+    },
+    "spmb-frontend/src/utils/formImage.ts": {
+      "overview": "Utilitas untuk merender formulir menjadi JPEG melalui snapshot DOM atau canvas, mengunduh berkas, dan mencetak gambar lewat iframe tersembunyi.",
+      "sections": []
+    },
+    "spmb-frontend/src/utils/waGroup.test.tsx": {
+      "overview": "Test untuk fungsi findLinkGroupWa yang memverifikasi pencocokan tautan grup WhatsApp berdasarkan gelombang pendaftaran.",
+      "sections": []
+    },
+    "spmb-frontend/src/utils/waGroup.ts": {
+      "overview": "Utilitas untuk mencari tautan grup WhatsApp berdasarkan gelombang pendaftaran, beserta konstanta warna modul QR dan logo WhatsApp.",
+      "sections": []
+    },
+    "spmb-frontend/e2e/auth.spec.ts": {
+      "overview": "Tes E2E Playwright untuk alur autentikasi: memastikan pengguna baru diarahkan ke halaman register dengan email terisi, dan sesi tersimpan dipulihkan ke dashboard siswa.",
+      "sections": []
+    },
+    "spmb-frontend/e2e/formulir-identity.spec.ts": {
+      "overview": "Tes E2E Playwright yang membandingkan JPG hasil unduhan dengan preview formulir di layar, termasuk pemeriksaan zoom auto-fit dan perbandingan piksel per band pada area cetak.",
+      "sections": []
+    },
+    "spmb-frontend/e2e/formulir-jpg.spec.ts": {
+      "overview": "Tes E2E Playwright yang memvalidasi unduhan formulir JPG berukuran F4 300 DPI (2480x3897) dan memastikan fitur cetak memakai iframe gambar JPG F4 tanpa margin.",
+      "sections": []
+    },
+    "spmb-frontend/e2e/helpers.ts": {
+      "overview": "Modul helper E2E yang menyediakan mock backend Google/Apps Script, stub Google Sign-In, dan inisialisasi sesi di localStorage untuk seluruh tes Playwright.",
+      "sections": []
+    },
+    "spmb-frontend/e2e/route-guard.spec.ts": {
+      "overview": "Tes E2E Playwright untuk route guard dan perizinan: tamu serta siswa ditolak mengakses panel admin, sedangkan admin diizinkan masuk.",
+      "sections": []
+    },
+    "backend-gas/README.md": {
+      "overview": "Panduan backend Google Apps Script untuk SPMB yang mencakup persiapan, deployment (manual, Web App, dan clasp), konfigurasi frontend, dokumentasi struktur API beserta peran dan otorisasi, serta skema 13 Google Sheet.",
+      "sections": []
+    },
+    "backend-gas/package.json": {
+      "overview": "Konfigurasi proyek backend berisi skrip npm untuk bundle esbuild dan siklus deploy clasp (push, pull, deploy, redeploy), serta dependensi google-libphonenumber dan izin allowScripts untuk esbuild.",
+      "sections": []
+    },
+    "spmb-frontend/test-output.txt": {
+      "overview": "Log PowerShell dari eksekusi Vitest yang gagal: satu tes FormulirPendaftaran menemukan dua elemen berteks FORMULIR PENDAFTARAN, sehingga query getByText menjadi ambigu.",
+      "sections": []
+    },
+    "spmb-frontend/tsconfig.app.json": {
+      "overview": "Konfigurasi TypeScript untuk direktori src dengan target ES2020, module resolution Bundler, JSX react-jsx, strict mode, dan pemeriksaan variabel tidak terpakai.",
+      "sections": []
+    },
+    "spmb-frontend/tsconfig.json": {
+      "overview": "Root project references TypeScript yang mengarahkan tsc -b ke konfigurasi aplikasi dan konfigurasi tooling Vite.",
+      "sections": []
+    },
+    "spmb-frontend/tsconfig.node.json": {
+      "overview": "Konfigurasi TypeScript khusus vite.config.ts dengan target ES2022, modul ESNext, dan aturan strict yang sama seperti aplikasi.",
+      "sections": []
+    },
+    ".ua/config.json": {
+      "overview": "Konfigurasi alat understand-anything yang menetapkan bahasa keluaran id; artefak yang dibuat otomatis.",
+      "sections": []
+    },
+    "backend-gas/.claspignore": {
+      "overview": "Daftar pola yang dikecualikan dari unggahan clasp agar sumber build, dependensi, dan dokumentasi tidak ikut terdeploy ke Google Apps Script.",
+      "sections": []
+    },
+    "backend-gas/AdminHandler.gs": {
+      "overview": "Menyediakan handler API untuk mengelola akun admin dan guru, normalisasi peran, serta opsi referral di backend Google Apps Script.",
+      "sections": []
+    },
+    "backend-gas/AuthHandler.gs": {
+      "overview": "Menangani autentikasi Google, pembuatan sesi, pendaftaran siswa, dan pembuatan ID pendaftaran dengan pembatasan laju.",
+      "sections": []
+    },
+    "backend-gas/build.js": {
+      "overview": "Skrip build esbuild yang membundle src/phone.js menjadi PhoneLib.gs sebagai IIFE dengan nama global PhoneLib.",
+      "sections": []
+    },
+    "backend-gas/CacheServiceHelper.gs": {
+      "overview": "Kumpulan pembungkus CacheService untuk membaca, menulis, menghapus, dan mengambil data dengan pola cache-aside berkunci.",
+      "sections": []
+    },
+    "backend-gas/CalendarHandler.gs": {
+      "overview": "Mengelola pengingat event: membuat acara Google Calendar, menyusun tautan tambah ke kalender, dan menyimpan status pengingat.",
+      "sections": []
+    },
+    "backend-gas/ConfigHandler.gs": {
+      "overview": "Mengelola gelombang, konfigurasi sistem, serta event siaran dengan dukungan cache pada pembacaan.",
+      "sections": []
+    },
+    "backend-gas/EngagementHandler.gs": {
+      "overview": "Menyediakan interaksi event berupa jumlah like, status like, dan komentar beserta pengambilannya.",
+      "sections": []
+    },
+    "backend-gas/PhoneLib.gs": {
+      "overview": "Bundle vendor hasil build esbuild dari google-libphonenumber yang diekspos sebagai PhoneLib.normalizeIndoPhone untuk normalisasi nomor telepon Indonesia.",
+      "sections": []
+    },
+    "backend-gas/SeedData.gs": {
+      "overview": "Mengisi data awal gelombang dan konfigurasi sistem ke Google Sheets hanya sekali dengan penanda SEEDED.",
+      "sections": []
+    },
+    "backend-gas/SiswaHandler.gs": {
+      "overview": "Mengelola data siswa: pengambilan, pembaruan, pendaftaran oleh admin, penghapusan, statistik referral, dan penyimpanan telepon.",
+      "sections": []
+    },
+    "backend-gas/src/phone.js": {
+      "overview": "Sumber normalisasi nomor telepon Indonesia memakai google-libphonenumber sebelum dibundle menjadi PhoneLib.gs.",
+      "sections": []
+    },
+    "backend-gas/TimelineHandler.gs": {
+      "overview": "Mengelola tahapan timeline SPMB dengan dukungan cache saat pembacaan.",
+      "sections": []
+    },
+    "spmb-frontend/.firebase/hosting.ZGlzdA.cache": {
+      "overview": "Cache deploy Firebase Hosting berisi daftar aset, waktu, dan hash untuk penentuan perubahan inkremental; artefak otomatis.",
+      "sections": []
+    },
+    "spmb-frontend/.firebaserc": {
+      "overview": "Konfigurasi proyek Firebase yang menetapkan proyek default spmbskalzar untuk deployment hosting.",
+      "sections": []
+    },
+    "spmb-frontend/eslint.config.js": {
+      "overview": "Konfigurasi ESLint berbasis flat config untuk memeriksa kode TypeScript/React, menggabungkan aturan recommended dari js dan typescript-eslint bersama plugin react-hooks serta react-refresh.",
+      "sections": []
+    },
+    "spmb-frontend/postcss.config.js": {
+      "overview": "Konfigurasi PostCSS yang mengaktifkan plugin tailwindcss dan autoprefixer untuk memproses stylesheet CSS dalam pipeline build Vite.",
+      "sections": []
+    },
+    "spmb-frontend/src/index.css": {
+      "overview": "Stylesheet global utama yang mengimpor lapisan Tailwind dan mendefinisikan gaya kustom—kartu, efek glassmorphism, tabel dashboard, animasi, serta aturan cetak kartu pendaftaran. Diimpor oleh `main.tsx` sebagai fondasi styling aplikasi.",
+      "sections": []
+    },
+    "spmb-frontend/src/test/setup.ts": {
+      "overview": "Setup global untuk Vitest yang menyiapkan lingkungan pengujian: menyediakan polyfill `localStorage`/`sessionStorage` berbasis Map bila storage asli tidak berfungsi, lalu membersihkan DOM dan storage setelah setiap pengujian.",
+      "sections": []
+    },
+    "spmb-frontend/src/vite-env.d.ts": {
+      "overview": "Deklarasi referensi tipe Vite (`vite/client`) yang memberi TypeScript akses ke tipe aset statis, `import.meta.env`, dan tipe modul bawaan Vite.",
+      "sections": []
+    },
+    "spmb-frontend/tailwind.config.js": {
+      "overview": "Konfigurasi Tailwind CSS yang menentukan glob konten untuk pemindaian kelas utilitas serta memperluas palet warna merek (hijau, oranye, teal) yang digunakan di seluruh antarmuka.",
+      "sections": []
+    }
+  }
+}

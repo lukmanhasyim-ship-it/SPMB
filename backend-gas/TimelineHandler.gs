@@ -1,11 +1,14 @@
-var TIMELINE_TEXT_COLUMNS = ['tanggal_mulai', 'tanggal_selesai']
+﻿var TIMELINE_TEXT_COLUMNS = ['tanggal_mulai', 'tanggal_selesai']
 
 function handleGetTimeline() {
   initializeSheets()
-  var data = getAllRows('Timeline_SPMB')
-  data.sort(function (a, b) {
-    return (parseInt(a.urutan, 10) || 0) - (parseInt(b.urutan, 10) || 0)
-  })
+  var data = cacheGetOrFetch_(CACHE_KEY_TML, function() {
+    var rows = getAllRows('Timeline_SPMB');
+    rows.sort(function (a, b) {
+      return (parseInt(a.urutan, 10) || 0) - (parseInt(b.urutan, 10) || 0);
+    });
+    return rows;
+  }, CACHE_TTL_DEFAULT);
   return { status: 'ok', data: data }
 }
 
@@ -77,3 +80,5 @@ function handleDeleteTimeline(params) {
 
   return { status: 'error', message: 'Tahapan tidak ditemukan' }
 }
+
+
